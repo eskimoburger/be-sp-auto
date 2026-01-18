@@ -1,0 +1,75 @@
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
+import app from "../index";
+import { prisma } from "../lib/prisma";
+
+describe("Auth Module", () => {
+    let token: string;
+    const testUser = {
+        name: "Auth Test User",
+        username: "authtest",
+        password: "password123",
+        role: "admin"
+    };
+
+    beforeAll(async () => {
+        // Create test user
+        const passwordHash = await Bun.password.hash(testUser.password);
+        await prisma.employee.upsert({
+            where: { username: testUser.username },
+            update: { password: passwordHash },
+            create: {
+                name: testUser.name,
+                username: testUser.username,
+                password: passwordHash,
+                role: testUser.role
+            }
+        });
+    });
+
+    afterAll(async () => {
+        // Cleanup
+        await prisma.employee.delete({ where: { username: testUser.username } });
+    });
+
+    it("should login with valid credentials", async () => {
+        const res = await app.request("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: testUser.username, password: testUser.password }),
+        });
+
+        expect(res.status).toBe(200);
+        const body = await res.json() as any;
+        expect(body).toHaveProperty("token");
+        expect(body.user).toHaveProperty("username", testUser.username);
+        token = body.token;
+    });
+
+    it("should fail login with invalid credentials", async () => {
+        const res = await app.request("/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username: testUser.username, password: "wrongpassword" }),
+        });
+
+        expect(res.status).toBe(401);
+    });
+
+    it("should protect private routes", async () => {
+        const res = await app.request("/api/private/profile");
+        expect(res.status).toBe(401);
+    });
+
+    it("should access private route with valid token", async () => {
+        if (!token) throw new Error("Token not obtained from login test");
+
+        const res = await app.request("/api/private/profile", {
+            headers: { "Authorization": `Bearer ${token}` },
+        });
+
+        expect(res.status).toBe(200);
+        const body = await res.json() as any;
+        expect(body).toHaveProperty("message", "You are accessing a private route!");
+        expect(body.user).toHaveProperty("username", testUser.username);
+    });
+});

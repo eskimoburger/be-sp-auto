@@ -1,0 +1,21 @@
+import { prisma } from "../lib/prisma";
+import type { Prisma } from "@prisma/client";
+
+export class EmployeeService {
+    static async getAll(page: number = 1, limit: number = 10) {
+        const skip = (page - 1) * limit;
+        const [data, total] = await Promise.all([
+            prisma.employee.findMany({ skip, take: limit }),
+            prisma.employee.count()
+        ]);
+        return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+    }
+
+    static async create(data: Prisma.EmployeeCreateInput) {
+        return await prisma.employee.create({ data });
+    }
+
+    static async delete(id: number) {
+        return await prisma.employee.delete({ where: { id } });
+    }
+}

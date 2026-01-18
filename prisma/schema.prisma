@@ -1,0 +1,220 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+
+}
+
+// ============================================================
+// 1. REFERENCE TABLES
+// ============================================================
+
+model Employee {
+  id        Int      @id @default(autoincrement())
+  name      String
+  role      String   @default("staff")
+  phone     String?
+  isActive  Boolean  @default(true) @map("is_active")
+  username  String?  @unique
+  password  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  receivedJobs Job[]     @relation("Receiver")
+  jobSteps     JobStep[]
+
+  @@map("employees")
+}
+
+model InsuranceCompany {
+  id           Int      @id @default(autoincrement())
+  name         String
+  contactPhone String?  @map("contact_phone")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  jobs Job[]
+
+  @@map("insurance_companies")
+}
+
+model PhotoType {
+  id         Int    @id @default(autoincrement())
+  code       String @unique
+  name       String
+  orderIndex Int    @default(0) @map("order_index")
+
+  // Relations
+  jobPhotos JobPhoto[]
+
+  @@map("photo_types")
+}
+
+// ============================================================
+// 2. CORE ENTITY TABLES
+// ============================================================
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  address   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  vehicles Vehicle[]
+  jobs     Job[]
+
+  @@map("customers")
+}
+
+model Vehicle {
+  id           Int      @id @default(autoincrement())
+  customerId   Int?     @map("customer_id")
+  registration String   @unique
+  vinNumber    String?  @unique @map("vin_number")
+  brand        String
+  model        String?
+  type         String?
+  year         String?
+  color        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  customer Customer? @relation(fields: [customerId], references: [id])
+  jobs     Job[]
+
+  @@index([registration])
+  @@index([vinNumber])
+  @@map("vehicles")
+}
+
+// ============================================================
+// 3. WORKFLOW TEMPLATE TABLES
+// ============================================================
+
+model Stage {
+  id         Int    @id @default(autoincrement())
+  code       String @unique
+  name       String
+  orderIndex Int    @default(0) @map("order_index")
+
+  // Relations
+  stepTemplates StepTemplate[]
+  jobStages     JobStage[]
+
+  @@map("stages")
+}
+
+model StepTemplate {
+  id          Int     @id @default(autoincrement())
+  stageId     Int     @map("stage_id")
+  name        String
+  orderIndex  Int     @default(0) @map("order_index")
+  isSkippable Boolean @default(false) @map("is_skippable")
+
+  // Relations
+  stage    Stage     @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  jobSteps JobStep[]
+
+  @@map("step_templates")
+}
+
+// ============================================================
+// 4. JOB TRACKING TABLES
+// ============================================================
+
+model Job {
+  id                 Int       @id @default(autoincrement())
+  jobNumber          String    @unique @map("job_number")
+  vehicleId          Int       @map("vehicle_id")
+  customerId         Int?      @map("customer_id")
+  receiverId         Int?      @map("receiver_id")
+  insuranceCompanyId Int?      @map("insurance_company_id")
+  paymentType        String    @default("Insurance") @map("payment_type") // CHECK constraint in SQL, validation in app logic
+  excessFee          Float     @default(0) @map("excess_fee")
+  startDate          DateTime  @map("start_date")
+  estimatedEndDate   DateTime? @map("estimated_end_date")
+  actualEndDate      DateTime? @map("actual_end_date")
+  repairDescription  String?   @map("repair_description")
+  notes              String?
+  currentStageIndex  Int       @default(0) @map("current_stage_index")
+  isFinished         Boolean   @default(false) @map("is_finished")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  // Relations
+  vehicle          Vehicle           @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  customer         Customer?         @relation(fields: [customerId], references: [id])
+  receiver         Employee?         @relation("Receiver", fields: [receiverId], references: [id])
+  insuranceCompany InsuranceCompany? @relation(fields: [insuranceCompanyId], references: [id])
+  jobPhotos        JobPhoto[]
+  jobStages        JobStage[]
+
+  @@index([jobNumber])
+  @@index([startDate])
+  @@index([isFinished, currentStageIndex])
+  @@map("jobs")
+}
+
+model JobPhoto {
+  id          Int       @id @default(autoincrement())
+  jobId       Int       @map("job_id")
+  photoTypeId Int       @map("photo_type_id")
+  isRequired  Boolean   @default(false) @map("is_required")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  completedAt DateTime? @map("completed_at")
+
+  // Relations
+  job       Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  photoType PhotoType @relation(fields: [photoTypeId], references: [id], onDelete: Restrict)
+
+  @@unique([jobId, photoTypeId])
+  @@map("job_photos")
+}
+
+model JobStage {
+  id          Int       @id @default(autoincrement())
+  jobId       Int       @map("job_id")
+  stageId     Int       @map("stage_id")
+  isLocked    Boolean   @default(true) @map("is_locked")
+  isCompleted Boolean   @default(false) @map("is_completed")
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+
+  // Relations
+  job      Job       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  stage    Stage     @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  jobSteps JobStep[]
+
+  @@unique([jobId, stageId])
+  @@map("job_stages")
+}
+
+model JobStep {
+  id             Int       @id @default(autoincrement())
+  jobStageId     Int       @map("job_stage_id")
+  stepTemplateId Int       @map("step_template_id")
+  status         String    @default("pending") // CHECK constraint in SQL
+  employeeId     Int?      @map("employee_id")
+  completedAt    DateTime? @map("completed_at")
+  notes          String?
+
+  // Relations
+  jobStage     JobStage     @relation(fields: [jobStageId], references: [id], onDelete: Cascade)
+  stepTemplate StepTemplate @relation(fields: [stepTemplateId], references: [id], onDelete: Restrict)
+  employee     Employee?    @relation(fields: [employeeId], references: [id])
+
+  @@index([status])
+  @@map("job_steps")
+}

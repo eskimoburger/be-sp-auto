@@ -1,0 +1,8 @@
+$ bun run --hot src/index.ts
+TURSO_DATABASE_URL: file:/Users/soontorn/Desktop/Soontorn-Dev/be-sp-auto/dev.db
+Started development server: http://localhost:3000
+<-- GET /doc
+--> GET /doc [32m200[0m 4ms
+<-- HEAD /ui
+--> HEAD /ui [32m200[0m 1ms
+error: script "dev" was terminated by signal SIGTERM (Polite quit request)

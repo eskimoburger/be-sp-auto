@@ -1,0 +1,196 @@
+// SP Auto Service - Database Schema (Updated)
+// Import this file at https://dbdiagram.io/d
+
+// ============================================================
+// REFERENCE TABLES
+// ============================================================
+
+Table employees {
+  id int [pk, increment]
+  name varchar(100) [not null]
+  role varchar(50) [default: 'staff']
+  phone varchar(20)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table insurance_companies {
+  id int [pk, increment]
+  name varchar(150) [not null]
+  contact_phone varchar(20)
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+}
+
+Table photo_types {
+  id int [pk, increment]
+  code varchar(30) [unique, not null, note: 'before_repair, dent, putty, etc.']
+  name varchar(50) [not null, note: 'ก่อนซ่อม, เคาะ, โป้วสี, etc.']
+  order_index int [default: 0]
+}
+
+// ============================================================
+// CORE ENTITY TABLES
+// ============================================================
+
+Table customers {
+  id int [pk, increment]
+  name varchar(100) [not null, note: 'ชื่อ-นามสกุล']
+  phone varchar(20) [note: 'เบอร์โทรศัพท์']
+  address text [note: 'ที่อยู่']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+}
+
+Table vehicles {
+  id int [pk, increment]
+  customer_id int [ref: > customers.id]
+  registration varchar(20) [unique, not null, note: 'ทะเบียนรถ']
+  vin_number varchar(50) [unique, note: 'เลขถัง']
+  brand varchar(50) [not null, note: 'ยี่ห้อ']
+  model varchar(50) [note: 'รุ่น']
+  type varchar(30) [note: 'ประเภทรถ: รถยนต์, รถกระบะ']
+  year varchar(4) [note: 'ปี']
+  color varchar(30) [note: 'สี']
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+
+  indexes {
+    registration
+    vin_number
+  }
+}
+
+// ============================================================
+// WORKFLOW TEMPLATE TABLES
+// ============================================================
+
+Table stages {
+  id int [pk, increment]
+  code varchar(20) [unique, not null, note: 'claim, repair, billing']
+  name varchar(50) [not null, note: 'เคลม, ซ่อม, ตั้งเบิก']
+  order_index int [not null, default: 0]
+}
+
+Table step_templates {
+  id int [pk, increment]
+  stage_id int [ref: > stages.id, not null]
+  name varchar(100) [not null]
+  order_index int [not null, default: 0]
+  is_skippable boolean [default: false, note: 'repair steps can be skipped']
+}
+
+// ============================================================
+// JOB TRACKING TABLES
+// ============================================================
+
+Table jobs {
+  id int [pk, increment]
+  job_number varchar(20) [unique, not null]
+  vehicle_id int [ref: > vehicles.id, not null]
+  customer_id int [ref: > customers.id]
+  receiver_id int [ref: > employees.id, note: 'เจ้าหน้าที่รับรถ']
+  insurance_company_id int [ref: > insurance_companies.id]
+  payment_type payment_type_enum [not null, default: 'Insurance', note: 'ประเภทการชำระ: ประกัน/เงินสด']
+  excess_fee decimal(10,2) [default: 0, note: 'ค่าความเสียหายส่วนแรก']
+  start_date date [not null, note: 'วันที่นำรถเข้าจอดซ่อม']
+  estimated_end_date date [note: 'กำหนดซ่อมเสร็จ/นัดรับรถ']
+  actual_end_date date [note: 'วันที่เสร็จจริง']
+  repair_description text [note: 'ความต้องการซ่อม']
+  notes text [note: 'หมายเหตุ']
+  current_stage_index int [default: 0]
+  is_finished boolean [default: false]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp
+
+  indexes {
+    job_number
+    start_date
+    (is_finished, current_stage_index)
+  }
+}
+
+Table job_photos {
+  id int [pk, increment]
+  job_id int [ref: > jobs.id, not null]
+  photo_type_id int [ref: > photo_types.id, not null]
+  is_required boolean [default: false]
+  is_completed boolean [default: false]
+  completed_at timestamp
+
+  indexes {
+    (job_id, photo_type_id) [unique]
+  }
+}
+
+Table job_stages {
+  id int [pk, increment]
+  job_id int [ref: > jobs.id, not null]
+  stage_id int [ref: > stages.id, not null]
+  is_locked boolean [default: true]
+  is_completed boolean [default: false]
+  started_at timestamp
+  completed_at timestamp
+
+  indexes {
+    (job_id, stage_id) [unique]
+  }
+}
+
+Table job_steps {
+  id int [pk, increment]
+  job_stage_id int [ref: > job_stages.id, not null]
+  step_template_id int [ref: > step_templates.id, not null]
+  status step_status_enum [default: 'pending']
+  employee_id int [ref: > employees.id, note: 'เจ้าหน้าที่']
+  completed_at timestamp [note: 'วันที่/เวลา']
+  notes text
+
+  indexes {
+    status
+  }
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+Enum payment_type_enum {
+  Insurance [note: 'ประกัน']
+  Cash [note: 'เงินสด']
+}
+
+Enum step_status_enum {
+  pending
+  processing
+  completed
+  skipped
+}
+
+// ============================================================
+// TABLE GROUPS (for visual organization)
+// ============================================================
+
+TableGroup reference {
+  employees
+  insurance_companies
+  photo_types
+}
+
+TableGroup core {
+  customers
+  vehicles
+}
+
+TableGroup workflow {
+  stages
+  step_templates
+}
+
+TableGroup jobs {
+  jobs
+  job_photos
+  job_stages
+  job_steps
+}
