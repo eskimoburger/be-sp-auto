@@ -1304,13 +1304,15 @@
                 return;
             }
 
+            const { jobId, stepId, newStatus } = pendingStepUpdate;
+
             try {
-                await API.call('PATCH', `/api/v1/private/jobs/steps/${pendingStepUpdate.stepId}`, {
-                    status: pendingStepUpdate.newStatus,
+                await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, {
+                    status: newStatus,
                     employeeId: Number(employeeId)
                 });
                 closeEmployeeModal();
-                openJobDetail(pendingStepUpdate.jobId);
+                openJobDetail(jobId);
                 loadJobs();
             } catch (err) {
                 alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
