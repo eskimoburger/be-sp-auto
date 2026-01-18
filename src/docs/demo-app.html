@@ -1253,8 +1253,8 @@
                 // For pending/skipped, no employee needed
                 try {
                     await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, { status: newStatus });
+                    await loadJobs();
                     openJobDetail(jobId);
-                    loadJobs();
                 } catch (err) {
                     alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
                 }
@@ -1312,8 +1312,10 @@
                     employeeId: Number(employeeId)
                 });
                 closeEmployeeModal();
+                // Reload jobs first to get updated status/workflow
+                await loadJobs();
+                // Then re-render the modal with fresh data
                 openJobDetail(jobId);
-                loadJobs();
             } catch (err) {
                 alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
             }
