@@ -1,6 +1,9 @@
 import { createClient } from "@libsql/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
+import { DataFactory } from "../src/tests/factories";
+import { faker } from "@faker-js/faker";
+import type { JobStatus } from "@prisma/client";
 
 const connectionString = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
@@ -90,8 +93,8 @@ async function main() {
             { name: "ประกอบเบิกอะไหล่", orderIndex: 7, isSkippable: true },
             { name: "ขัดสี", orderIndex: 8, isSkippable: true },
             { name: "ล้างรถ", orderIndex: 9, isSkippable: true },
-            { name: "QC", orderIndex: 10, isSkippable: true },
-            { name: "ลูกค้ารับรถ", orderIndex: 11, isSkippable: true }
+            { name: "QC", orderIndex: 10, isSkippable: false },
+            { name: "ลูกค้ารับรถ", orderIndex: 11, isSkippable: false }
         ];
         for (const step of steps) {
             const exists = await prisma.stepTemplate.findFirst({ where: { stageId: repairStage.id, name: step.name } });
@@ -235,6 +238,106 @@ async function main() {
                         typeId
                     }
                 });
+            }
+        }
+    }
+
+    // 8. Customers, Vehicles, Jobs
+    console.log("Seeding Customers, Vehicles, and Jobs...");
+
+    // Helper to create job with workflow
+    async function createJobWithWorkflow(vehicleId: number, customerId: number, status: JobStatus) {
+        const job = await prisma.job.create({
+            data: {
+                jobNumber: `JOB-${faker.string.numeric(6)}`,
+                vehicleId,
+                customerId,
+                status, // This sets the 'active' status on the Job record
+                startDate: faker.date.recent({ days: 30 }),
+                paymentType: faker.helpers.arrayElement(["Cash", "Insurance"]),
+                repairDescription: faker.lorem.sentence()
+            }
+        });
+
+        // Initialize Stages
+        const stages = await prisma.stage.findMany({ orderBy: { orderIndex: "asc" } });
+        for (const stage of stages) {
+            // Determine if this stage is completed, active, or future based on job status
+            // Simple logic: 
+            // - If Job Status is REPAIR, then CLAIM is completed, REPAIR is active (in-progress), BILLING is future (locked)
+            let isCompleted = false;
+            let isLocked = true;
+            let startedAt = null;
+
+            // Map status string to order roughly (1=CLAIM, 2=REPAIR, 3=BILLING)
+            const statusOrderMap: Record<string, number> = { "CLAIM": 1, "REPAIR": 2, "BILLING": 3, "DONE": 4 };
+            const currentStageOrder = statusOrderMap[status] || 1;
+
+            if (stage.orderIndex < currentStageOrder) {
+                isCompleted = true;
+                isLocked = false;
+                startedAt = faker.date.past();
+            } else if (stage.orderIndex === currentStageOrder) {
+                isCompleted = false;
+                isLocked = false; // Active stage is unlocked
+                startedAt = new Date();
+            } else {
+                isLocked = true;
+            }
+
+            const jobStage = await prisma.jobStage.create({
+                data: {
+                    jobId: job.id,
+                    stageId: stage.id,
+                    isLocked,
+                    isCompleted,
+                    startedAt
+                }
+            });
+
+            // Initialize Steps
+            const stepTemplates = await prisma.stepTemplate.findMany({
+                where: { stageId: stage.id },
+                orderBy: { orderIndex: "asc" }
+            });
+
+            for (const tpl of stepTemplates) {
+                let stepStatus = "pending";
+                // If stage is completed, all steps are completed
+                if (isCompleted) {
+                    stepStatus = "completed";
+                }
+                // If it's the active stage, randomize some steps
+                else if (stage.orderIndex === currentStageOrder) {
+                    // First few steps done, middle in progress, rest pending
+                    const rand = Math.random();
+                    if (rand > 0.7) stepStatus = "completed";
+                    else if (rand > 0.4) stepStatus = "in_progress";
+                }
+
+                await prisma.jobStep.create({
+                    data: {
+                        jobStageId: jobStage.id,
+                        stepTemplateId: tpl.id,
+                        status: stepStatus,
+                        completedAt: stepStatus === "completed" ? new Date() : null
+                    }
+                });
+            }
+        }
+        return job;
+    }
+
+    for (let i = 0; i < 5; i++) { // Reduce count slightly to keep seed fast but rich
+        const customer = await DataFactory.createCustomer();
+        // Create 1-2 vehicles
+        const vehicleCount = Math.floor(Math.random() * 2) + 1;
+        for (let j = 0; j < vehicleCount; j++) {
+            const vehicle = await DataFactory.createVehicle(customer.id);
+            // Create job for *every* vehicle for demo purposes, or high probability
+            if (true) {
+                const status = faker.helpers.arrayElement(["CLAIM", "REPAIR", "BILLING"]); // Avoid DONE for now to show active steps
+                await createJobWithWorkflow(vehicle.id, customer.id, status as JobStatus);
             }
         }
     }

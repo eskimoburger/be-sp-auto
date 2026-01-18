@@ -21,11 +21,11 @@ export class JobService {
             // 1. Create Job.
             const { vehicleId, customerId, insuranceCompanyId, ...rest } = data;
 
-            if (!vehicleId) {throw new Error("Vehicle ID is required");}
+            if (!vehicleId) { throw new Error("Vehicle ID is required"); }
 
             // Validate Vehicle Exists
             const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-            if (!vehicle) {throw new Error("Vehicle not found");}
+            if (!vehicle) { throw new Error("Vehicle not found"); }
 
             const job = await tx.job.create({
                 data: {
@@ -96,7 +96,13 @@ export class JobService {
                     vehicle: true,
                     customer: true,
                     jobStages: {
-                        where: { isCompleted: false }
+                        where: { isCompleted: false },
+                        include: {
+                            jobSteps: {
+                                include: { stepTemplate: true },
+                                orderBy: { stepTemplate: { orderIndex: "asc" } }
+                            }
+                        }
                     }
                 },
                 orderBy: { createdAt: "desc" }

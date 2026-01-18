@@ -110,4 +110,74 @@ describe("Workflow Integration", () => {
         const body = (await res.json()) as any;
         expect(body.error).toBeDefined();
     });
+
+    it("should have correct isSkippable values for step templates", async () => {
+        // Get job details to check step templates
+        const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        expect(res.status).toBe(200);
+        const body = (await res.json()) as any;
+
+        // Find the REPAIR stage (should be index 1)
+        const repairStage = body.jobStages.find(
+            (s: any) => s.stage?.code === "repair" || s.stageId === 2
+        );
+        expect(repairStage).toBeDefined();
+
+        // Check step templates have correct skippability
+        // QC and ลูกค้ารับรถ should be isSkippable: false
+        // Other REPAIR steps should be isSkippable: true
+        for (const step of repairStage.jobSteps) {
+            const templateName = step.stepTemplate?.name || "";
+            if (templateName === "QC" || templateName === "ลูกค้ารับรถ") {
+                expect(step.stepTemplate.isSkippable).toBe(false);
+            } else if (templateName) {
+                // Other REPAIR steps should be skippable
+                expect(step.stepTemplate.isSkippable).toBe(true);
+            }
+        }
+    });
+
+    it("should have all CLAIM steps as non-skippable", async () => {
+        const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        expect(res.status).toBe(200);
+        const body = (await res.json()) as any;
+
+        // Find the CLAIM stage (should be index 0)
+        const claimStage = body.jobStages.find(
+            (s: any) => s.stage?.code === "claim" || s.stageId === 1
+        );
+        expect(claimStage).toBeDefined();
+
+        // All CLAIM steps should be non-skippable
+        for (const step of claimStage.jobSteps) {
+            if (step.stepTemplate) {
+                expect(step.stepTemplate.isSkippable).toBe(false);
+            }
+        }
+    });
+
+    it("should have all BILLING steps as non-skippable", async () => {
+        const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        expect(res.status).toBe(200);
+        const body = (await res.json()) as any;
+
+        // Find the BILLING stage (should be index 2)
+        const billingStage = body.jobStages.find(
+            (s: any) => s.stage?.code === "billing" || s.stageId === 3
+        );
+        expect(billingStage).toBeDefined();
+
+        // All BILLING steps should be non-skippable
+        for (const step of billingStage.jobSteps) {
+            if (step.stepTemplate) {
+                expect(step.stepTemplate.isSkippable).toBe(false);
+            }
+        }
+    });
 });
