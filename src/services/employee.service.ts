@@ -12,6 +12,9 @@ export class EmployeeService {
     }
 
     static async create(data: Prisma.EmployeeCreateInput) {
+        if (data.password) {
+            data.password = await Bun.password.hash(data.password);
+        }
         return await prisma.employee.create({ data });
     }
 

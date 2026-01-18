@@ -23,7 +23,10 @@ export class AuthService {
             exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // 1 day expiration
         };
 
-        const secret = process.env.JWT_SECRET || "fallback_secret";
+        if (!process.env.JWT_SECRET) {
+            throw new Error("JWT_SECRET is not defined in environment variables");
+        }
+        const secret = process.env.JWT_SECRET;
         const token = await sign(payload, secret);
 
         return {
