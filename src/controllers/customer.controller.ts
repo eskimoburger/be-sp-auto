@@ -2,13 +2,14 @@ import type { Context } from "hono";
 import { CustomerService } from "../services/customer.service";
 
 export const getCustomers = async (c: Context) => {
-    const query = c.req.query('q');
-    if (query) {
-        const results = await CustomerService.search(query);
-        return c.json(results); // Search remains non-paginated for now per existing method signature, or we update it later if needed.
-    }
     const page = Number(c.req.query('page') || '1');
     const limit = Number(c.req.query('limit') || '10');
+    const query = c.req.query('q');
+
+    if (query) {
+        const results = await CustomerService.search(query, page, limit);
+        return c.json(results);
+    }
     const result = await CustomerService.getAll(page, limit);
     return c.json(result);
 };

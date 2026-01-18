@@ -21,15 +21,26 @@ export class InsuranceService {
         });
     }
 
-    static async search(query: string) {
-        return await prisma.insuranceCompany.findMany({
-            where: {
-                OR: [
-                    { name: { contains: query } },
-                    { contactPhone: { contains: query } }
-                ]
-            }
-        });
+    static async search(query: string, page: number = 1, limit: number = 10) {
+        const skip = (page - 1) * limit;
+        const where: Prisma.InsuranceCompanyWhereInput = {
+            OR: [
+                { name: { contains: query } },
+                { contactPhone: { contains: query } }
+            ]
+        };
+
+        const [data, total] = await Promise.all([
+            prisma.insuranceCompany.findMany({
+                where,
+                skip,
+                take: limit,
+                orderBy: { id: 'asc' }
+            }),
+            prisma.insuranceCompany.count({ where })
+        ]);
+
+        return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
     }
 
     static async create(data: Prisma.InsuranceCompanyCreateInput) {
