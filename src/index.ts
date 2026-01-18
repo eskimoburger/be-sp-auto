@@ -35,6 +35,7 @@ import employeeRoutes from "./routes/employee.routes";
 import customerRoutes from "./routes/customer.routes";
 import vehicleRoutes from "./routes/vehicle.routes";
 import jobRoutes from "./routes/job.routes";
+import insuranceRoutes from "./routes/insurance.routes";
 import { login, logout } from "./controllers/auth.controller";
 import { authMiddleware } from "./middleware/auth.middleware";
 
@@ -62,6 +63,9 @@ app.route("/api/v1/private/vehicles", vehicleRoutes);
 
 // Job Management [PRIVATE]
 app.route("/api/v1/private/jobs", jobRoutes);
+
+// Insurance Management [PRIVATE]
+app.route("/api/v1/private/insurances", insuranceRoutes);
 
 // User Profile [PRIVATE]
 app.get("/api/v1/private/profile", (c) => {
