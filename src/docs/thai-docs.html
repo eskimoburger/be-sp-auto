@@ -658,7 +658,16 @@
                         <span class="url">/api/v1/private/vehicles</span>
                         <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงรายการรถทั้งหมด</strong></p>
+                    <p class="desc"><strong>ดึงรายการรถทั้งหมด</strong> - รองรับ Pagination (?page=1&limit=10) และการค้นหา (?q=คำค้นหา)</p>
+                </div>
+
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="url">/api/v1/private/vehicles/:id</span>
+                        <span class="auth-badge">ต้อง Login</span>
+                    </div>
+                    <p class="desc"><strong>ดึงข้อมูลรถรายบุคคล</strong> - ระบุ ID ของรถ</p>
                 </div>
 
                 <div class="endpoint">
@@ -693,16 +702,18 @@
                     <div class="endpoint-header">
                         <span class="method get">GET</span>
                         <span class="url">/api/v1/private/vehicles/brands</span>
+                        <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงรายการยี่ห้อรถทั้งหมด</strong> - ไม่ต้อง Login (Public)</p>
+                    <p class="desc"><strong>ดึงรายการยี่ห้อรถทั้งหมด</strong></p>
                 </div>
 
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method get">GET</span>
                         <span class="url">/api/v1/private/vehicles/brands/:id</span>
+                        <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงข้อมูลยี่ห้อรถรายบุคคล</strong> - ระบุ ID ของยี่ห้อรถ (Public)</p>
+                    <p class="desc"><strong>ดึงข้อมูลยี่ห้อรถรายบุคคล</strong> - ระบุ ID ของยี่ห้อรถ</p>
                 </div>
 
                 <div class="endpoint">
@@ -737,16 +748,18 @@
                     <div class="endpoint-header">
                         <span class="method get">GET</span>
                         <span class="url">/api/v1/private/vehicles/types</span>
+                        <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงรายการประเภทรถ</strong> - เช่น SUV, Sedan, Pickup (Public)</p>
+                    <p class="desc"><strong>ดึงรายการประเภทรถ</strong> - เช่น SUV, Sedan, Pickup</p>
                 </div>
 
                 <div class="endpoint">
                     <div class="endpoint-header">
                         <span class="method get">GET</span>
                         <span class="url">/api/v1/private/vehicles/types/:id</span>
+                        <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงข้อมูลประเภทรถรายบุคคล</strong> - ระบุ ID ของประเภทรถ (Public)</p>
+                    <p class="desc"><strong>ดึงข้อมูลประเภทรถรายบุคคล</strong> - ระบุ ID ของประเภทรถ</p>
                 </div>
 
                 <div class="endpoint">
@@ -901,8 +914,17 @@
                         <span class="auth-badge">ต้อง Login</span>
                     </div>
                     <p class="desc">
-                        <strong>ดึงรายการบริษัทประกันทั้งหมด</strong> - รองรับ Pagination และการค้นหา (?q=ชื่อ)
+                        <strong>ดึงรายการบริษัทประกันทั้งหมด</strong> - รองรับ Pagination และการค้นหา (?q=ชื่อหรือเบอร์โทร)
                     </p>
+                </div>
+
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="url">/api/v1/private/insurances/:id</span>
+                        <span class="auth-badge">ต้อง Login</span>
+                    </div>
+                    <p class="desc"><strong>ดึงข้อมูลบริษัทประกันรายบุคคล</strong> - ระบุ ID ของบริษัทประกัน</p>
                 </div>
 
                 <div class="endpoint">
@@ -978,7 +1000,7 @@
                         <span class="url">/api/v1/private/jobs</span>
                         <span class="auth-badge">ต้อง Login</span>
                     </div>
-                    <p class="desc"><strong>ดึงรายการงานซ่อมทั้งหมด</strong></p>
+                    <p class="desc"><strong>ดึงรายการงานซ่อมทั้งหมด</strong> - รองรับ Pagination (?page=1&limit=10) และการกรองสถานะ (?status=CLAIM)</p>
                 </div>
 
                 <div class="endpoint">

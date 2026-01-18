@@ -227,46 +227,60 @@ Access Swagger UI at: **http://localhost:8080/ui**
 
 ### API Endpoints Overview
 
-| Method             | Endpoint               | Description                    | Auth |
-| ------------------ | ---------------------- | ------------------------------ | ---- |
-| **Authentication** |                        |                                |      |
-| `POST`             | `/auth/login`          | User login                     | ❌   |
-| `POST`             | `/auth/logout`         | User logout                    | ✅   |
-| **Employees**      |                        |                                |      |
-| `GET`              | `/api/employees`       | List all employees (paginated) | ✅   |
-| `GET`              | `/api/employees/:id`   | Get employee by ID             | ✅   |
-| `POST`             | `/api/employees`       | Create employee                | ✅   |
-| `PUT`              | `/api/employees/:id`   | Update employee                | ✅   |
-| `DELETE`           | `/api/employees/:id`   | Delete employee                | ✅   |
-| **Customers**      |                        |                                |      |
-| `GET`              | `/api/customers`       | List all customers (paginated) | ✅   |
-| `GET`              | `/api/customers/:id`   | Get customer by ID             | ✅   |
-| `POST`             | `/api/customers`       | Create customer                | ✅   |
-| `PUT`              | `/api/customers/:id`   | Update customer                | ✅   |
-| `DELETE`           | `/api/customers/:id`   | Delete customer                | ✅   |
-| **Vehicles**       |                        |                                |      |
-| `GET`              | `/api/vehicles`        | List all vehicles (paginated)  | ✅   |
-| `GET`              | `/api/vehicles/:id`    | Get vehicle by ID              | ✅   |
-| `GET`              | `/api/vehicles/brands` | List all vehicle brands        | ❌   |
-| `POST`             | `/api/vehicles`        | Create vehicle                 | ✅   |
-| `PUT`              | `/api/vehicles/:id`    | Update vehicle                 | ✅   |
-| `DELETE`           | `/api/vehicles/:id`    | Delete vehicle                 | ✅   |
-| **Jobs**           |                        |                                |      |
-| `GET`              | `/api/jobs`            | List all jobs (paginated)      | ✅   |
-| `GET`              | `/api/jobs/:id`        | Get job by ID                  | ✅   |
-| `POST`             | `/api/jobs`            | Create job                     | ✅   |
-| `PUT`              | `/api/jobs/:id`        | Update job                     | ✅   |
-| `DELETE`           | `/api/jobs/:id`        | Delete job                     | ✅   |
-| **Utility**        |                        |                                |      |
-| `GET`              | `/health`              | Health check                   | ❌   |
-| `GET`              | `/doc`                 | OpenAPI JSON spec              | ❌   |
+| Method             | Endpoint                              | Description                           | Auth |
+| ------------------ | ------------------------------------- | ------------------------------------- | ---- |
+| **Authentication** |                                       |                                       |      |
+| `POST`             | `/api/v1/public/auth/login`           | User login                            | ❌   |
+| `POST`             | `/api/v1/public/auth/logout`          | User logout                           | ✅   |
+| **Employees**      |                                       |                                       |      |
+| `GET`              | `/api/v1/private/employees`           | List all employees (paginated)        | ✅   |
+| `POST`             | `/api/v1/private/employees`           | Create employee                       | ✅   |
+| `DELETE`           | `/api/v1/private/employees/:id`       | Delete employee                       | ✅   |
+| **Customers**      |                                       |                                       |      |
+| `GET`              | `/api/v1/private/customers`           | List all customers (paginated)        | ✅   |
+| `GET`              | `/api/v1/private/customers/:id`       | Get customer by ID                    | ✅   |
+| `POST`             | `/api/v1/private/customers`           | Create customer                       | ✅   |
+| `PATCH`            | `/api/v1/private/customers/:id`       | Update customer                       | ✅   |
+| `DELETE`           | `/api/v1/private/customers/:id`       | Delete customer                       | ✅   |
+| **Vehicles**       |                                       |                                       |      |
+| `GET`              | `/api/v1/private/vehicles`            | List all vehicles (paginated)         | ✅   |
+| `GET`              | `/api/v1/private/vehicles/:id`        | Get vehicle by ID                     | ✅   |
+| `POST`             | `/api/v1/private/vehicles`            | Create vehicle                        | ✅   |
+| `PATCH`            | `/api/v1/private/vehicles/:id`        | Update vehicle                        | ✅   |
+| `DELETE`           | `/api/v1/private/vehicles/:id`        | Delete vehicle                        | ✅   |
+| `GET`              | `/api/v1/private/vehicles/brands`     | List all vehicle brands               | ✅   |
+| `GET`              | `/api/v1/private/vehicles/brands/:id` | Get vehicle brand by ID               | ✅   |
+| `POST`             | `/api/v1/private/vehicles/brands`     | Create vehicle brand                  | ✅   |
+| `PATCH`            | `/api/v1/private/vehicles/brands/:id` | Update vehicle brand                  | ✅   |
+| `DELETE`           | `/api/v1/private/vehicles/brands/:id` | Delete vehicle brand                  | ✅   |
+| `GET`              | `/api/v1/private/vehicles/types`      | List all vehicle types                | ✅   |
+| `GET`              | `/api/v1/private/vehicles/types/:id`  | Get vehicle type by ID                | ✅   |
+| `POST`             | `/api/v1/private/vehicles/types`      | Create vehicle type                   | ✅   |
+| `PATCH`            | `/api/v1/private/vehicles/types/:id`  | Update vehicle type                   | ✅   |
+| `DELETE`           | `/api/v1/private/vehicles/types/:id`  | Delete vehicle type                   | ✅   |
+| **Jobs**           |                                       |                                       |      |
+| `GET`              | `/api/v1/private/jobs`                | List all jobs (paginated, filterable) | ✅   |
+| `GET`              | `/api/v1/private/jobs/:id`            | Get job by ID                         | ✅   |
+| `POST`             | `/api/v1/private/jobs`                | Create job                            | ✅   |
+| **Insurance**      |                                       |                                       |      |
+| `GET`              | `/api/v1/private/insurances`          | List insurance companies (searchable) | ✅   |
+| `GET`              | `/api/v1/private/insurances/:id`      | Get insurance by ID                   | ✅   |
+| `POST`             | `/api/v1/private/insurances`          | Create insurance company              | ✅   |
+| `PUT`              | `/api/v1/private/insurances/:id`      | Update insurance company              | ✅   |
+| `DELETE`           | `/api/v1/private/insurances/:id`      | Delete insurance company              | ✅   |
+| **Utility**        |                                       |                                       |      |
+| `GET`              | `/health`                              | Health check                          | ❌   |
+| `GET`              | `/doc`                                 | OpenAPI JSON spec                     | ❌   |
+| `GET`              | `/ui`                                  | Swagger UI                            | ❌   |
+| `GET`              | `/docs/th`                             | Thai documentation                    | ❌   |
+| `GET`              | `/api/v1/private/profile`             | Get current user profile              | ✅   |
 
 ### Pagination
 
 All list endpoints support pagination:
 
 ```
-GET /api/employees?page=1&limit=10
+GET /api/v1/private/employees?page=1&limit=10
 ```
 
 **Response:**
@@ -279,6 +293,25 @@ GET /api/employees?page=1&limit=10
   "limit": 10,
   "totalPages": 10
 }
+```
+
+### Filtering & Search
+
+Some endpoints support additional filtering:
+
+**Jobs - Filter by status:**
+```
+GET /api/v1/private/jobs?status=CLAIM
+```
+
+**Insurance - Search by name or phone:**
+```
+GET /api/v1/private/insurances?q=viriyah
+```
+
+**Vehicles - Search (case-insensitive):**
+```
+GET /api/v1/private/vehicles?q=toyota
 ```
 
 ### Authentication
