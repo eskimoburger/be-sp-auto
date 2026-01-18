@@ -102,6 +102,20 @@ app.get("/docs/th", async (c) => {
     return c.html(htmlContent);
 });
 
+// Mini Test Frontend - Manual API Testing
+app.get("/test", async (c) => {
+    const htmlPath = new URL("./docs/mini-test.html", import.meta.url).pathname;
+    const htmlContent = await Bun.file(htmlPath).text();
+    return c.html(htmlContent);
+});
+
+// Demo App - User-facing Frontend
+app.get("/demo", async (c) => {
+    const htmlPath = new URL("./docs/demo-app.html", import.meta.url).pathname;
+    const htmlContent = await Bun.file(htmlPath).text();
+    return c.html(htmlContent);
+});
+
 app.get("/", (c) => {
     return c.text("Hello Hono + Bun + Turso!");
 });
