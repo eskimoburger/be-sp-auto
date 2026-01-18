@@ -295,9 +295,11 @@
         <nav class="nav-links">
             <a href="#overview" class="nav-link">ภาพรวม</a>
             <a href="#auth" class="nav-link">ยืนยันตัวตน</a>
+            <a href="#profile" class="nav-link">โปรไฟล์</a>
             <a href="#employees" class="nav-link">พนักงาน</a>
             <a href="#customers" class="nav-link">ลูกค้า</a>
             <a href="#vehicles" class="nav-link">ยานพาหนะ</a>
+            <a href="#insurances" class="nav-link">บริษัทประกัน</a>
             <a href="#jobs" class="nav-link">งานซ่อม</a>
             <a href="/ui" class="nav-link">Swagger UI</a>
         </nav>
@@ -334,6 +336,11 @@
                     <td>/api/v1/public/auth</td>
                 </tr>
                 <tr>
+                    <td>Profile</td>
+                    <td>ข้อมูลโปรไฟล์ผู้ใช้</td>
+                    <td>/api/v1/private/profile</td>
+                </tr>
+                <tr>
                     <td>Employees</td>
                     <td>จัดการข้อมูลพนักงาน</td>
                     <td>/api/v1/private/employees</td>
@@ -352,6 +359,53 @@
                     <td>Jobs</td>
                     <td>จัดการงานซ่อม</td>
                     <td>/api/v1/private/jobs</td>
+                </tr>
+            </table>
+
+            <h3>รูปแบบ Error Response</h3>
+            <p>เมื่อเกิดข้อผิดพลาด API จะส่งค่ากลับมาในรูปแบบดังนี้:</p>
+            <div class="code-block">
+                {<br>
+                <span class="key">"error"</span>: <span class="value">"รายละเอียดข้อผิดพลาด"</span><br>
+                }
+            </div>
+
+            <h3>HTTP Status Codes ที่ใช้:</h3>
+            <table>
+                <tr>
+                    <th>Code</th>
+                    <th>ความหมาย</th>
+                    <th>ตัวอย่าง</th>
+                </tr>
+                <tr>
+                    <td><strong>200</strong></td>
+                    <td>สำเร็จ</td>
+                    <td>ดึงข้อมูลสำเร็จ, ลบข้อมูลสำเร็จ</td>
+                </tr>
+                <tr>
+                    <td><strong>201</strong></td>
+                    <td>สร้างสำเร็จ</td>
+                    <td>เพิ่มข้อมูลใหม่สำเร็จ</td>
+                </tr>
+                <tr>
+                    <td><strong>400</strong></td>
+                    <td>คำขอไม่ถูกต้อง</td>
+                    <td>ข้อมูลไม่ครบ, รูปแบบผิด</td>
+                </tr>
+                <tr>
+                    <td><strong>401</strong></td>
+                    <td>ยืนยันตัวตนไม่สำเร็จ</td>
+                    <td>ไม่ได้ Login, Token หมดอายุ</td>
+                </tr>
+                <tr>
+                    <td><strong>404</strong></td>
+                    <td>ไม่พบข้อมูล</td>
+                    <td>ID ไม่ถูกต้อง</td>
+                </tr>
+                <tr>
+                    <td><strong>500</strong></td>
+                    <td>เซิร์ฟเวอร์ผิดพลาด</td>
+                    <td>ระบบขัดข้อง</td>
                 </tr>
             </table>
         </div>
@@ -403,6 +457,39 @@
                 <span class="comment">// ใส่ในส่วน Header ของ Request</span><br>
                 <span class="key">Authorization</span>: Bearer <span
                     class="value">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</span>
+            </div>
+
+            <h3>Token Expiration:</h3>
+            <p>JWT Token มีอายุ 24 ชั่วโมง หลังจากหมดอายุต้อง Login ใหม่</p>
+        </div>
+
+        <!-- Profile Section -->
+        <div class="card" id="profile">
+            <h2>User Profile (โปรไฟล์ผู้ใช้)</h2>
+            <p>ดึงข้อมูลผู้ใช้งานปัจจุบันจาก JWT Token</p>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/v1/private/profile</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>ดึงข้อมูลโปรไฟล์ผู้ใช้งานปัจจุบัน</strong> - ดึงข้อมูลจาก JWT Payload</p>
+            </div>
+
+            <h3>ตัวอย่าง Response:</h3>
+            <div class="code-block">
+                {<br>
+                <span class="key">"message"</span>: <span class="value">"You are accessing a private route!"</span>,<br>
+                <span class="key">"user"</span>: {<br>
+                &nbsp;&nbsp;<span class="key">"id"</span>: <span class="value">1</span>,<br>
+                &nbsp;&nbsp;<span class="key">"username"</span>: <span class="value">"admin"</span>,<br>
+                &nbsp;&nbsp;<span class="key">"name"</span>: <span class="value">"แอดมิน"</span>,<br>
+                &nbsp;&nbsp;<span class="key">"role"</span>: <span class="value">"admin"</span>,<br>
+                &nbsp;&nbsp;<span class="key">"iat"</span>: <span class="value">1234567890</span>,<br>
+                &nbsp;&nbsp;<span class="key">"exp"</span>: <span class="value">1234654290</span><br>
+                }<br>
+                }
             </div>
         </div>
 
@@ -606,11 +693,19 @@
 
             <div class="endpoint">
                 <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/v1/private/vehicles/brands/:id</span>
+                </div>
+                <p class="desc"><strong>ดึงข้อมูลยี่ห้อรถรายบุคคล</strong> - ระบุ ID ของยี่ห้อรถ (Public)</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
                     <span class="method post">POST</span>
                     <span class="url">/api/v1/private/vehicles/brands</span>
                     <span class="auth-badge">ต้อง Login</span>
                 </div>
-                <p class="desc"><strong>เพิ่มยี่ห้อรถใหม่</strong></p>
+                <p class="desc"><strong>เพิ่มยี่ห้อรถใหม่</strong> - ต้องระบุ code, name, nameEn, country</p>
             </div>
 
             <div class="endpoint">
@@ -642,11 +737,37 @@
 
             <div class="endpoint">
                 <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/v1/private/vehicles/types/:id</span>
+                </div>
+                <p class="desc"><strong>ดึงข้อมูลประเภทรถรายบุคคล</strong> - ระบุ ID ของประเภทรถ (Public)</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
                     <span class="method post">POST</span>
                     <span class="url">/api/v1/private/vehicles/types</span>
                     <span class="auth-badge">ต้อง Login</span>
                 </div>
-                <p class="desc"><strong>เพิ่มประเภทรถใหม่</strong></p>
+                <p class="desc"><strong>เพิ่มประเภทรถใหม่</strong> - ต้องระบุ code, name, nameEn</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method patch">PATCH</span>
+                    <span class="url">/api/v1/private/vehicles/types/:id</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>แก้ไขประเภทรถ</strong></p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/v1/private/vehicles/types/:id</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>ลบประเภทรถ</strong></p>
             </div>
 
             <h3>ข้อมูลรถ:</h3>
@@ -690,6 +811,151 @@
                     <td>customerId</td>
                     <td>Integer</td>
                     <td>รหัสลูกค้าเจ้าของรถ</td>
+                </tr>
+            </table>
+
+            <h3>ข้อมูลยี่ห้อรถ (Vehicle Brand):</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>คำอธิบาย</th>
+                </tr>
+                <tr>
+                    <td>id</td>
+                    <td>Integer</td>
+                    <td>รหัสยี่ห้อรถ (Auto)</td>
+                </tr>
+                <tr>
+                    <td>code</td>
+                    <td>String</td>
+                    <td>รหัสยี่ห้อ (เช่น toyota, honda)</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td>String</td>
+                    <td>ชื่อยี่ห้อ (ภาษาไทย)</td>
+                </tr>
+                <tr>
+                    <td>nameEn</td>
+                    <td>String</td>
+                    <td>ชื่อยี่ห้อ (ภาษาอังกฤษ)</td>
+                </tr>
+                <tr>
+                    <td>country</td>
+                    <td>String</td>
+                    <td>ประเทศผู้ผลิต</td>
+                </tr>
+                <tr>
+                    <td>logoUrl</td>
+                    <td>String</td>
+                    <td>URL รูปโลโก้ยี่ห้อรถ (Optional)</td>
+                </tr>
+            </table>
+
+            <h3>ข้อมูลประเภทรถ (Vehicle Type):</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>คำอธิบาย</th>
+                </tr>
+                <tr>
+                    <td>id</td>
+                    <td>Integer</td>
+                    <td>รหัสประเภทรถ (Auto)</td>
+                </tr>
+                <tr>
+                    <td>code</td>
+                    <td>String</td>
+                    <td>รหัสประเภท (เช่น suv, sedan)</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td>String</td>
+                    <td>ชื่อประเภท (ภาษาไทย)</td>
+                </tr>
+                <tr>
+                    <td>nameEn</td>
+                    <td>String</td>
+                    <td>ชื่อประเภท (ภาษาอังกฤษ)</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Insurances Section -->
+        <div class="card" id="insurances">
+            <h2>Insurance Companies (บริษัทประกัน)</h2>
+            <p>จัดการข้อมูลบริษัทประกันภัยที่พ่วงกับงานซ่อม (Claim)</p>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method get">GET</span>
+                    <span class="url">/api/v1/private/insurances</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>ดึงรายการบริษัทประกันทั้งหมด</strong> - รองรับ Pagination และการค้นหา (?q=ชื่อ)
+                </p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method post">POST</span>
+                    <span class="url">/api/v1/private/insurances</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>เพิ่มบริษัทประกันใหม่</strong> - ส่งข้อมูล name, contactPhone, logoUrl</p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method put">PUT</span>
+                    <span class="url">/api/v1/private/insurances/:id</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>แก้ไขข้อมูลบริษัทประกัน</strong></p>
+            </div>
+
+            <div class="endpoint">
+                <div class="endpoint-header">
+                    <span class="method delete">DELETE</span>
+                    <span class="url">/api/v1/private/insurances/:id</span>
+                    <span class="auth-badge">ต้อง Login</span>
+                </div>
+                <p class="desc"><strong>ลบบริษัทประกัน</strong></p>
+            </div>
+
+            <h3>ข้อมูลบริษัทประกัน:</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Type</th>
+                    <th>คำอธิบาย</th>
+                </tr>
+                <tr>
+                    <td>id</td>
+                    <td>Integer</td>
+                    <td>รหัสบริษัทประกัน (Auto)</td>
+                </tr>
+                <tr>
+                    <td>name</td>
+                    <td>String</td>
+                    <td>ชื่อบริษัทประกัน</td>
+                </tr>
+                <tr>
+                    <td>contactPhone</td>
+                    <td>String</td>
+                    <td>เบอร์โทรศัพท์ติดต่อ (เช่น 1557)</td>
+                </tr>
+                <tr>
+                    <td>logoUrl</td>
+                    <td>String</td>
+                    <td>URL รูปโลโก้บริษัท</td>
+                </tr>
+                <tr>
+                    <td>isActive</td>
+                    <td>Boolean</td>
+                    <td>สถานะการใช้งาน</td>
                 </tr>
             </table>
         </div>
@@ -754,6 +1020,11 @@
                     <td>รหัสลูกค้า</td>
                 </tr>
                 <tr>
+                    <td>insuranceCompanyId</td>
+                    <td>Integer</td>
+                    <td>รหัสบริษัทประกัน (Optional)</td>
+                </tr>
+                <tr>
                     <td>paymentType</td>
                     <td>String</td>
                     <td>ประเภทการชำระ (cash, insurance)</td>
@@ -764,9 +1035,19 @@
                     <td>รายละเอียดการซ่อม</td>
                 </tr>
                 <tr>
+                    <td>excessFee</td>
+                    <td>Number</td>
+                    <td>ค่าเบิกจ่ายขั้นต่ำ (Optional)</td>
+                </tr>
+                <tr>
+                    <td>notes</td>
+                    <td>String</td>
+                    <td>หมายเหตุเพิ่มเติม (Optional)</td>
+                </tr>
+                <tr>
                     <td>status</td>
-                    <td>Boolean</td>
-                    <td>สถานะ (true=เสร็จ)</td>
+                    <td>String</td>
+                    <td>สถานะ (CLAIM, REPAIR, BILLING, DONE)</td>
                 </tr>
             </table>
 
@@ -774,27 +1055,28 @@
             <div class="mermaid-container">
                 <div class="mermaid">
                     flowchart LR
-                    subgraph S1["1. เคลม (Claim)"]
+                    subgraph S1["1. CLAIM (เคลม)"]
                     A1[ยื่นเคลม] --> A2[เช็ครายการ]
                     A2 --> A3[ขอราคา]
                     A3 --> A4[อนุมัติ]
                     A4 --> A5[หาอะไหล่]
                     A5 --> A6[นัดคิว]
                     end
-                    subgraph S2["2. ซ่อม (Repair)"]
+                    subgraph S2["2. REPAIR (ซ่อม)"]
                     B1[รื้อ/ถอด] --> B2[เคาะ]
                     B2 --> B3[โป้วสี]
                     B3 --> B4[พ่นสี]
                     B4 --> B5[ประกอบ]
                     B5 --> B6[ขัดสี/QC]
                     end
-                    subgraph S3["3. ตั้งเบิก (Billing)"]
+                    subgraph S3["3. BILLING (ตั้งเบิก)"]
                     C1[เรียงรูป] --> C2[ส่งอนุมัติ]
                     C2 --> C3[ออกใบกำกับ]
                     C3 --> C4[ตั้งเบิก]
                     C4 --> C5[จ่ายเงิน]
                     end
                     S1 --> S2 --> S3
+                    S3 --> D[DONE (เสร็จสิ้น)]
                 </div>
             </div>
         </div>

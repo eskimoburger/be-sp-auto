@@ -76,13 +76,27 @@ const options = {
                     properties: {
                         id: { type: "integer", example: 501 },
                         customerId: { type: "integer", example: 101 },
-                        registration: { type: "string", example: "1AB-1234" },
-                        vinNumber: { type: "string", example: "VIN123456789" },
+                        registration: { type: "string", example: "กข 1234 กรุงเทพ" },
+                        vinNumber: { type: "string", example: "1HGBH41JXMN109186" },
                         brand: { type: "string", example: "Toyota" },
                         model: { type: "string", example: "Camry" },
                         type: { type: "string", example: "Sedan" },
                         year: { type: "string", example: "2022" },
                         color: { type: "string", example: "White" },
+                        // Registration Province Information
+                        registrationProvince: { type: "string", example: "กรุงเทพมหานคร" },
+                        registrationProvinceCode: { type: "string", example: "10" },
+                        registrationDate: { type: "string", format: "date-time", example: "2022-03-15T00:00:00Z" },
+                        // Owner Address Information
+                        ownerProvince: { type: "string", example: "กรุงเทพมหานคร" },
+                        ownerProvinceCode: { type: "string", example: "10" },
+                        ownerDistrict: { type: "string", example: "คลองเตย" },
+                        ownerSubDistrict: { type: "string", example: "พระโขนง" },
+                        ownerAddress: { type: "string", example: "123 ถนนสุขุมวิท" },
+                        ownerPostalCode: { type: "string", example: "10110" },
+                        // Additional Vehicle Identifiers
+                        engineNumber: { type: "string", example: "2TR-FE-1234567" },
+                        chassisNumber: { type: "string", example: "JT12345678" },
                         createdAt: { type: "string", format: "date-time" },
                         updatedAt: { type: "string", format: "date-time" }
                     }
@@ -122,6 +136,17 @@ const options = {
                         updatedAt: { type: "string", format: "date-time" }
                     }
                 },
+                InsuranceCompany: {
+                    type: "object",
+                    properties: {
+                        id: { type: "integer", example: 1 },
+                        name: { type: "string", example: "วิริยะประกันภัย" },
+                        contactPhone: { type: "string", example: "1557" },
+                        logoUrl: { type: "string", example: "https://www.viriyah.co.th/logo.png" },
+                        isActive: { type: "boolean", example: true },
+                        createdAt: { type: "string", format: "date-time" }
+                    }
+                },
                 Job: {
                     type: "object",
                     properties: {
@@ -139,6 +164,7 @@ const options = {
                         repairDescription: { type: "string", example: "Change oil and filter" },
                         notes: { type: "string", nullable: true },
                         currentStageIndex: { type: "integer", example: 0 },
+                        status: { type: "string", enum: ["CLAIM", "REPAIR", "BILLING", "DONE"], example: "CLAIM" },
                         isFinished: { type: "boolean", example: false },
                         createdAt: { type: "string", format: "date-time" },
                         updatedAt: { type: "string", format: "date-time" }
