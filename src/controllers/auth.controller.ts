@@ -12,15 +12,7 @@ import { AuthService } from "../services/auth.service";
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - username
- *               - password
- *             properties:
- *               username:
- *                 type: string
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
  *         description: Login successful
@@ -31,12 +23,21 @@ import { AuthService } from "../services/auth.service";
  *               properties:
  *                 token:
  *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  *                 user:
- *                   type: object
+ *                   $ref: '#/components/schemas/Employee'
  *       400:
  *         description: Missing fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  *       401:
  *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 export const login = async (c: Context) => {
     try {
@@ -67,9 +68,19 @@ export const login = async (c: Context) => {
  *     summary: User logout
  *     tags: [Auth]
  *     description: Invalidate the user session (client-side token removal).
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Logout successful"
  */
 export const logout = async (c: Context) => {
     // Stateless logout usually just means client deletes token.

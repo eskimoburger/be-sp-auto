@@ -9,6 +9,8 @@ const jobRoutes = new Hono();
  *   post:
  *     summary: Create a new job
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -28,11 +30,25 @@ const jobRoutes = new Hono();
  *                 type: string
  *               repairDescription:
  *                 type: string
+ *               excessFee:
+ *                 type: number
+ *               notes:
+ *                  type: string
  *     responses:
  *       201:
  *         description: Job created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Job'
  *       401:
  *         description: Unauthorized - Valid JWT required
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 jobRoutes.post("/", JobController.createJob);
 
@@ -75,6 +91,8 @@ jobRoutes.get("/:id", JobController.getJobDetails);
  *   get:
  *     summary: Get all jobs
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of jobs
@@ -83,16 +101,7 @@ jobRoutes.get("/:id", JobController.getJobDetails);
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   jobNumber:
- *                     type: string
- *                   vehicle:
- *                     type: object
- *                   customer:
- *                     type: object
+ *                 $ref: '#/components/schemas/Job'
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

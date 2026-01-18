@@ -10,6 +10,8 @@ const customerRoutes = new Hono();
  *     summary: Get all customers
  *     tags: [Customers]
  *     description: Retrieve a list of all customers
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of customers
@@ -18,23 +20,7 @@ const customerRoutes = new Hono();
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     description: The customer ID.
- *                   firstName:
- *                     type: string
- *                     description: The customer's first name.
- *                   lastName:
- *                     type: string
- *                     description: The customer's last name.
- *                   email:
- *                     type: string
- *                     description: The customer's email.
- *                   phoneNumber:
- *                     type: string
- *                     description: The customer's phone number.
+ *                 $ref: '#/components/schemas/Customer'
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

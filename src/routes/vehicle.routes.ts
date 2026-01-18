@@ -9,6 +9,8 @@ const vehicleRoutes = new Hono();
  *   get:
  *     summary: Get all vehicles
  *     tags: [Vehicles]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of vehicles
@@ -17,16 +19,7 @@ const vehicleRoutes = new Hono();
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   registration:
- *                     type: string
- *                   brand:
- *                     type: string
- *                   model:
- *                     type: string
+ *                 $ref: '#/components/schemas/Vehicle'
  *       401:
  *         description: Unauthorized - Valid JWT required
  */
@@ -38,6 +31,8 @@ vehicleRoutes.get("/", VehicleController.getVehicles);
  *   post:
  *     summary: Create a new vehicle
  *     tags: [Vehicles]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -47,6 +42,7 @@ vehicleRoutes.get("/", VehicleController.getVehicles);
  *             required:
  *               - registration
  *               - brand
+ *               - customerId
  *             properties:
  *               registration:
  *                 type: string
@@ -63,8 +59,18 @@ vehicleRoutes.get("/", VehicleController.getVehicles);
  *     responses:
  *       201:
  *         description: Vehicle created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Vehicle'
  *       401:
  *         description: Unauthorized - Valid JWT required
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 vehicleRoutes.post("/", VehicleController.createVehicle);
 

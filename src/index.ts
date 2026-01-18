@@ -7,13 +7,23 @@ import { prettyJSON } from "hono/pretty-json";
 import { swaggerUI } from "@hono/swagger-ui";
 import { swaggerSpec } from "./swagger";
 
-const app = new Hono();
+export const app = new Hono();
 
 // Middlewares
 app.use("*", logger());
 app.use("*", compress());
 app.use("*", secureHeaders());
-app.use("*", cors());
+app.use(
+    "*",
+    cors({
+        origin: "*",
+        allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        allowHeaders: ["Content-Type", "Authorization"],
+        exposeHeaders: ["Content-Length"],
+        maxAge: 600,
+        credentials: true,
+    })
+);
 app.use("*", prettyJSON());
 
 // Health Check
@@ -58,4 +68,7 @@ app.get("/", (c) => {
     return c.text("Hello Hono + Bun + Turso!");
 });
 
-export default app;
+export default {
+    port: 8080,
+    fetch: app.fetch,
+};

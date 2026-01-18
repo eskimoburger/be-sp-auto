@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll, afterAll } from "bun:test";
-import app from "../index";
+import { app } from "../index";
 import { prisma } from "../lib/prisma";
 
 describe("Auth Module", () => {

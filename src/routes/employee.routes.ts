@@ -10,6 +10,8 @@ const employeeRoutes = new Hono();
  *     summary: Get all employees
  *     tags: [Employees]
  *     description: Retrieve a list of all employees
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: A list of employees
@@ -18,18 +20,7 @@ const employeeRoutes = new Hono();
  *             schema:
  *               type: array
  *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   name:
- *                     type: string
- *                   role:
- *                     type: string
- *                   phone:
- *                     type: string
- *                   isActive:
- *                     type: boolean
+ *                 $ref: '#/components/schemas/Employee'
  *       401:
  *         description: Unauthorized - Valid JWT required
  */
@@ -41,26 +32,29 @@ employeeRoutes.get("/", EmployeeController.getEmployees);
  *   post:
  *     summary: Create a new employee
  *     tags: [Employees]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - name
- *             properties:
- *               name:
- *                 type: string
- *               role:
- *                 type: string
- *               phone:
- *                 type: string
+ *             $ref: '#/components/schemas/CreateEmployeeRequest'
  *     responses:
  *       201:
  *         description: Employee created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Employee'
  *       401:
  *         description: Unauthorized - Valid JWT required
+ *       400:
+ *         description: Bad request
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 employeeRoutes.post("/", EmployeeController.createEmployee);
 
@@ -70,6 +64,8 @@ employeeRoutes.post("/", EmployeeController.createEmployee);
  *   delete:
  *     summary: Delete an employee
  *     tags: [Employees]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id

@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "bun:test";
-import app from "../index";
+import { app } from "../index";
 import { getAuthToken } from "./test_helper";
 
 describe("Workflow Integration", () => {

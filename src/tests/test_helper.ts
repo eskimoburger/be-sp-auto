@@ -1,4 +1,4 @@
-import app from "../index";
+import { app } from "../index";
 import { prisma } from "../lib/prisma";
 
 export const getAuthToken = async () => {
