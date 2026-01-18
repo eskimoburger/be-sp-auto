@@ -13,12 +13,12 @@ export const createEmployee = async (c: Context) => {
 };
 
 export const deleteEmployee = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     try {
         await EmployeeService.delete(id);
         return c.json({ success: true });
     } catch (e) {
         return c.json({ error: "Delete failed" }, 400);
     }
-}
+};

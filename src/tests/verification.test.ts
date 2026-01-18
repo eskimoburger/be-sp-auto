@@ -3,7 +3,6 @@ import { app } from "../index";
 import { prisma } from "../lib/prisma";
 
 describe("Verification Tests", () => {
-
     // Clean up
     afterAll(async () => {
         await prisma.employee.deleteMany({ where: { username: "verify_user" } });
@@ -22,7 +21,7 @@ describe("Verification Tests", () => {
             method: "POST",
             headers: {
                 // Creating employee requires auth, but we might not have a token easily in test without logging in.
-                // For verification, we can use Service directly to check the Hashing logic specifically, 
+                // For verification, we can use Service directly to check the Hashing logic specifically,
                 // or we can Mock the auth middleware if we want to test API.
                 // Let's test Service directly for Hashing logic as it's the core security requirement.
                 "Content-Type": "application/json"
@@ -51,7 +50,7 @@ describe("Verification Tests", () => {
         });
         const res = await app.fetch(req);
         expect(res.status).toBe(400);
-        const body = await res.json();
+        const body = (await res.json()) as any;
         expect(body.error).toBe("Validation Failed");
     });
 });

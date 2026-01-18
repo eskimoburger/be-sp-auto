@@ -12,20 +12,18 @@ export const createJob = async (c: Context) => {
     }
 };
 
-
-
 export const getJobs = async (c: Context) => {
-    const page = Number(c.req.query('page') || '1');
-    const limit = Number(c.req.query('limit') || '10');
-    const status = c.req.query('status');
+    const page = Number(c.req.query("page") || "1");
+    const limit = Number(c.req.query("limit") || "10");
+    const status = c.req.query("status");
     const result = await JobService.getAll(page, limit, status);
     return c.json(result);
 };
 
 export const getJobDetails = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const job = await JobService.getJobDetails(id);
-    if (!job) return c.json({ error: "Job not found" }, 404);
+    if (!job) {return c.json({ error: "Job not found" }, 404);}
     return c.json(job);
 };

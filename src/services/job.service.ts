@@ -1,6 +1,5 @@
-import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
-
+import { prisma } from "../lib/prisma";
 
 export interface CreateJobDTO {
     jobNumber: string;
@@ -22,11 +21,11 @@ export class JobService {
             // 1. Create Job.
             const { vehicleId, customerId, insuranceCompanyId, ...rest } = data;
 
-            if (!vehicleId) throw new Error("Vehicle ID is required");
+            if (!vehicleId) {throw new Error("Vehicle ID is required");}
 
             // Validate Vehicle Exists
             const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-            if (!vehicle) throw new Error("Vehicle not found");
+            if (!vehicle) {throw new Error("Vehicle not found");}
 
             const job = await tx.job.create({
                 data: {
@@ -38,7 +37,7 @@ export class JobService {
             });
 
             // 2. Initialize Stages
-            const stages = await tx.stage.findMany({ orderBy: { orderIndex: 'asc' } });
+            const stages = await tx.stage.findMany({ orderBy: { orderIndex: "asc" } });
             for (const stage of stages) {
                 const jobStage = await tx.jobStage.create({
                     data: {
@@ -51,13 +50,16 @@ export class JobService {
                 });
 
                 // 3. Initialize Steps for this stage
-                const stepTemplates = await tx.stepTemplate.findMany({ where: { stageId: stage.id }, orderBy: { orderIndex: 'asc' } });
+                const stepTemplates = await tx.stepTemplate.findMany({
+                    where: { stageId: stage.id },
+                    orderBy: { orderIndex: "asc" }
+                });
                 for (const tpl of stepTemplates) {
                     await tx.jobStep.create({
                         data: {
                             jobStageId: jobStage.id,
                             stepTemplateId: tpl.id,
-                            status: 'pending'
+                            status: "pending"
                         }
                     });
                 }
@@ -70,7 +72,7 @@ export class JobService {
                     data: {
                         jobId: job.id,
                         photoTypeId: pt.id,
-                        isRequired: pt.code === 'before_repair' || pt.code === 'completed' // access logic example
+                        isRequired: pt.code === "before_repair" || pt.code === "completed" // access logic example
                     }
                 });
             }
@@ -94,10 +96,10 @@ export class JobService {
                     vehicle: true,
                     customer: true,
                     jobStages: {
-                        where: { isCompleted: false },
+                        where: { isCompleted: false }
                     }
                 },
-                orderBy: { createdAt: 'desc' }
+                orderBy: { createdAt: "desc" }
             }),
             prisma.job.count({ where })
         ]);
@@ -117,7 +119,7 @@ export class JobService {
                             include: { stepTemplate: true }
                         }
                     },
-                    orderBy: { stage: { orderIndex: 'asc' } }
+                    orderBy: { stage: { orderIndex: "asc" } }
                 },
                 jobPhotos: {
                     include: { photoType: true }

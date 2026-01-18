@@ -95,5 +95,4 @@ employeeRoutes.post(
  */
 employeeRoutes.delete("/:id", EmployeeController.deleteEmployee);
 
-
 export default employeeRoutes;

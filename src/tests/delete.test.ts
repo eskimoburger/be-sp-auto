@@ -19,18 +19,18 @@ describe("Delete Operations", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "Delete Me", role: "staff" })
         });
-        const body = await createRes.json() as any;
+        const body = (await createRes.json()) as any;
         empId = body.id;
         expect(createRes.status).toBe(201);
 
         // Delete
         const delRes = await app.request(`/api/v1/private/employees/${empId}`, {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(delRes.status).toBe(200);
 
@@ -44,22 +44,22 @@ describe("Delete Operations", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "Temp Customer", phone: "0000" })
         });
-        const body = await createRes.json() as any;
+        const body = (await createRes.json()) as any;
         custId = body.id;
 
         const delRes = await app.request(`/api/v1/private/customers/${custId}`, {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(delRes.status).toBe(200);
 
         // Check 404
         const check = await app.request(`/api/v1/private/customers/${custId}`, {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(check.status).toBe(404);
     });
@@ -70,16 +70,16 @@ describe("Delete Operations", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ registration: `DEL-${Date.now()}`, brand: "Test" })
         });
-        const body = await createRes.json() as any;
+        const body = (await createRes.json()) as any;
         vehId = body.id;
 
         const delRes = await app.request(`/api/v1/private/vehicles/${vehId}`, {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(delRes.status).toBe(200);
 
@@ -91,7 +91,7 @@ describe("Delete Operations", () => {
     it("should fail to delete non-existent ID", async () => {
         const res = await app.request("/api/v1/private/customers/999999", {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(400); // Because Prisma throws if record not found in delete, and catch block returns 400
     });

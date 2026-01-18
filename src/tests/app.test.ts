@@ -29,7 +29,7 @@ describe("Documentation Endpoints", () => {
     it("should serve OpenAPI JSON", async () => {
         const res = await app.request("/doc");
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("openapi");
         expect(body).toHaveProperty("info");
     });

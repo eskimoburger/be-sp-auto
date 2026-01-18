@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
 export class CustomerService {
     static async getAll(page: number = 1, limit: number = 10) {
@@ -8,7 +8,7 @@ export class CustomerService {
             prisma.customer.findMany({
                 skip,
                 take: limit,
-                orderBy: { updatedAt: 'desc' }
+                orderBy: { updatedAt: "desc" }
             }),
             prisma.customer.count()
         ]);
@@ -25,10 +25,7 @@ export class CustomerService {
     static async search(query: string, page: number = 1, limit: number = 10) {
         const skip = (page - 1) * limit;
         const where: Prisma.CustomerWhereInput = {
-            OR: [
-                { name: { contains: query } },
-                { phone: { contains: query } }
-            ]
+            OR: [{ name: { contains: query } }, { phone: { contains: query } }]
         };
 
         const [data, total] = await Promise.all([
@@ -36,7 +33,7 @@ export class CustomerService {
                 where,
                 skip,
                 take: limit,
-                orderBy: { updatedAt: 'desc' },
+                orderBy: { updatedAt: "desc" },
                 include: { vehicles: true }
             }),
             prisma.customer.count({ where })

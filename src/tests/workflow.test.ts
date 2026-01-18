@@ -17,12 +17,12 @@ describe("Workflow Integration", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "John Doe", phone: "0812345678" })
         });
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         customerId = body.id;
         expect(body.id).toBeDefined();
     });
@@ -32,7 +32,7 @@ describe("Workflow Integration", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 registration: `1กข-${Date.now()}`,
@@ -42,7 +42,7 @@ describe("Workflow Integration", () => {
             })
         });
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         vehicleId = body.id;
         expect(body.id).toBeDefined();
     });
@@ -52,7 +52,7 @@ describe("Workflow Integration", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 jobNumber: `JOB-${Date.now()}`,
@@ -67,17 +67,17 @@ describe("Workflow Integration", () => {
             console.error("Create Job Error:", err);
         }
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         jobId = body.id;
         expect(body.id).toBeDefined();
     });
 
     it("should retrieve full job details with stages", async () => {
         const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
 
         expect(body.jobNumber).toMatch(/JOB-\d+/);
         expect(body.jobStages).toHaveLength(3); // Claim, Repair, Billing
@@ -98,7 +98,7 @@ describe("Workflow Integration", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 jobNumber: "FAIL-JOB"
@@ -107,7 +107,7 @@ describe("Workflow Integration", () => {
         });
         expect(res.status).toBe(400);
 
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.error).toBeDefined();
     });
 });

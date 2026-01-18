@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
 export class EmployeeService {
     static async getAll(page: number = 1, limit: number = 10) {

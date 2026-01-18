@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import { VehicleService } from "../services/vehicle.service";
 
 export const getVehicles = async (c: Context) => {
-    const reg = c.req.query('reg');
+    const reg = c.req.query("reg");
     if (reg) {
         const vehicle = await VehicleService.findByRegistration(reg);
         return vehicle ? c.json([vehicle]) : c.json([]);
@@ -22,8 +22,8 @@ export const createVehicle = async (c: Context) => {
 };
 
 export const updateVehicle = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const body = await c.req.json();
     try {
         const vehicle = await VehicleService.update(id, body);
@@ -31,18 +31,18 @@ export const updateVehicle = async (c: Context) => {
     } catch (e) {
         return c.json({ error: "Update failed" }, 400);
     }
-}
+};
 
 export const deleteVehicle = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     try {
         await VehicleService.delete(id);
         return c.json({ success: true });
     } catch (e) {
         return c.json({ error: "Delete failed" }, 400);
     }
-}
+};
 
 export const getVehicleBrands = async (c: Context) => {
     const brands = await VehicleService.getBrands();
@@ -50,10 +50,10 @@ export const getVehicleBrands = async (c: Context) => {
 };
 
 export const getVehicleBrandById = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const brand = await VehicleService.getBrandById(id);
-    if (!brand) return c.json({ error: "Brand not found" }, 404);
+    if (!brand) {return c.json({ error: "Brand not found" }, 404);}
     return c.json(brand);
 };
 
@@ -72,8 +72,8 @@ export const createVehicleBrand = async (c: Context) => {
 };
 
 export const updateVehicleBrand = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const body = await c.req.json();
     try {
         const brand = await VehicleService.updateBrand(id, body);
@@ -84,8 +84,8 @@ export const updateVehicleBrand = async (c: Context) => {
 };
 
 export const deleteVehicleBrand = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     try {
         await VehicleService.deleteBrand(id);
         return c.json({ success: true });
@@ -101,10 +101,10 @@ export const getVehicleTypes = async (c: Context) => {
 };
 
 export const getVehicleTypeById = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const type = await VehicleService.getTypeById(id);
-    if (!type) return c.json({ error: "Type not found" }, 404);
+    if (!type) {return c.json({ error: "Type not found" }, 404);}
     return c.json(type);
 };
 
@@ -123,8 +123,8 @@ export const createVehicleType = async (c: Context) => {
 };
 
 export const updateVehicleType = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     const body = await c.req.json();
     try {
         const type = await VehicleService.updateType(id, body);
@@ -135,8 +135,8 @@ export const updateVehicleType = async (c: Context) => {
 };
 
 export const deleteVehicleType = async (c: Context) => {
-    const id = Number(c.req.param('id'));
-    if (isNaN(id)) return c.json({ error: "Invalid ID" }, 400);
+    const id = Number(c.req.param("id"));
+    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
     try {
         await VehicleService.deleteType(id);
         return c.json({ success: true });

@@ -12,10 +12,10 @@ describe("Insurance API", () => {
 
     it("should return seeded insurance companies", async () => {
         const res = await app.request("/api/v1/private/insurances", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.data).toBeDefined();
         expect(body.data.length).toBeGreaterThan(0);
         expect(body.data[0]).toHaveProperty("logoUrl");
@@ -23,10 +23,10 @@ describe("Insurance API", () => {
 
     it("should search for insurance company", async () => {
         const res = await app.request("/api/v1/private/insurances?q=วิริยะ", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.data.some((ins: any) => ins.name.includes("วิริยะ"))).toBe(true);
     });
 
@@ -40,13 +40,13 @@ describe("Insurance API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(newInsurance),
+            body: JSON.stringify(newInsurance)
         });
 
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("id");
         expect(body.name).toBe(newInsurance.name);
         createdInsuranceId = body.id;
@@ -57,24 +57,24 @@ describe("Insurance API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ name: "Update Test Insurance" }),
+            body: JSON.stringify({ name: "Update Test Insurance" })
         });
-        const created = await createRes.json() as any;
+        const created = (await createRes.json()) as any;
 
         const updateData = { name: "Updated Insurance Name" };
         const res = await app.request(`/api/v1/private/insurances/${created.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(updateData),
+            body: JSON.stringify(updateData)
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.name).toBe(updateData.name);
     });
 
@@ -84,19 +84,19 @@ describe("Insurance API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ name: "To Be Deleted" }),
+            body: JSON.stringify({ name: "To Be Deleted" })
         });
-        const created = await createRes.json() as any;
+        const created = (await createRes.json()) as any;
 
         const res = await app.request(`/api/v1/private/insurances/${created.id}`, {
             method: "DELETE",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.success).toBe(true);
     });
 
@@ -104,7 +104,7 @@ describe("Insurance API", () => {
         if (createdInsuranceId) {
             await app.request(`/api/v1/private/insurances/${createdInsuranceId}`, {
                 method: "DELETE",
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` }
             });
         }
     });

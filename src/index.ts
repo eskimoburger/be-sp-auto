@@ -1,10 +1,14 @@
-import { Hono } from "hono";
-import { logger } from "hono/logger";
-import { compress } from "hono/compress";
-import { secureHeaders } from "hono/secure-headers";
-import { cors } from "hono/cors";
-import { prettyJSON } from "hono/pretty-json";
 import { swaggerUI } from "@hono/swagger-ui";
+import { Hono } from "hono";
+import { compress } from "hono/compress";
+import { cors } from "hono/cors";
+import { logger } from "hono/logger";
+import { prettyJSON } from "hono/pretty-json";
+import { secureHeaders } from "hono/secure-headers";
+import { login, logout } from "./controllers/auth.controller";
+import { LoginSchema } from "./lib/validators";
+import { authMiddleware } from "./middleware/auth.middleware";
+import { errorMiddleware } from "./middleware/error.middleware";
 import { swaggerSpec } from "./swagger";
 
 export const app = new Hono();
@@ -21,12 +25,11 @@ app.use(
         allowHeaders: ["Content-Type", "Authorization"],
         exposeHeaders: ["Content-Length"],
         maxAge: 600,
-        credentials: true,
+        credentials: true
     })
 );
 app.use("*", prettyJSON());
 
-import { errorMiddleware } from "./middleware/error.middleware";
 app.use("*", errorMiddleware);
 
 // ============================================================
@@ -39,14 +42,11 @@ import customerRoutes from "./routes/customer.routes";
 import vehicleRoutes from "./routes/vehicle.routes";
 import jobRoutes from "./routes/job.routes";
 import insuranceRoutes from "./routes/insurance.routes";
-import { login, logout } from "./controllers/auth.controller";
-import { authMiddleware } from "./middleware/auth.middleware";
 
 // ============================================================
 // PUBLIC ROUTES (No Authentication Required)
 // ============================================================
 import { zValidator } from "@hono/zod-validator";
-import { LoginSchema } from "./lib/validators";
 
 // Auth Routes
 app.post(
@@ -83,7 +83,7 @@ app.route("/api/v1/private/insurances", insuranceRoutes);
 
 // User Profile [PRIVATE]
 app.get("/api/v1/private/profile", (c) => {
-    const payload = c.get('jwtPayload');
+    const payload = c.get("jwtPayload");
     return c.json({
         message: "You are accessing a private route!",
         user: payload
@@ -108,5 +108,5 @@ app.get("/", (c) => {
 
 export default {
     port: 8080,
-    fetch: app.fetch,
+    fetch: app.fetch
 };

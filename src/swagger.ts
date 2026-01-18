@@ -15,16 +15,16 @@ const options = {
         servers: [
             {
                 url: "/",
-                description: "Relative path (Same host)",
+                description: "Relative path (Same host)"
             },
             {
                 url: "http://localhost:8080",
-                description: "Local development server",
+                description: "Local development server"
             },
             {
                 url: "http://127.0.0.1:8080",
-                description: "Local development (IP)",
-            },
+                description: "Local development (IP)"
+            }
         ],
         components: {
             securitySchemes: {
@@ -33,7 +33,7 @@ const options = {
                     scheme: "bearer",
                     bearerFormat: "JWT",
                     description: "Enter your JWT token in the format: Bearer <token>"
-                },
+                }
             },
             schemas: {
                 // Shared Generic Schemas
@@ -199,16 +199,15 @@ const options = {
                         address: { type: "string", example: "456 Side St" }
                     }
                 }
-            },
+            }
         },
         security: [
             {
-                bearerAuth: [],
-            },
-        ],
+                bearerAuth: []
+            }
+        ]
     },
-    apis: ["./src/routes/*.ts", "./src/controllers/*.ts"],
+    apis: ["./src/routes/*.ts", "./src/controllers/*.ts"]
 };
 
 export const swaggerSpec = swaggerJSDoc(options);
-

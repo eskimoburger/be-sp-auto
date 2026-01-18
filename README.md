@@ -6,13 +6,13 @@ Built with modern technologies for speed, type-safety, and edge deployment.
 
 ## 🛠️ Tech Stack
 
-| Technology | Purpose |
-|------------|---------|
-| [Bun](https://bun.sh) | JavaScript runtime & package manager |
-| [Hono](https://hono.dev) | Ultrafast web framework |
-| [Prisma](https://prisma.io) | Type-safe ORM |
-| [SQLite/Turso](https://turso.tech) | Edge-ready database |
-| [Swagger UI](https://swagger.io) | API documentation |
+| Technology                         | Purpose                              |
+| ---------------------------------- | ------------------------------------ |
+| [Bun](https://bun.sh)              | JavaScript runtime & package manager |
+| [Hono](https://hono.dev)           | Ultrafast web framework              |
+| [Prisma](https://prisma.io)        | Type-safe ORM                        |
+| [SQLite/Turso](https://turso.tech) | Edge-ready database                  |
+| [Swagger UI](https://swagger.io)   | API documentation                    |
 
 ---
 
@@ -87,14 +87,14 @@ erDiagram
     job_stages ||--o{ job_steps : contains
     step_templates ||--o{ job_steps : follows
     employees ||--o{ job_steps : completes
-    
+
     customers {
         int id PK
         string name
         string phone
         string address
     }
-    
+
     vehicles {
         int id PK
         int customer_id FK
@@ -104,7 +104,7 @@ erDiagram
         string model
         string color
     }
-    
+
     employees {
         int id PK
         string name
@@ -113,7 +113,7 @@ erDiagram
         string password
         boolean is_active
     }
-    
+
     jobs {
         int id PK
         string job_number UK
@@ -227,39 +227,39 @@ Access Swagger UI at: **http://localhost:8080/ui**
 
 ### API Endpoints Overview
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| **Authentication** ||||
-| `POST` | `/auth/login` | User login | ❌ |
-| `POST` | `/auth/logout` | User logout | ✅ |
-| **Employees** ||||
-| `GET` | `/api/employees` | List all employees (paginated) | ✅ |
-| `GET` | `/api/employees/:id` | Get employee by ID | ✅ |
-| `POST` | `/api/employees` | Create employee | ✅ |
-| `PUT` | `/api/employees/:id` | Update employee | ✅ |
-| `DELETE` | `/api/employees/:id` | Delete employee | ✅ |
-| **Customers** ||||
-| `GET` | `/api/customers` | List all customers (paginated) | ✅ |
-| `GET` | `/api/customers/:id` | Get customer by ID | ✅ |
-| `POST` | `/api/customers` | Create customer | ✅ |
-| `PUT` | `/api/customers/:id` | Update customer | ✅ |
-| `DELETE` | `/api/customers/:id` | Delete customer | ✅ |
-| **Vehicles** ||||
-| `GET` | `/api/vehicles` | List all vehicles (paginated) | ✅ |
-| `GET` | `/api/vehicles/:id` | Get vehicle by ID | ✅ |
-| `GET` | `/api/vehicles/brands` | List all vehicle brands | ❌ |
-| `POST` | `/api/vehicles` | Create vehicle | ✅ |
-| `PUT` | `/api/vehicles/:id` | Update vehicle | ✅ |
-| `DELETE` | `/api/vehicles/:id` | Delete vehicle | ✅ |
-| **Jobs** ||||
-| `GET` | `/api/jobs` | List all jobs (paginated) | ✅ |
-| `GET` | `/api/jobs/:id` | Get job by ID | ✅ |
-| `POST` | `/api/jobs` | Create job | ✅ |
-| `PUT` | `/api/jobs/:id` | Update job | ✅ |
-| `DELETE` | `/api/jobs/:id` | Delete job | ✅ |
-| **Utility** ||||
-| `GET` | `/health` | Health check | ❌ |
-| `GET` | `/doc` | OpenAPI JSON spec | ❌ |
+| Method             | Endpoint               | Description                    | Auth |
+| ------------------ | ---------------------- | ------------------------------ | ---- |
+| **Authentication** |                        |                                |      |
+| `POST`             | `/auth/login`          | User login                     | ❌   |
+| `POST`             | `/auth/logout`         | User logout                    | ✅   |
+| **Employees**      |                        |                                |      |
+| `GET`              | `/api/employees`       | List all employees (paginated) | ✅   |
+| `GET`              | `/api/employees/:id`   | Get employee by ID             | ✅   |
+| `POST`             | `/api/employees`       | Create employee                | ✅   |
+| `PUT`              | `/api/employees/:id`   | Update employee                | ✅   |
+| `DELETE`           | `/api/employees/:id`   | Delete employee                | ✅   |
+| **Customers**      |                        |                                |      |
+| `GET`              | `/api/customers`       | List all customers (paginated) | ✅   |
+| `GET`              | `/api/customers/:id`   | Get customer by ID             | ✅   |
+| `POST`             | `/api/customers`       | Create customer                | ✅   |
+| `PUT`              | `/api/customers/:id`   | Update customer                | ✅   |
+| `DELETE`           | `/api/customers/:id`   | Delete customer                | ✅   |
+| **Vehicles**       |                        |                                |      |
+| `GET`              | `/api/vehicles`        | List all vehicles (paginated)  | ✅   |
+| `GET`              | `/api/vehicles/:id`    | Get vehicle by ID              | ✅   |
+| `GET`              | `/api/vehicles/brands` | List all vehicle brands        | ❌   |
+| `POST`             | `/api/vehicles`        | Create vehicle                 | ✅   |
+| `PUT`              | `/api/vehicles/:id`    | Update vehicle                 | ✅   |
+| `DELETE`           | `/api/vehicles/:id`    | Delete vehicle                 | ✅   |
+| **Jobs**           |                        |                                |      |
+| `GET`              | `/api/jobs`            | List all jobs (paginated)      | ✅   |
+| `GET`              | `/api/jobs/:id`        | Get job by ID                  | ✅   |
+| `POST`             | `/api/jobs`            | Create job                     | ✅   |
+| `PUT`              | `/api/jobs/:id`        | Update job                     | ✅   |
+| `DELETE`           | `/api/jobs/:id`        | Delete job                     | ✅   |
+| **Utility**        |                        |                                |      |
+| `GET`              | `/health`              | Health check                   | ❌   |
+| `GET`              | `/doc`                 | OpenAPI JSON spec              | ❌   |
 
 ### Pagination
 
@@ -270,6 +270,7 @@ GET /api/employees?page=1&limit=10
 ```
 
 **Response:**
+
 ```json
 {
   "data": [...],

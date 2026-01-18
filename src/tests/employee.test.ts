@@ -11,10 +11,10 @@ describe("Employee API", () => {
 
     it("should return empty list initially", async () => {
         const res = await app.request("/api/v1/private/employees", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.data).toBeDefined();
         expect(Array.isArray(body.data)).toBe(true);
     });
@@ -25,13 +25,13 @@ describe("Employee API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(newEmployee),
+            body: JSON.stringify(newEmployee)
         });
 
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("id");
         expect(body.name).toBe(newEmployee.name);
     });

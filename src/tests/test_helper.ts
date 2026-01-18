@@ -1,6 +1,8 @@
 import { app } from "../index";
 import { prisma } from "../lib/prisma";
 
+export * from "./factories";
+
 export const getAuthToken = async () => {
     const testUser = {
         name: "Test Admin",
@@ -25,14 +27,14 @@ export const getAuthToken = async () => {
     const res = await app.request("/api/v1/public/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: testUser.username, password: testUser.password }),
+        body: JSON.stringify({ username: testUser.username, password: testUser.password })
     });
 
     if (res.status !== 200) {
         throw new Error(`Failed to login in test helper: ${res.status}`);
     }
 
-    const body = await res.json() as any;
+    const body = (await res.json()) as any;
     return body.token;
 };
 

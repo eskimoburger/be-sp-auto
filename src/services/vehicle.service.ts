@@ -1,5 +1,5 @@
-import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
+import { prisma } from "../lib/prisma";
 
 export class VehicleService {
     static async getAll(page: number = 1, limit: number = 10) {
@@ -35,7 +35,7 @@ export class VehicleService {
 
     static async getBrands() {
         return await prisma.vehicleBrand.findMany({
-            orderBy: { nameEn: 'asc' },
+            orderBy: { nameEn: "asc" },
             include: {
                 models: {
                     include: { type: true }
@@ -70,7 +70,7 @@ export class VehicleService {
     // VehicleType CRUD
     static async getTypes() {
         return await prisma.vehicleType.findMany({
-            orderBy: { name: 'asc' }
+            orderBy: { name: "asc" }
         });
     }
 

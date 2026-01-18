@@ -1,1 +1,245 @@
-{"openapi":"3.0.0","info":{"title":"SP Auto Service API","version":"1.0.0","description":"API documentation for SP Auto Service backend"},"servers":[{"url":"http://localhost:3000","description":"Local development server"}],"paths":{"/api/customers":{"get":{"summary":"Get all customers","tags":["Customers"],"description":"Retrieve a list of all customers","responses":{"200":{"description":"A list of customers","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"integer","description":"The customer ID."},"firstName":{"type":"string","description":"The customer's first name."},"lastName":{"type":"string","description":"The customer's last name."},"email":{"type":"string","description":"The customer's email."},"phoneNumber":{"type":"string","description":"The customer's phone number."}}}}}}}}}},"/api/employees":{"get":{"summary":"Get all employees","tags":["Employees"],"description":"Retrieve a list of all employees","responses":{"200":{"description":"A list of employees","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"integer"},"name":{"type":"string"},"role":{"type":"string"},"phone":{"type":"string"},"isActive":{"type":"boolean"}}}}}}}}},"post":{"summary":"Create a new employee","tags":["Employees"],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"role":{"type":"string"},"phone":{"type":"string"}}}}}},"responses":{"201":{"description":"Employee created successfully"}}}},"/api/employees/{id}":{"delete":{"summary":"Delete an employee","tags":["Employees"],"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"integer"},"description":"The employee ID"}],"responses":{"200":{"description":"Employee deleted successfully"},"400":{"description":"Invalid ID or delete failed"}}}},"/api/jobs":{"post":{"summary":"Create a new job","tags":["Jobs"],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["vehicleId"],"properties":{"vehicleId":{"type":"integer"},"customerId":{"type":"integer"},"insuranceCompanyId":{"type":"integer"},"paymentType":{"type":"string"},"repairDescription":{"type":"string"}}}}}},"responses":{"201":{"description":"Job created"}}}},"/api/jobs/{id}":{"get":{"summary":"Get job details","tags":["Jobs"],"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"integer"}}],"responses":{"200":{"description":"Job details","content":{"application/json":{"schema":{"type":"object","properties":{"id":{"type":"integer"},"jobNumber":{"type":"string"},"vehicleId":{"type":"integer"},"status":{"type":"boolean"}}}}}}}}},"/api/vehicles":{"get":{"summary":"Get all vehicles","tags":["Vehicles"],"responses":{"200":{"description":"List of vehicles","content":{"application/json":{"schema":{"type":"array","items":{"type":"object","properties":{"id":{"type":"integer"},"registration":{"type":"string"},"brand":{"type":"string"},"model":{"type":"string"}}}}}}}}},"post":{"summary":"Create a new vehicle","tags":["Vehicles"],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["registration","brand"],"properties":{"registration":{"type":"string"},"brand":{"type":"string"},"model":{"type":"string"},"year":{"type":"string"},"color":{"type":"string"},"customerId":{"type":"integer"}}}}}},"responses":{"201":{"description":"Vehicle created"}}}},"/api/vehicles/{id}":{"patch":{"summary":"Update a vehicle","tags":["Vehicles"],"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"integer"}}],"requestBody":{"content":{"application/json":{"schema":{"type":"object","properties":{"registration":{"type":"string"},"brand":{"type":"string"}}}}}},"responses":{"200":{"description":"Vehicle updated"}}},"delete":{"summary":"Delete a vehicle","tags":["Vehicles"],"parameters":[{"in":"path","name":"id","required":true,"schema":{"type":"integer"}}],"responses":{"200":{"description":"Vehicle deleted"}}}}},"components":{},"tags":[]}
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "SP Auto Service API",
+        "version": "1.0.0",
+        "description": "API documentation for SP Auto Service backend"
+    },
+    "servers": [{ "url": "http://localhost:3000", "description": "Local development server" }],
+    "paths": {
+        "/api/customers": {
+            "get": {
+                "summary": "Get all customers",
+                "tags": ["Customers"],
+                "description": "Retrieve a list of all customers",
+                "responses": {
+                    "200": {
+                        "description": "A list of customers",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "integer", "description": "The customer ID." },
+                                            "firstName": {
+                                                "type": "string",
+                                                "description": "The customer's first name."
+                                            },
+                                            "lastName": {
+                                                "type": "string",
+                                                "description": "The customer's last name."
+                                            },
+                                            "email": { "type": "string", "description": "The customer's email." },
+                                            "phoneNumber": {
+                                                "type": "string",
+                                                "description": "The customer's phone number."
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/employees": {
+            "get": {
+                "summary": "Get all employees",
+                "tags": ["Employees"],
+                "description": "Retrieve a list of all employees",
+                "responses": {
+                    "200": {
+                        "description": "A list of employees",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "integer" },
+                                            "name": { "type": "string" },
+                                            "role": { "type": "string" },
+                                            "phone": { "type": "string" },
+                                            "isActive": { "type": "boolean" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new employee",
+                "tags": ["Employees"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["name"],
+                                "properties": {
+                                    "name": { "type": "string" },
+                                    "role": { "type": "string" },
+                                    "phone": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "201": { "description": "Employee created successfully" } }
+            }
+        },
+        "/api/employees/{id}": {
+            "delete": {
+                "summary": "Delete an employee",
+                "tags": ["Employees"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "schema": { "type": "integer" },
+                        "description": "The employee ID"
+                    }
+                ],
+                "responses": {
+                    "200": { "description": "Employee deleted successfully" },
+                    "400": { "description": "Invalid ID or delete failed" }
+                }
+            }
+        },
+        "/api/jobs": {
+            "post": {
+                "summary": "Create a new job",
+                "tags": ["Jobs"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["vehicleId"],
+                                "properties": {
+                                    "vehicleId": { "type": "integer" },
+                                    "customerId": { "type": "integer" },
+                                    "insuranceCompanyId": { "type": "integer" },
+                                    "paymentType": { "type": "string" },
+                                    "repairDescription": { "type": "string" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "201": { "description": "Job created" } }
+            }
+        },
+        "/api/jobs/{id}": {
+            "get": {
+                "summary": "Get job details",
+                "tags": ["Jobs"],
+                "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+                "responses": {
+                    "200": {
+                        "description": "Job details",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": { "type": "integer" },
+                                        "jobNumber": { "type": "string" },
+                                        "vehicleId": { "type": "integer" },
+                                        "status": { "type": "boolean" }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vehicles": {
+            "get": {
+                "summary": "Get all vehicles",
+                "tags": ["Vehicles"],
+                "responses": {
+                    "200": {
+                        "description": "List of vehicles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": { "type": "integer" },
+                                            "registration": { "type": "string" },
+                                            "brand": { "type": "string" },
+                                            "model": { "type": "string" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new vehicle",
+                "tags": ["Vehicles"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": ["registration", "brand"],
+                                "properties": {
+                                    "registration": { "type": "string" },
+                                    "brand": { "type": "string" },
+                                    "model": { "type": "string" },
+                                    "year": { "type": "string" },
+                                    "color": { "type": "string" },
+                                    "customerId": { "type": "integer" }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": { "201": { "description": "Vehicle created" } }
+            }
+        },
+        "/api/vehicles/{id}": {
+            "patch": {
+                "summary": "Update a vehicle",
+                "tags": ["Vehicles"],
+                "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": { "registration": { "type": "string" }, "brand": { "type": "string" } }
+                            }
+                        }
+                    }
+                },
+                "responses": { "200": { "description": "Vehicle updated" } }
+            },
+            "delete": {
+                "summary": "Delete a vehicle",
+                "tags": ["Vehicles"],
+                "parameters": [{ "in": "path", "name": "id", "required": true, "schema": { "type": "integer" } }],
+                "responses": { "200": { "description": "Vehicle deleted" } }
+            }
+        }
+    },
+    "components": {},
+    "tags": []
+}

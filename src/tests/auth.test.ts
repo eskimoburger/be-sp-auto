@@ -35,11 +35,11 @@ describe("Auth Module", () => {
         const res = await app.request("/api/v1/public/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: testUser.username, password: testUser.password }),
+            body: JSON.stringify({ username: testUser.username, password: testUser.password })
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("token");
         expect(body.user).toHaveProperty("username", testUser.username);
         token = body.token;
@@ -49,7 +49,7 @@ describe("Auth Module", () => {
         const res = await app.request("/api/v1/public/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: testUser.username, password: "wrongpassword" }),
+            body: JSON.stringify({ username: testUser.username, password: "wrongpassword" })
         });
 
         expect(res.status).toBe(401);
@@ -61,14 +61,14 @@ describe("Auth Module", () => {
     });
 
     it("should access private route with valid token", async () => {
-        if (!token) throw new Error("Token not obtained from login test");
+        if (!token) {throw new Error("Token not obtained from login test");}
 
         const res = await app.request("/api/v1/private/profile", {
-            headers: { "Authorization": `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` }
         });
 
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("message", "You are accessing a private route!");
         expect(body.user).toHaveProperty("username", testUser.username);
     });
@@ -76,10 +76,10 @@ describe("Auth Module", () => {
     it("should logout successfully", async () => {
         const res = await app.request("/api/v1/public/auth/logout", {
             method: "POST",
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body).toHaveProperty("message", "Logout successful");
     });
 });

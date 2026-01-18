@@ -16,7 +16,7 @@ describe("Vehicle API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 registration: testReg,
@@ -25,7 +25,7 @@ describe("Vehicle API", () => {
             })
         });
         expect(res.status).toBe(201);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         vehicleId = body.id;
     });
 
@@ -34,7 +34,7 @@ describe("Vehicle API", () => {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({
                 registration: testReg,
@@ -47,27 +47,27 @@ describe("Vehicle API", () => {
 
     it("should get all vehicles", async () => {
         const res = await app.request("/api/v1/private/vehicles", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(Array.isArray(body.data)).toBe(true);
         expect(body.data.length).toBeGreaterThan(0);
     });
 
     it("should find vehicle by registration", async () => {
         const listRes = await app.request("/api/v1/private/vehicles", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
-        const body = await listRes.json() as any;
+        const body = (await listRes.json()) as any;
         const list = body.data;
         const target = list[0];
 
         const res = await app.request(`/api/v1/private/vehicles?reg=${target.registration}`, {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const searchBody = await res.json() as any[];
+        const searchBody = (await res.json()) as any[];
         expect(searchBody.length).toBe(1);
         expect(searchBody[0].id).toBe(target.id);
     });
@@ -77,12 +77,12 @@ describe("Vehicle API", () => {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ color: "Red" })
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = (await res.json()) as any;
         expect(body.color).toBe("Red");
     });
 });

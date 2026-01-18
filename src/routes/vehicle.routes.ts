@@ -167,7 +167,6 @@ vehicleRoutes.patch("/brands/:id", VehicleController.updateVehicleBrand);
  */
 vehicleRoutes.delete("/brands/:id", VehicleController.deleteVehicleBrand);
 
-
 /**
  * @swagger
  * /api/v1/private/vehicles:
