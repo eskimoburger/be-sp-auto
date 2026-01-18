@@ -17,7 +17,8 @@ export const createJob = async (c: Context) => {
 export const getJobs = async (c: Context) => {
     const page = Number(c.req.query('page') || '1');
     const limit = Number(c.req.query('limit') || '10');
-    const result = await JobService.getAll(page, limit);
+    const status = c.req.query('status');
+    const result = await JobService.getAll(page, limit, status);
     return c.json(result);
 };
 

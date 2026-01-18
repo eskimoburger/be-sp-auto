@@ -79,11 +79,14 @@ jobRoutes.post("/", JobController.createJob);
  *                 vehicleId:
  *                   type: integer
  *                 status:
- *                   type: boolean
+ *                   type: string
+ *                   enum: [CLAIM, REPAIR, BILLING, DONE]
  *       401:
  *         description: Unauthorized - Valid JWT required
  */
 jobRoutes.get("/:id", JobController.getJobDetails);
+
+jobRoutes.get("/", JobController.getJobs);
 
 /**
  * @swagger
@@ -93,18 +96,44 @@ jobRoutes.get("/:id", JobController.getJobDetails);
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [CLAIM, REPAIR, BILLING, DONE]
  *     responses:
  *       200:
  *         description: List of jobs
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Job'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Job'
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized - Valid JWT required
  */
-jobRoutes.get("/", JobController.getJobs);
 
 export default jobRoutes;

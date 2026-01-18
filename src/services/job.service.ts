@@ -59,10 +59,13 @@ export class JobService {
         });
     }
 
-    static async getAll(page: number = 1, limit: number = 10) {
+    static async getAll(page: number = 1, limit: number = 10, status?: string) {
         const skip = (page - 1) * limit;
+        const where: Prisma.JobWhereInput = status ? { status: status as any } : {};
+
         const [data, total] = await Promise.all([
             prisma.job.findMany({
+                where,
                 skip,
                 take: limit,
                 include: {
@@ -74,7 +77,7 @@ export class JobService {
                 },
                 orderBy: { createdAt: 'desc' }
             }),
-            prisma.job.count()
+            prisma.job.count({ where })
         ]);
         return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
     }

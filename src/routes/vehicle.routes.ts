@@ -189,16 +189,57 @@ vehicleRoutes.delete("/brands/:id", VehicleController.deleteVehicleBrand);
  *             properties:
  *               registration:
  *                 type: string
+ *                 example: "กข 1234 กรุงเทพ"
  *               brand:
  *                 type: string
+ *                 example: "Toyota"
  *               model:
  *                 type: string
+ *                 example: "Camry"
  *               year:
  *                 type: string
+ *                 example: "2023"
  *               color:
  *                 type: string
+ *                 example: "White"
+ *               vinNumber:
+ *                 type: string
+ *                 example: "1HGBH41JXMN109186"
  *               customerId:
  *                 type: integer
+ *               registrationProvince:
+ *                 type: string
+ *                 example: "กรุงเทพมหานคร"
+ *               registrationProvinceCode:
+ *                 type: string
+ *                 example: "10"
+ *               registrationDate:
+ *                 type: string
+ *                 format: date-time
+ *               ownerProvince:
+ *                 type: string
+ *                 example: "กรุงเทพมหานคร"
+ *               ownerProvinceCode:
+ *                 type: string
+ *                 example: "10"
+ *               ownerDistrict:
+ *                 type: string
+ *                 example: "คลองเตย"
+ *               ownerSubDistrict:
+ *                 type: string
+ *                 example: "พระโขนง"
+ *               ownerAddress:
+ *                 type: string
+ *                 example: "123 ถนนสุขุมวิท"
+ *               ownerPostalCode:
+ *                 type: string
+ *                 example: "10110"
+ *               engineNumber:
+ *                 type: string
+ *                 example: "2TR-FE-1234567"
+ *               chassisNumber:
+ *                 type: string
+ *                 example: "JT12345678"
  *     responses:
  *       201:
  *         description: Vehicle created
@@ -238,6 +279,37 @@ vehicleRoutes.post("/", VehicleController.createVehicle);
  *               registration:
  *                 type: string
  *               brand:
+ *                 type: string
+ *               model:
+ *                 type: string
+ *               year:
+ *                 type: string
+ *               color:
+ *                 type: string
+ *               vinNumber:
+ *                 type: string
+ *               registrationProvince:
+ *                 type: string
+ *               registrationProvinceCode:
+ *                 type: string
+ *               registrationDate:
+ *                 type: string
+ *                 format: date-time
+ *               ownerProvince:
+ *                 type: string
+ *               ownerProvinceCode:
+ *                 type: string
+ *               ownerDistrict:
+ *                 type: string
+ *               ownerSubDistrict:
+ *                 type: string
+ *               ownerAddress:
+ *                 type: string
+ *               ownerPostalCode:
+ *                 type: string
+ *               engineNumber:
+ *                 type: string
+ *               chassisNumber:
  *                 type: string
  *     responses:
  *       200:
