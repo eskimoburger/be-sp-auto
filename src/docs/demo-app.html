@@ -749,6 +749,58 @@
             font-size: 1rem;
         }
 
+        /* Employee Selection Modal */
+        .employee-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            min-width: 320px;
+            max-width: 400px;
+        }
+
+        .employee-modal h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .employee-modal select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .employee-modal .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .employee-modal .btn-cancel {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .employee-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -947,10 +999,25 @@
         </div>
     </div>
 
+    <!-- Employee Selection Modal -->
+    <div id="employeeModalBackdrop" class="employee-backdrop hidden" onclick="closeEmployeeModal()"></div>
+    <div id="employeeModal" class="employee-modal hidden">
+        <h3>เลือกพนักงานที่รับผิดชอบ</h3>
+        <select id="employeeSelect">
+            <option value="">-- เลือกพนักงาน --</option>
+        </select>
+        <div class="btn-group">
+            <button class="btn btn-cancel" onclick="closeEmployeeModal()">ยกเลิก</button>
+            <button class="btn" onclick="confirmStepUpdate()">ยืนยัน</button>
+        </div>
+    </div>
+
     <script>
         let token = localStorage.getItem('sp_token') || '';
         let currentUser = null;
         let jobs = [];
+        let employees = [];
+        let pendingStepUpdate = null; // { jobId, stepId, newStatus }
 
         const API = {
             async call(method, url, body = null) {
@@ -976,6 +1043,7 @@
                     localStorage.setItem('sp_token', token);
                     showMainApp();
                     loadJobs();
+                    loadEmployees();
                 } else {
                     alert('เข้าสู่ระบบไม่สำเร็จ: ' + (data.error || 'Unknown error'));
                 }
@@ -1177,21 +1245,72 @@
             };
             const newStatus = nextStatus[currentStatus] || 'in_progress';
 
-            try {
-                // Include employeeId when marking as in_progress or completed
-                const payload = { status: newStatus };
-                if (newStatus === 'in_progress' || newStatus === 'completed') {
-                    if (!currentUser || !currentUser.id) {
-                        alert('กรุณาเข้าสู่ระบบก่อน');
-                        return;
-                    }
-                    payload.employeeId = currentUser.id;
+            // If going to in_progress or completed, show employee selection
+            if (newStatus === 'in_progress' || newStatus === 'completed') {
+                pendingStepUpdate = { jobId, stepId, newStatus };
+                openEmployeeModal();
+            } else {
+                // For pending/skipped, no employee needed
+                try {
+                    await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, { status: newStatus });
+                    openJobDetail(jobId);
+                    loadJobs();
+                } catch (err) {
+                    alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
                 }
+            }
+        }
 
-                await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, payload);
-                // Refresh the modal
-                openJobDetail(jobId);
-                // Refresh jobs list to update stats
+        async function loadEmployees() {
+            try {
+                const data = await API.call('GET', '/api/v1/private/employees');
+                employees = data.data || [];
+            } catch (err) {
+                console.error('Failed to load employees:', err);
+            }
+        }
+
+        function openEmployeeModal() {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">-- เลือกพนักงาน --</option>';
+
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = `${emp.name} (${emp.role})`;
+                // Pre-select current user
+                if (currentUser && emp.id === currentUser.id) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            document.getElementById('employeeModalBackdrop').classList.remove('hidden');
+            document.getElementById('employeeModal').classList.remove('hidden');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModalBackdrop').classList.add('hidden');
+            document.getElementById('employeeModal').classList.add('hidden');
+            pendingStepUpdate = null;
+        }
+
+        async function confirmStepUpdate() {
+            if (!pendingStepUpdate) return;
+
+            const employeeId = document.getElementById('employeeSelect').value;
+            if (!employeeId) {
+                alert('กรุณาเลือกพนักงาน');
+                return;
+            }
+
+            try {
+                await API.call('PATCH', `/api/v1/private/jobs/steps/${pendingStepUpdate.stepId}`, {
+                    status: pendingStepUpdate.newStatus,
+                    employeeId: Number(employeeId)
+                });
+                closeEmployeeModal();
+                openJobDetail(pendingStepUpdate.jobId);
                 loadJobs();
             } catch (err) {
                 alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
@@ -1233,6 +1352,7 @@
         if (token) {
             showMainApp();
             loadJobs();
+            loadEmployees();
         } else {
             showLoginScreen();
         }
