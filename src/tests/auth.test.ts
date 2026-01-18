@@ -72,4 +72,14 @@ describe("Auth Module", () => {
         expect(body).toHaveProperty("message", "You are accessing a private route!");
         expect(body.user).toHaveProperty("username", testUser.username);
     });
+
+    it("should logout successfully", async () => {
+        const res = await app.request("/auth/logout", {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        expect(res.status).toBe(200);
+        const body = await res.json() as any;
+        expect(body).toHaveProperty("message", "Logout successful");
+    });
 });

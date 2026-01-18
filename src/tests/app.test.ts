@@ -18,3 +18,19 @@ describe("Root Endpoint", () => {
         expect(await res.text()).toBe("Hello Hono + Bun + Turso!");
     });
 });
+
+describe("Documentation Endpoints", () => {
+    it("should serve Swagger UI", async () => {
+        const res = await app.request("/ui");
+        expect(res.status).toBe(200);
+        expect(await res.text()).toContain("swagger-ui");
+    });
+
+    it("should serve OpenAPI JSON", async () => {
+        const res = await app.request("/doc");
+        expect(res.status).toBe(200);
+        const body = await res.json() as any;
+        expect(body).toHaveProperty("openapi");
+        expect(body).toHaveProperty("info");
+    });
+});

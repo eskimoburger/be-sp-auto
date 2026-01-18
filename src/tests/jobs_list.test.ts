@@ -7,6 +7,27 @@ describe("Job List API", () => {
 
     beforeAll(async () => {
         token = await getAuthToken();
+
+        // Ensure at least one job exists
+        const custRes = await app.request("/api/customers", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ name: "Job Test Cust", phone: "1111" })
+        });
+        const cust = await custRes.json() as any;
+
+        const vehRes = await app.request("/api/vehicles", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ registration: "JOB-LIST-1", brand: "Toyota", customerId: cust.id })
+        });
+        const veh = await vehRes.json() as any;
+
+        await app.request("/api/jobs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+            body: JSON.stringify({ vehicleId: veh.id, customerId: cust.id, jobNumber: "LIST-TEST-JOB" })
+        });
     });
 
     it("should get all jobs", async () => {
