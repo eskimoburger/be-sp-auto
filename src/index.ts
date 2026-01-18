@@ -26,6 +26,9 @@ app.use(
 );
 app.use("*", prettyJSON());
 
+import { errorMiddleware } from "./middleware/error.middleware";
+app.use("*", errorMiddleware);
+
 // ============================================================
 // HEALTH CHECK (Public)
 // ============================================================
@@ -42,8 +45,19 @@ import { authMiddleware } from "./middleware/auth.middleware";
 // ============================================================
 // PUBLIC ROUTES (No Authentication Required)
 // ============================================================
+import { zValidator } from "@hono/zod-validator";
+import { LoginSchema } from "./lib/validators";
+
 // Auth Routes
-app.post("/api/v1/public/auth/login", login);
+app.post(
+    "/api/v1/public/auth/login",
+    zValidator("json", LoginSchema, (result, c) => {
+        if (!result.success) {
+            return c.json({ error: "Validation Failed", details: result.error }, 400);
+        }
+    }),
+    login
+);
 app.post("/api/v1/public/auth/logout", logout);
 
 // ============================================================

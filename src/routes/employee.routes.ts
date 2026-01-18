@@ -56,7 +56,19 @@ employeeRoutes.get("/", EmployeeController.getEmployees);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-employeeRoutes.post("/", EmployeeController.createEmployee);
+import { zValidator } from "@hono/zod-validator";
+import { CreateEmployeeSchema } from "../lib/validators";
+
+// ... existing swagger ...
+employeeRoutes.post(
+    "/",
+    zValidator("json", CreateEmployeeSchema, (result, c) => {
+        if (!result.success) {
+            return c.json({ error: "Validation Failed", details: result.error }, 400);
+        }
+    }),
+    EmployeeController.createEmployee
+);
 
 /**
  * @swagger
