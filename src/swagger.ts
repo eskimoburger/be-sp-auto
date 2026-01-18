@@ -87,6 +87,41 @@ const options = {
                         updatedAt: { type: "string", format: "date-time" }
                     }
                 },
+                VehicleBrand: {
+                    type: "object",
+                    properties: {
+                        id: { type: "integer", example: 1 },
+                        code: { type: "string", example: "toyota" },
+                        name: { type: "string", example: "โตโยต้า" },
+                        nameEn: { type: "string", example: "Toyota" },
+                        country: { type: "string", example: "ญี่ปุ่น" },
+                        logoUrl: { type: "string", example: "https://vl.imgix.net/img/toyota-logo.png" },
+                        models: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "integer", example: 1 },
+                                    name: { type: "string", example: "Camry" },
+                                    type: { type: "string", example: "รถเก๋ง (Sedan)" }
+                                }
+                            }
+                        },
+                        createdAt: { type: "string", format: "date-time" },
+                        updatedAt: { type: "string", format: "date-time" }
+                    }
+                },
+                VehicleType: {
+                    type: "object",
+                    properties: {
+                        id: { type: "integer", example: 1 },
+                        code: { type: "string", example: "sedan" },
+                        name: { type: "string", example: "รถเก๋ง (Sedan)" },
+                        nameEn: { type: "string", example: "Sedan" },
+                        createdAt: { type: "string", format: "date-time" },
+                        updatedAt: { type: "string", format: "date-time" }
+                    }
+                },
                 Job: {
                     type: "object",
                     properties: {

@@ -2,6 +2,12 @@ import type { Context, Next } from "hono";
 import { jwt } from "hono/jwt";
 
 export const authMiddleware = (c: Context, next: Next) => {
+    // Public routes exclusion (GET only for listing and individual items)
+    const publicGetPaths = ['/api/vehicles/brands', '/api/vehicles/types'];
+    if (c.req.method === 'GET' && publicGetPaths.some(path => c.req.path.startsWith(path))) {
+        return next();
+    }
+
     const secret = process.env.JWT_SECRET || "fallback_secret";
     const jwtMiddleware = jwt({
         secret: secret,

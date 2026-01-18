@@ -155,6 +155,68 @@ async function main() {
         }
     }
 
+    // 6. Vehicle Types from vehicleData.ts
+    console.log("Seeding Vehicle Types...");
+    const { ALL_BRANDS, VEHICLE_TYPES } = await import('../vehicleData');
+
+    // Create a map of type name -> typeId
+    const typeMap = new Map<string, number>();
+    for (const typeName of VEHICLE_TYPES) {
+        const code = typeName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        // Extract English name from format "ไทย (English)"
+        const match = typeName.match(/\(([^)]+)\)/);
+        const nameEn = match ? match[1] : typeName;
+
+        const createdType = await prisma.vehicleType.upsert({
+            where: { code },
+            update: { name: typeName, nameEn },
+            create: { code, name: typeName, nameEn }
+        });
+        typeMap.set(typeName, createdType.id);
+    }
+
+    // 7. Vehicle Brands
+    console.log("Seeding Vehicle Brands...");
+    for (const brand of ALL_BRANDS) {
+        const createdBrand = await prisma.vehicleBrand.upsert({
+            where: { code: brand.id },
+            update: {
+                name: brand.name,
+                nameEn: brand.nameEn,
+                country: brand.country,
+                logoUrl: brand.logoUrl || null
+            },
+            create: {
+                code: brand.id,
+                name: brand.name,
+                nameEn: brand.nameEn,
+                country: brand.country,
+                logoUrl: brand.logoUrl || null
+            }
+        });
+
+        // Seed models for this brand
+        for (const model of brand.models) {
+            const typeId = typeMap.get(model.type);
+            if (!typeId) {
+                console.warn(`Type not found for model ${model.name}: ${model.type}`);
+                continue;
+            }
+            const exists = await prisma.vehicleModel.findFirst({
+                where: { brandId: createdBrand.id, name: model.name }
+            });
+            if (!exists) {
+                await prisma.vehicleModel.create({
+                    data: {
+                        brandId: createdBrand.id,
+                        name: model.name,
+                        typeId
+                    }
+                });
+            }
+        }
+    }
+
     console.log("Seeding finished.");
 }
 
