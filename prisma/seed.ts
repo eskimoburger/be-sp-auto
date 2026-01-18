@@ -117,13 +117,24 @@ async function main() {
     // 4. Insurance Companies
     console.log("Seeding Insurance Companies...");
     const insurances = [
-        'วิริยะประกันภัย', 'ทิพยประกันภัย', 'ธนชาตประกันภัย', 'อาคเนย์ประกันภัย',
-        'เมืองไทยประกันภัย', 'สินมั่นคงประกันภัย', 'ไทยศรีประกันภัย', 'ชับบ์ซัมมิท ประกันภัย'
+        { name: 'วิริยะประกันภัย', contactPhone: '1557' },
+        { name: 'ทิพยประกันภัย', contactPhone: '1736' },
+        { name: 'ธนชาตประกันภัย', contactPhone: '02-666-8899' },
+        { name: 'กรุงเทพประกันภัย', contactPhone: '1620' },
+        { name: 'เมืองไทยประกันภัย', contactPhone: '1484' },
+        { name: 'ไทยวิวัฒน์ประกันภัย', contactPhone: '1231' },
+        { name: 'สินมั่นคงประกันภัย', contactPhone: '1596' },
+        { name: 'อาคเนย์ประกันภัย', contactPhone: '1726' }
     ];
-    for (const name of insurances) {
-        const exists = await prisma.insuranceCompany.findFirst({ where: { name } });
+    for (const ins of insurances) {
+        const exists = await prisma.insuranceCompany.findFirst({ where: { name: ins.name } });
         if (!exists) {
-            await prisma.insuranceCompany.create({ data: { name } });
+            await prisma.insuranceCompany.create({ data: ins });
+        } else {
+            await prisma.insuranceCompany.update({
+                where: { id: exists.id },
+                data: ins
+            });
         }
     }
 

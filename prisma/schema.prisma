@@ -8,7 +8,13 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
 
+enum JobStatus {
+  CLAIM
+  REPAIR
+  BILLING
+  DONE
 }
 
 // ============================================================
@@ -37,6 +43,7 @@ model InsuranceCompany {
   id           Int      @id @default(autoincrement())
   name         String
   contactPhone String?  @map("contact_phone")
+  logoUrl      String?  @map("logo_url")
   isActive     Boolean  @default(true) @map("is_active")
   createdAt    DateTime @default(now()) @map("created_at")
 
@@ -87,8 +94,26 @@ model Vehicle {
   type         String?
   year         String?
   color        String?
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+  
+  // Registration Province Information
+  registrationProvince     String?   @map("registration_province")
+  registrationProvinceCode String?   @map("registration_province_code")
+  registrationDate         DateTime? @map("registration_date")
+  
+  // Owner Address Information
+  ownerProvince     String? @map("owner_province")
+  ownerProvinceCode String? @map("owner_province_code")
+  ownerDistrict     String? @map("owner_district")
+  ownerSubDistrict  String? @map("owner_sub_district")
+  ownerAddress      String? @map("owner_address")
+  ownerPostalCode   String? @map("owner_postal_code")
+  
+  // Additional Vehicle Identifiers
+  engineNumber  String? @unique @map("engine_number")
+  chassisNumber String? @map("chassis_number")
+  
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Relations
   customer Customer? @relation(fields: [customerId], references: [id])
@@ -96,6 +121,7 @@ model Vehicle {
 
   @@index([registration])
   @@index([vinNumber])
+  @@index([engineNumber])
   @@map("vehicles")
 }
 
@@ -149,6 +175,7 @@ model Job {
   repairDescription  String?   @map("repair_description")
   notes              String?
   currentStageIndex  Int       @default(0) @map("current_stage_index")
+  status             JobStatus @default(CLAIM)
   isFinished         Boolean   @default(false) @map("is_finished")
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")

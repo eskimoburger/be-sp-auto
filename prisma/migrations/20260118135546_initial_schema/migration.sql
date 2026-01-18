@@ -5,6 +5,8 @@ CREATE TABLE "employees" (
     "role" TEXT NOT NULL DEFAULT 'staff',
     "phone" TEXT,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
+    "username" TEXT,
+    "password" TEXT,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -86,6 +88,7 @@ CREATE TABLE "jobs" (
     "repair_description" TEXT,
     "notes" TEXT,
     "current_stage_index" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'CLAIM',
     "is_finished" BOOLEAN NOT NULL DEFAULT false,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -134,6 +137,42 @@ CREATE TABLE "job_steps" (
     CONSTRAINT "job_steps_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "employees" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "vehicle_brands" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
+    "country" TEXT NOT NULL,
+    "logo_url" TEXT,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "vehicle_models" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "brand_id" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "type_id" INTEGER NOT NULL,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "vehicle_models_brand_id_fkey" FOREIGN KEY ("brand_id") REFERENCES "vehicle_brands" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "vehicle_models_type_id_fkey" FOREIGN KEY ("type_id") REFERENCES "vehicle_types" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "vehicle_types" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "code" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "name_en" TEXT NOT NULL,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "employees_username_key" ON "employees"("username");
+
 -- CreateIndex
 CREATE UNIQUE INDEX "photo_types_code_key" ON "photo_types"("code");
 
@@ -172,3 +211,9 @@ CREATE UNIQUE INDEX "job_stages_job_id_stage_id_key" ON "job_stages"("job_id", "
 
 -- CreateIndex
 CREATE INDEX "job_steps_status_idx" ON "job_steps"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "vehicle_brands_code_key" ON "vehicle_brands"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "vehicle_types_code_key" ON "vehicle_types"("code");
