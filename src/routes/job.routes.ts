@@ -5,7 +5,7 @@ const jobRoutes = new Hono();
 
 /**
  * @swagger
- * /api/jobs:
+ * /api/v1/private/jobs:
  *   post:
  *     summary: Create a new job
  *     tags: [Jobs]
@@ -54,7 +54,7 @@ jobRoutes.post("/", JobController.createJob);
 
 /**
  * @swagger
- * /api/jobs/{id}:
+ * /api/v1/private/jobs/{id}:
  *   get:
  *     summary: Get job details
  *     tags: [Jobs]
@@ -87,7 +87,7 @@ jobRoutes.get("/:id", JobController.getJobDetails);
 
 /**
  * @swagger
- * /api/jobs:
+ * /api/v1/private/jobs:
  *   get:
  *     summary: Get all jobs
  *     tags: [Jobs]

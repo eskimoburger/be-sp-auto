@@ -22,7 +22,7 @@ export const getAuthToken = async () => {
         }
     });
 
-    const res = await app.request("/auth/login", {
+    const res = await app.request("/api/v1/public/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: testUser.username, password: testUser.password }),

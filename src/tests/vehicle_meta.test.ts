@@ -13,7 +13,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
 
     describe("Vehicle Brands", () => {
         it("should create a vehicle brand", async () => {
-            const res = await app.request("/api/vehicles/brands", {
+            const res = await app.request("/api/v1/private/vehicles/brands", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -33,7 +33,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should get all vehicle brands", async () => {
-            const res = await app.request("/api/vehicles/brands");
+            const res = await app.request("/api/v1/private/vehicles/brands");
             expect(res.status).toBe(200);
             const body = await res.json() as any;
             expect(Array.isArray(body)).toBe(true);
@@ -41,14 +41,14 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should get vehicle brand by ID", async () => {
-            const res = await app.request(`/api/vehicles/brands/${brandId}`);
+            const res = await app.request(`/api/v1/private/vehicles/brands/${brandId}`);
             expect(res.status).toBe(200);
             const body = await res.json() as any;
             expect(body.id).toBe(brandId);
         });
 
         it("should update vehicle brand", async () => {
-            const res = await app.request(`/api/vehicles/brands/${brandId}`, {
+            const res = await app.request(`/api/v1/private/vehicles/brands/${brandId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -62,20 +62,20 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should delete vehicle brand", async () => {
-            const res = await app.request(`/api/vehicles/brands/${brandId}`, {
+            const res = await app.request(`/api/v1/private/vehicles/brands/${brandId}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
             expect(res.status).toBe(200);
 
-            const check = await app.request(`/api/vehicles/brands/${brandId}`);
+            const check = await app.request(`/api/v1/private/vehicles/brands/${brandId}`);
             expect(check.status).toBe(404);
         });
     });
 
     describe("Vehicle Types", () => {
         it("should create a vehicle type", async () => {
-            const res = await app.request("/api/vehicles/types", {
+            const res = await app.request("/api/v1/private/vehicles/types", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -94,7 +94,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should get all vehicle types", async () => {
-            const res = await app.request("/api/vehicles/types");
+            const res = await app.request("/api/v1/private/vehicles/types");
             expect(res.status).toBe(200);
             const body = await res.json() as any;
             expect(Array.isArray(body)).toBe(true);
@@ -102,14 +102,14 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should get vehicle type by ID", async () => {
-            const res = await app.request(`/api/vehicles/types/${typeId}`);
+            const res = await app.request(`/api/v1/private/vehicles/types/${typeId}`);
             expect(res.status).toBe(200);
             const body = await res.json() as any;
             expect(body.id).toBe(typeId);
         });
 
         it("should update vehicle type", async () => {
-            const res = await app.request(`/api/vehicles/types/${typeId}`, {
+            const res = await app.request(`/api/v1/private/vehicles/types/${typeId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -123,13 +123,13 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         });
 
         it("should delete vehicle type", async () => {
-            const res = await app.request(`/api/vehicles/types/${typeId}`, {
+            const res = await app.request(`/api/v1/private/vehicles/types/${typeId}`, {
                 method: "DELETE",
                 headers: { "Authorization": `Bearer ${token}` }
             });
             expect(res.status).toBe(200);
 
-            const check = await app.request(`/api/vehicles/types/${typeId}`);
+            const check = await app.request(`/api/v1/private/vehicles/types/${typeId}`);
             expect(check.status).toBe(404);
         });
     });

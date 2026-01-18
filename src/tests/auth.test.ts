@@ -32,7 +32,7 @@ describe("Auth Module", () => {
     });
 
     it("should login with valid credentials", async () => {
-        const res = await app.request("/auth/login", {
+        const res = await app.request("/api/v1/public/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: testUser.username, password: testUser.password }),
@@ -46,7 +46,7 @@ describe("Auth Module", () => {
     });
 
     it("should fail login with invalid credentials", async () => {
-        const res = await app.request("/auth/login", {
+        const res = await app.request("/api/v1/public/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: testUser.username, password: "wrongpassword" }),
@@ -56,14 +56,14 @@ describe("Auth Module", () => {
     });
 
     it("should protect private routes", async () => {
-        const res = await app.request("/api/private/profile");
+        const res = await app.request("/api/v1/private/profile");
         expect(res.status).toBe(401);
     });
 
     it("should access private route with valid token", async () => {
         if (!token) throw new Error("Token not obtained from login test");
 
-        const res = await app.request("/api/private/profile", {
+        const res = await app.request("/api/v1/private/profile", {
             headers: { "Authorization": `Bearer ${token}` },
         });
 
@@ -74,7 +74,7 @@ describe("Auth Module", () => {
     });
 
     it("should logout successfully", async () => {
-        const res = await app.request("/auth/logout", {
+        const res = await app.request("/api/v1/public/auth/logout", {
             method: "POST",
             headers: { "Authorization": `Bearer ${token}` }
         });

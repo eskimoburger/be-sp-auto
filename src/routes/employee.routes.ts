@@ -5,7 +5,7 @@ const employeeRoutes = new Hono();
 
 /**
  * @swagger
- * /api/employees:
+ * /api/v1/private/employees:
  *   get:
  *     summary: Get all employees
  *     tags: [Employees]
@@ -28,7 +28,7 @@ employeeRoutes.get("/", EmployeeController.getEmployees);
 
 /**
  * @swagger
- * /api/employees:
+ * /api/v1/private/employees:
  *   post:
  *     summary: Create a new employee
  *     tags: [Employees]
@@ -60,7 +60,7 @@ employeeRoutes.post("/", EmployeeController.createEmployee);
 
 /**
  * @swagger
- * /api/employees/{id}:
+ * /api/v1/private/employees/{id}:
  *   delete:
  *     summary: Delete an employee
  *     tags: [Employees]

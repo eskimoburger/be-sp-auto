@@ -10,7 +10,7 @@ describe("Employee API", () => {
     });
 
     it("should return empty list initially", async () => {
-        const res = await app.request("/api/employees", {
+        const res = await app.request("/api/v1/private/employees", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -21,7 +21,7 @@ describe("Employee API", () => {
 
     it("should create a new employee", async () => {
         const newEmployee = { name: "Test Employee", role: "Tester", phone: "1234567890" };
-        const res = await app.request("/api/employees", {
+        const res = await app.request("/api/v1/private/employees", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

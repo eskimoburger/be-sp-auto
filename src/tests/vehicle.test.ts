@@ -12,7 +12,7 @@ describe("Vehicle API", () => {
     });
 
     it("should create a vehicle", async () => {
-        const res = await app.request("/api/vehicles", {
+        const res = await app.request("/api/v1/private/vehicles", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -30,7 +30,7 @@ describe("Vehicle API", () => {
     });
 
     it("should fail to create duplicate vehicle", async () => {
-        const res = await app.request("/api/vehicles", {
+        const res = await app.request("/api/v1/private/vehicles", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -46,7 +46,7 @@ describe("Vehicle API", () => {
     });
 
     it("should get all vehicles", async () => {
-        const res = await app.request("/api/vehicles", {
+        const res = await app.request("/api/v1/private/vehicles", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -56,14 +56,14 @@ describe("Vehicle API", () => {
     });
 
     it("should find vehicle by registration", async () => {
-        const listRes = await app.request("/api/vehicles", {
+        const listRes = await app.request("/api/v1/private/vehicles", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const body = await listRes.json() as any;
         const list = body.data;
         const target = list[0];
 
-        const res = await app.request(`/api/vehicles?reg=${target.registration}`, {
+        const res = await app.request(`/api/v1/private/vehicles?reg=${target.registration}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -73,7 +73,7 @@ describe("Vehicle API", () => {
     });
 
     it("should update vehicle", async () => {
-        const res = await app.request(`/api/vehicles/${vehicleId}`, {
+        const res = await app.request(`/api/v1/private/vehicles/${vehicleId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",

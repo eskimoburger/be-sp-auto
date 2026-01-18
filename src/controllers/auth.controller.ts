@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 
 /**
  * @swagger
- * /auth/login:
+ * /api/v1/public/auth/login:
  *   post:
  *     summary: User login
  *     tags: [Auth]
@@ -63,7 +63,7 @@ export const login = async (c: Context) => {
 
 /**
  * @swagger
- * /auth/logout:
+ * /api/v1/public/auth/logout:
  *   post:
  *     summary: User logout
  *     tags: [Auth]

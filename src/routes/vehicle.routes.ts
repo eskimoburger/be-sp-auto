@@ -5,7 +5,7 @@ const vehicleRoutes = new Hono();
 
 /**
  * @swagger
- * /api/vehicles:
+ * /api/v1/private/vehicles:
  *   get:
  *     summary: Get all vehicles
  *     tags: [Vehicles]
@@ -27,7 +27,7 @@ vehicleRoutes.get("/", VehicleController.getVehicles);
 
 /**
  * @swagger
- * /api/vehicles/brands:
+ * /api/v1/private/vehicles/brands:
  *   get:
  *     summary: Get all vehicle brands with logos
  *     tags: [Vehicles]
@@ -45,7 +45,7 @@ vehicleRoutes.get("/brands", VehicleController.getVehicleBrands);
 
 /**
  * @swagger
- * /api/vehicles/brands/{id}:
+ * /api/v1/private/vehicles/brands/{id}:
  *   get:
  *     summary: Get a vehicle brand by ID
  *     tags: [Vehicles]
@@ -69,7 +69,7 @@ vehicleRoutes.get("/brands/:id", VehicleController.getVehicleBrandById);
 
 /**
  * @swagger
- * /api/vehicles/brands:
+ * /api/v1/private/vehicles/brands:
  *   post:
  *     summary: Create a new vehicle brand
  *     tags: [Vehicles]
@@ -111,7 +111,7 @@ vehicleRoutes.post("/brands", VehicleController.createVehicleBrand);
 
 /**
  * @swagger
- * /api/vehicles/brands/{id}:
+ * /api/v1/private/vehicles/brands/{id}:
  *   patch:
  *     summary: Update a vehicle brand
  *     tags: [Vehicles]
@@ -147,7 +147,7 @@ vehicleRoutes.patch("/brands/:id", VehicleController.updateVehicleBrand);
 
 /**
  * @swagger
- * /api/vehicles/brands/{id}:
+ * /api/v1/private/vehicles/brands/{id}:
  *   delete:
  *     summary: Delete a vehicle brand
  *     tags: [Vehicles]
@@ -170,7 +170,7 @@ vehicleRoutes.delete("/brands/:id", VehicleController.deleteVehicleBrand);
 
 /**
  * @swagger
- * /api/vehicles:
+ * /api/v1/private/vehicles:
  *   post:
  *     summary: Create a new vehicle
  *     tags: [Vehicles]
@@ -219,7 +219,7 @@ vehicleRoutes.post("/", VehicleController.createVehicle);
 
 /**
  * @swagger
- * /api/vehicles/{id}:
+ * /api/v1/private/vehicles/{id}:
  *   patch:
  *     summary: Update a vehicle
  *     tags: [Vehicles]
@@ -249,7 +249,7 @@ vehicleRoutes.patch("/:id", VehicleController.updateVehicle);
 
 /**
  * @swagger
- * /api/vehicles/{id}:
+ * /api/v1/private/vehicles/{id}:
  *   delete:
  *     summary: Delete a vehicle
  *     tags: [Vehicles]
@@ -273,7 +273,7 @@ vehicleRoutes.delete("/:id", VehicleController.deleteVehicle);
 
 /**
  * @swagger
- * /api/vehicles/types:
+ * /api/v1/private/vehicles/types:
  *   get:
  *     summary: Get all vehicle types
  *     tags: [Vehicles]
@@ -291,7 +291,7 @@ vehicleRoutes.get("/types", VehicleController.getVehicleTypes);
 
 /**
  * @swagger
- * /api/vehicles/types/{id}:
+ * /api/v1/private/vehicles/types/{id}:
  *   get:
  *     summary: Get a vehicle type by ID
  *     tags: [Vehicles]
@@ -315,7 +315,7 @@ vehicleRoutes.get("/types/:id", VehicleController.getVehicleTypeById);
 
 /**
  * @swagger
- * /api/vehicles/types:
+ * /api/v1/private/vehicles/types:
  *   post:
  *     summary: Create a new vehicle type
  *     tags: [Vehicles]
@@ -351,7 +351,7 @@ vehicleRoutes.post("/types", VehicleController.createVehicleType);
 
 /**
  * @swagger
- * /api/vehicles/types/{id}:
+ * /api/v1/private/vehicles/types/{id}:
  *   patch:
  *     summary: Update a vehicle type
  *     tags: [Vehicles]
@@ -383,7 +383,7 @@ vehicleRoutes.patch("/types/:id", VehicleController.updateVehicleType);
 
 /**
  * @swagger
- * /api/vehicles/types/{id}:
+ * /api/v1/private/vehicles/types/{id}:
  *   delete:
  *     summary: Delete a vehicle type
  *     tags: [Vehicles]

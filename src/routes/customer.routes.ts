@@ -5,7 +5,7 @@ const customerRoutes = new Hono();
 
 /**
  * @swagger
- * /api/customers:
+ * /api/v1/private/customers:
  *   get:
  *     summary: Get all customers
  *     tags: [Customers]

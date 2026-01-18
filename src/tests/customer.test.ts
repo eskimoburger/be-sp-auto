@@ -11,7 +11,7 @@ describe("Customer API", () => {
     });
 
     it("should create a customer", async () => {
-        const res = await app.request("/api/customers", {
+        const res = await app.request("/api/v1/private/customers", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -25,7 +25,7 @@ describe("Customer API", () => {
     });
 
     it("should get all customers", async () => {
-        const res = await app.request("/api/customers", {
+        const res = await app.request("/api/v1/private/customers", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -36,7 +36,7 @@ describe("Customer API", () => {
     });
 
     it("should get customer by id", async () => {
-        const res = await app.request(`/api/customers/${customerId}`, {
+        const res = await app.request(`/api/v1/private/customers/${customerId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -45,14 +45,14 @@ describe("Customer API", () => {
     });
 
     it("should return 404 for non-existent customer", async () => {
-        const res = await app.request("/api/customers/999999", {
+        const res = await app.request("/api/v1/private/customers/999999", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(404);
     });
 
     it("should search customers", async () => {
-        const res = await app.request("/api/customers?q=Jane", {
+        const res = await app.request("/api/v1/private/customers?q=Jane", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -62,7 +62,7 @@ describe("Customer API", () => {
     });
 
     it("should update customer", async () => {
-        const res = await app.request(`/api/customers/${customerId}`, {
+        const res = await app.request(`/api/v1/private/customers/${customerId}`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",

@@ -3,7 +3,7 @@ import { jwt } from "hono/jwt";
 
 export const authMiddleware = (c: Context, next: Next) => {
     // Public routes exclusion (GET only for listing and individual items)
-    const publicGetPaths = ['/api/vehicles/brands', '/api/vehicles/types'];
+    const publicGetPaths = ['/api/v1/private/vehicles/brands', '/api/v1/private/vehicles/types'];
     if (c.req.method === 'GET' && publicGetPaths.some(path => c.req.path.startsWith(path))) {
         return next();
     }

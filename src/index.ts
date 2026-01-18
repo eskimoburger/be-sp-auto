@@ -26,7 +26,9 @@ app.use(
 );
 app.use("*", prettyJSON());
 
-// Health Check
+// ============================================================
+// HEALTH CHECK (Public)
+// ============================================================
 app.get("/health", (c) => c.json({ status: "ok", timestamp: new Date().toISOString() }));
 
 import employeeRoutes from "./routes/employee.routes";
@@ -36,32 +38,50 @@ import jobRoutes from "./routes/job.routes";
 import { login, logout } from "./controllers/auth.controller";
 import { authMiddleware } from "./middleware/auth.middleware";
 
+// ============================================================
+// PUBLIC ROUTES (No Authentication Required)
+// ============================================================
 // Auth Routes
-app.post("/auth/login", login);
-app.post("/auth/logout", logout);
+app.post("/api/v1/public/auth/login", login);
+app.post("/api/v1/public/auth/logout", logout);
 
-// Middleware for everything under /api
-app.use("/api/*", authMiddleware);
+// ============================================================
+// PRIVATE ROUTES (Authentication Required)
+// All routes under /api/v1/private/* require valid JWT token
+// ============================================================
+app.use("/api/v1/private/*", authMiddleware);
 
-// API Routes (Now Private)
-app.route("/api/employees", employeeRoutes);
-app.route("/api/customers", customerRoutes);
-app.route("/api/vehicles", vehicleRoutes);
-app.route("/api/jobs", jobRoutes);
+// Employee Management [PRIVATE]
+app.route("/api/v1/private/employees", employeeRoutes);
 
-app.get("/api/private/profile", (c) => {
+// Customer Management [PRIVATE]
+app.route("/api/v1/private/customers", customerRoutes);
+
+// Vehicle Management [PRIVATE]
+app.route("/api/v1/private/vehicles", vehicleRoutes);
+
+// Job Management [PRIVATE]
+app.route("/api/v1/private/jobs", jobRoutes);
+
+// User Profile [PRIVATE]
+app.get("/api/v1/private/profile", (c) => {
     const payload = c.get('jwtPayload');
     return c.json({
         message: "You are accessing a private route!",
         user: payload
     });
 });
-// You can mount other private routes here
-// app.route("/api/private/some-resource", someResourceRoutes);
 
 app.get("/ui", swaggerUI({ url: "/doc" }));
 app.get("/doc", (c) => {
     return c.json(swaggerSpec);
+});
+
+// Thai Documentation Endpoint - serves separate HTML file with Mermaid flow diagrams
+app.get("/docs/th", async (c) => {
+    const htmlPath = new URL("./docs/thai-docs.html", import.meta.url).pathname;
+    const htmlContent = await Bun.file(htmlPath).text();
+    return c.html(htmlContent);
 });
 
 app.get("/", (c) => {

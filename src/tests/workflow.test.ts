@@ -13,7 +13,7 @@ describe("Workflow Integration", () => {
     });
 
     it("should create a customer", async () => {
-        const res = await app.request("/api/customers", {
+        const res = await app.request("/api/v1/private/customers", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,7 +28,7 @@ describe("Workflow Integration", () => {
     });
 
     it("should create a vehicle linked to customer", async () => {
-        const res = await app.request("/api/vehicles", {
+        const res = await app.request("/api/v1/private/vehicles", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -48,7 +48,7 @@ describe("Workflow Integration", () => {
     });
 
     it("should create a job and initialize workflow", async () => {
-        const res = await app.request("/api/jobs", {
+        const res = await app.request("/api/v1/private/jobs", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -73,7 +73,7 @@ describe("Workflow Integration", () => {
     });
 
     it("should retrieve full job details with stages", async () => {
-        const res = await app.request(`/api/jobs/${jobId}`, {
+        const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
@@ -94,7 +94,7 @@ describe("Workflow Integration", () => {
 
     it("should return 400 when creating job fails", async () => {
         // Send invalid payload (missing vehicle ID) to trigger error
-        const res = await app.request("/api/jobs", {
+        const res = await app.request("/api/v1/private/jobs", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

@@ -15,7 +15,7 @@ describe("Delete Operations", () => {
     // 1. Employee Delete
     it("should create and delete an employee", async () => {
         // Create
-        const createRes = await app.request("/api/employees", {
+        const createRes = await app.request("/api/v1/private/employees", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -28,7 +28,7 @@ describe("Delete Operations", () => {
         expect(createRes.status).toBe(201);
 
         // Delete
-        const delRes = await app.request(`/api/employees/${empId}`, {
+        const delRes = await app.request(`/api/v1/private/employees/${empId}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -40,7 +40,7 @@ describe("Delete Operations", () => {
 
     // 2. Customer Delete
     it("should create and delete a customer", async () => {
-        const createRes = await app.request("/api/customers", {
+        const createRes = await app.request("/api/v1/private/customers", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -51,14 +51,14 @@ describe("Delete Operations", () => {
         const body = await createRes.json() as any;
         custId = body.id;
 
-        const delRes = await app.request(`/api/customers/${custId}`, {
+        const delRes = await app.request(`/api/v1/private/customers/${custId}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(delRes.status).toBe(200);
 
         // Check 404
-        const check = await app.request(`/api/customers/${custId}`, {
+        const check = await app.request(`/api/v1/private/customers/${custId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
         expect(check.status).toBe(404);
@@ -66,7 +66,7 @@ describe("Delete Operations", () => {
 
     // 3. Vehicle Delete
     it("should create and delete a vehicle", async () => {
-        const createRes = await app.request("/api/vehicles", {
+        const createRes = await app.request("/api/v1/private/vehicles", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -77,7 +77,7 @@ describe("Delete Operations", () => {
         const body = await createRes.json() as any;
         vehId = body.id;
 
-        const delRes = await app.request(`/api/vehicles/${vehId}`, {
+        const delRes = await app.request(`/api/v1/private/vehicles/${vehId}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
@@ -89,7 +89,7 @@ describe("Delete Operations", () => {
     });
 
     it("should fail to delete non-existent ID", async () => {
-        const res = await app.request("/api/customers/999999", {
+        const res = await app.request("/api/v1/private/customers/999999", {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` }
         });
