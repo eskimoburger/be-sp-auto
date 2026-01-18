@@ -122,7 +122,10 @@ export class JobService {
                     include: {
                         stage: true,
                         jobSteps: {
-                            include: { stepTemplate: true }
+                            include: {
+                                stepTemplate: true,
+                                employee: true
+                            }
                         }
                     },
                     orderBy: { stage: { orderIndex: "asc" } }
@@ -136,14 +139,35 @@ export class JobService {
 
     /**
      * Update a job step's status and handle workflow progression
+     * @param stepId - The step to update
+     * @param status - New status
+     * @param employeeId - Required when status is 'completed' or 'in_progress'
      */
-    static async updateStepStatus(stepId: number, status: "pending" | "in_progress" | "completed" | "skipped") {
+    static async updateStepStatus(
+        stepId: number,
+        status: "pending" | "in_progress" | "completed" | "skipped",
+        employeeId?: number
+    ) {
+        // Require employeeId for completed or in_progress
+        if ((status === "completed" || status === "in_progress") && !employeeId) {
+            throw new Error("Employee ID is required when marking step as completed or in_progress");
+        }
+
         return await prisma.$transaction(async (tx) => {
+            // Validate employee if provided
+            if (employeeId) {
+                const employee = await tx.employee.findUnique({ where: { id: employeeId } });
+                if (!employee) {
+                    throw new Error("Employee not found");
+                }
+            }
+
             // 1. Update the step
             const step = await tx.jobStep.update({
                 where: { id: stepId },
                 data: {
                     status,
+                    employeeId: (status === "completed" || status === "in_progress") ? employeeId : null,
                     completedAt: status === "completed" ? new Date() : null
                 },
                 include: {
@@ -154,7 +178,8 @@ export class JobService {
                                 include: { stepTemplate: true }
                             }
                         }
-                    }
+                    },
+                    employee: true
                 }
             });
 

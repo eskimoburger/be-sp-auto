@@ -141,6 +141,7 @@ jobRoutes.get("/", JobController.getJobs);
  * /api/v1/private/jobs/steps/{stepId}:
  *   patch:
  *     summary: Update a job step's status
+ *     description: Update a step's status. employeeId is required when status is 'completed' or 'in_progress'
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -162,11 +163,14 @@ jobRoutes.get("/", JobController.getJobs);
  *               status:
  *                 type: string
  *                 enum: [pending, in_progress, completed, skipped]
+ *               employeeId:
+ *                 type: integer
+ *                 description: Required when status is 'completed' or 'in_progress'
  *     responses:
  *       200:
  *         description: Step updated successfully
  *       400:
- *         description: Invalid request
+ *         description: Invalid request or missing employeeId
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

@@ -38,8 +38,14 @@ export const updateStepStatus = async (c: Context) => {
         return c.json({ error: "Invalid status. Must be: pending, in_progress, completed, skipped" }, 400);
     }
 
+    // Parse employeeId if provided
+    const employeeId = body.employeeId ? Number(body.employeeId) : undefined;
+    if (body.employeeId && isNaN(employeeId!)) {
+        return c.json({ error: "Invalid employee ID" }, 400);
+    }
+
     try {
-        const step = await JobService.updateStepStatus(stepId, body.status);
+        const step = await JobService.updateStepStatus(stepId, body.status, employeeId);
         return c.json(step);
     } catch (e) {
         console.error(e);

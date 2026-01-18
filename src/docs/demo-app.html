@@ -1143,6 +1143,7 @@
                                 ${steps.map(step => {
                                 const template = step.stepTemplate || {};
                                 const status = step.status || 'pending';
+                                const employee = step.employee;
                                 return `
                                         <div class="step-item">
                                             <div class="step-checkbox ${status}" onclick="toggleStep(${job.id}, ${step.id}, '${status}')">
@@ -1150,6 +1151,7 @@
                                         status === 'in_progress' ? '<span class="material-symbols-outlined" style="font-size:1rem">more_horiz</span>' : ''}
                                             </div>
                                             <span class="step-name ${status === 'completed' ? 'completed' : ''}">${template.name || step.stepName || 'Step'}</span>
+                                            ${employee ? `<span class="step-skip" style="background:#dbeafe;color:#1d4ed8">👤 ${employee.name}</span>` : ''}
                                             ${template.isSkippable ? '<span class="step-skip">ข้ามได้</span>' : ''}
                                         </div>
                                     `;
@@ -1176,7 +1178,17 @@
             const newStatus = nextStatus[currentStatus] || 'in_progress';
 
             try {
-                await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, { status: newStatus });
+                // Include employeeId when marking as in_progress or completed
+                const payload = { status: newStatus };
+                if (newStatus === 'in_progress' || newStatus === 'completed') {
+                    if (!currentUser || !currentUser.id) {
+                        alert('กรุณาเข้าสู่ระบบก่อน');
+                        return;
+                    }
+                    payload.employeeId = currentUser.id;
+                }
+
+                await API.call('PATCH', `/api/v1/private/jobs/steps/${stepId}`, payload);
                 // Refresh the modal
                 openJobDetail(jobId);
                 // Refresh jobs list to update stats
