@@ -1,19 +1,39 @@
 import { prisma } from "../lib/prisma";
 import type { Prisma } from "@prisma/client";
 
+
+export interface CreateJobDTO {
+    jobNumber: string;
+    vehicleId: number;
+    customerId?: number;
+    insuranceCompanyId?: number;
+    paymentType?: string;
+    excessFee?: number;
+    startDate: Date | string;
+    estimatedEndDate?: Date | string;
+    repairDescription?: string;
+    notes?: string;
+}
+
 export class JobService {
-    static async createJob(data: Prisma.JobCreateInput) {
+    static async createJob(data: CreateJobDTO) {
         // Transaction to ensure all side-effects (stages, steps, photos) are created
         return await prisma.$transaction(async (tx) => {
-            // 1. Create Job. Ensure data fits Prisma.JobCreateInput or Handle manually
-            const { vehicleId, customerId, ...rest } = data as any; // manually extract relations IDs from payload
+            // 1. Create Job.
+            const { vehicleId, customerId, insuranceCompanyId, ...rest } = data;
 
             if (!vehicleId) throw new Error("Vehicle ID is required");
+
+            // Validate Vehicle Exists
+            const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
+            if (!vehicle) throw new Error("Vehicle not found");
+
             const job = await tx.job.create({
                 data: {
                     ...rest,
                     vehicle: { connect: { id: vehicleId } },
-                    customer: customerId ? { connect: { id: customerId } } : undefined
+                    customer: customerId ? { connect: { id: customerId } } : undefined,
+                    insuranceCompany: insuranceCompanyId ? { connect: { id: insuranceCompanyId } } : undefined
                 }
             });
 
@@ -61,6 +81,8 @@ export class JobService {
 
     static async getAll(page: number = 1, limit: number = 10, status?: string) {
         const skip = (page - 1) * limit;
+        // Validate status if provided
+        // Use 'any' cast as temporary workaround for lint error regarding EnumJobStatusFilter
         const where: Prisma.JobWhereInput = status ? { status: status as any } : {};
 
         const [data, total] = await Promise.all([

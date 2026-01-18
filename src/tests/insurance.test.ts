@@ -1,9 +1,10 @@
-import { describe, expect, it, beforeAll } from "bun:test";
+import { describe, expect, it, beforeAll, afterAll } from "bun:test";
 import { app } from "../index";
 import { getAuthToken } from "./test_helper";
 
 describe("Insurance API", () => {
     let token: string;
+    let createdInsuranceId: number;
 
     beforeAll(async () => {
         token = await getAuthToken();
@@ -48,18 +49,22 @@ describe("Insurance API", () => {
         const body = await res.json() as any;
         expect(body).toHaveProperty("id");
         expect(body.name).toBe(newInsurance.name);
+        createdInsuranceId = body.id;
     });
 
     it("should update an insurance company", async () => {
-        // First get one
-        const getRes = await app.request("/api/v1/private/insurances", {
-            headers: { "Authorization": `Bearer ${token}` }
+        const createRes = await app.request("/api/v1/private/insurances", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ name: "Update Test Insurance" }),
         });
-        const list = await getRes.json() as any;
-        const target = list.data[0];
+        const created = await createRes.json() as any;
 
-        const updateData = { name: target.name + " UPDATED" };
-        const res = await app.request(`/api/v1/private/insurances/${target.id}`, {
+        const updateData = { name: "Updated Insurance Name" };
+        const res = await app.request(`/api/v1/private/insurances/${created.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -93,5 +98,14 @@ describe("Insurance API", () => {
         expect(res.status).toBe(200);
         const body = await res.json() as any;
         expect(body.success).toBe(true);
+    });
+
+    afterAll(async () => {
+        if (createdInsuranceId) {
+            await app.request(`/api/v1/private/insurances/${createdInsuranceId}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+        }
     });
 });
