@@ -133,4 +133,87 @@ export class JobService {
             }
         });
     }
+
+    /**
+     * Update a job step's status and handle workflow progression
+     */
+    static async updateStepStatus(stepId: number, status: "pending" | "in_progress" | "completed" | "skipped") {
+        return await prisma.$transaction(async (tx) => {
+            // 1. Update the step
+            const step = await tx.jobStep.update({
+                where: { id: stepId },
+                data: {
+                    status,
+                    completedAt: status === "completed" ? new Date() : null
+                },
+                include: {
+                    jobStage: {
+                        include: {
+                            stage: true,
+                            jobSteps: {
+                                include: { stepTemplate: true }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const jobStage = step.jobStage;
+
+            // 2. Check if all required steps in this stage are completed
+            const allSteps = jobStage.jobSteps;
+            const allRequiredCompleted = allSteps.every(s => {
+                if (s.stepTemplate.isSkippable) {
+                    return s.status === "completed" || s.status === "skipped";
+                }
+                return s.status === "completed";
+            });
+
+            if (allRequiredCompleted && !jobStage.isCompleted) {
+                // 3. Complete this stage
+                await tx.jobStage.update({
+                    where: { id: jobStage.id },
+                    data: {
+                        isCompleted: true,
+                        completedAt: new Date()
+                    }
+                });
+
+                // 4. Unlock next stage if exists
+                const nextStage = await tx.jobStage.findFirst({
+                    where: {
+                        jobId: jobStage.jobId,
+                        stage: {
+                            orderIndex: jobStage.stage.orderIndex + 1
+                        }
+                    },
+                    include: { stage: true }
+                });
+
+                if (nextStage) {
+                    await tx.jobStage.update({
+                        where: { id: nextStage.id },
+                        data: {
+                            isLocked: false,
+                            startedAt: new Date()
+                        }
+                    });
+
+                    // Update job status based on new stage
+                    await tx.job.update({
+                        where: { id: jobStage.jobId },
+                        data: { status: nextStage.stage.code as any }
+                    });
+                } else {
+                    // All stages complete - mark job as done
+                    await tx.job.update({
+                        where: { id: jobStage.jobId },
+                        data: { status: "DONE" }
+                    });
+                }
+            }
+
+            return step;
+        });
+    }
 }

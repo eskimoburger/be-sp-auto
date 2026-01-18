@@ -22,8 +22,27 @@ export const getJobs = async (c: Context) => {
 
 export const getJobDetails = async (c: Context) => {
     const id = Number(c.req.param("id"));
-    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
+    if (isNaN(id)) { return c.json({ error: "Invalid ID" }, 400); }
     const job = await JobService.getJobDetails(id);
-    if (!job) {return c.json({ error: "Job not found" }, 404);}
+    if (!job) { return c.json({ error: "Job not found" }, 404); }
     return c.json(job);
+};
+
+export const updateStepStatus = async (c: Context) => {
+    const stepId = Number(c.req.param("stepId"));
+    if (isNaN(stepId)) { return c.json({ error: "Invalid step ID" }, 400); }
+
+    const body = await c.req.json();
+    const validStatuses = ["pending", "in_progress", "completed", "skipped"];
+    if (!body.status || !validStatuses.includes(body.status)) {
+        return c.json({ error: "Invalid status. Must be: pending, in_progress, completed, skipped" }, 400);
+    }
+
+    try {
+        const step = await JobService.updateStepStatus(stepId, body.status);
+        return c.json(step);
+    } catch (e) {
+        console.error(e);
+        return c.json({ error: "Failed to update step", details: String(e) }, 400);
+    }
 };

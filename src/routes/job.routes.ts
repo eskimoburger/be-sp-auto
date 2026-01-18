@@ -136,4 +136,40 @@ jobRoutes.get("/", JobController.getJobs);
  *         description: Unauthorized - Valid JWT required
  */
 
+/**
+ * @swagger
+ * /api/v1/private/jobs/steps/{stepId}:
+ *   patch:
+ *     summary: Update a job step's status
+ *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: stepId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - status
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, in_progress, completed, skipped]
+ *     responses:
+ *       200:
+ *         description: Step updated successfully
+ *       400:
+ *         description: Invalid request
+ *       401:
+ *         description: Unauthorized - Valid JWT required
+ */
+jobRoutes.patch("/steps/:stepId", JobController.updateStepStatus);
+
 export default jobRoutes;
