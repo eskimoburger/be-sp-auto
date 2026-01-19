@@ -192,16 +192,76 @@ cp .env.example .env
 # Edit .env with your database URL
 ```
 
-### Database Setup
+### Database Setup (Turso)
+
+This project uses [Turso](https://turso.tech) (libSQL) as the database provider. Follow these steps to set up your environment.
+
+#### 1. Prerequisites (CLI)
+
+You need the Turso CLI installed to manage your database.
 
 ```bash
-# Generate Prisma client
+# Install Turso CLI
+curl -sSfL https://get.tur.so/install.sh | bash
+
+# Login to your account
+turso auth login
+```
+
+#### 2. Automated Setup Check
+
+We provide a helper script to check your CLI installation and guide you through the initial steps:
+
+```bash
+./scripts/setup-turso.sh
+```
+
+#### 3. Manual Configuration Steps
+
+If you prefer to configure manually or need to debug, follow these steps:
+
+**A. Create a Database**
+Create a new database for your environment (e.g., `sp-auto-prod`).
+```bash
+turso db create sp-auto-prod
+```
+
+**B. Get Connection Details**
+You need the Database URL and an Authentication Token for your `.env` file.
+
+```bash
+# Get the Database URL (starts with libsql://...)
+turso db show sp-auto-prod --url
+
+# Generate a long-lived Auth Token
+turso db tokens create sp-auto-prod
+```
+
+**C. Update `.env`**
+Update your `.env` file with the values obtained above:
+```env
+TURSO_DATABASE_URL="libsql://sp-auto-prod-..."
+TURSO_AUTH_TOKEN="eyJ..."
+```
+
+#### 4. Project Initialization
+
+Once your environment is configured:
+
+```bash
+# 1. Generate Prisma Client (Adapted for LibSQL)
 bunx prisma generate
 
-# Run migrations
-bunx prisma migrate dev
+# 2. Run Migrations
+# NOTE: Prisma 7's `migrate deploy` currently has issues with `libsql://` URLs.
+# We manually apply migration files using the Turso CLI shell.
+for f in prisma/migrations/*/migration.sql; do 
+  echo "Applying $f..."
+  turso db shell sp-auto-prod < "$f"
+done
 
-# Seed the database
+# 3. Seed Initial Data
+# Populates: Stages, Vehicle Types/Brands, Employees, etc.
 bunx prisma db seed
 ```
 
