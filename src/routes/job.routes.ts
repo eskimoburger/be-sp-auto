@@ -92,7 +92,8 @@ jobRoutes.get("/", JobController.getJobs);
  * @swagger
  * /api/v1/private/jobs:
  *   get:
- *     summary: Get all jobs
+ *     summary: Get all jobs with filtering
+ *     description: Retrieve a paginated list of jobs with support for multiple filter criteria including vehicle info, customer details, and date ranges
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -102,19 +103,82 @@ jobRoutes.get("/", JobController.getJobs);
  *         schema:
  *           type: integer
  *           default: 1
+ *         description: Page number for pagination
  *       - in: query
  *         name: limit
  *         schema:
  *           type: integer
  *           default: 10
+ *         description: Number of items per page
  *       - in: query
  *         name: status
  *         schema:
  *           type: string
  *           enum: [CLAIM, REPAIR, BILLING, DONE]
+ *         description: Filter by job status
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search across vehicle registration, VIN, chassis number, customer name, and job number
+ *       - in: query
+ *         name: vehicleRegistration
+ *         schema:
+ *           type: string
+ *         description: Filter by vehicle registration number (ทะเบียนรถ). Alias 'registration' also supported
+ *       - in: query
+ *         name: customerName
+ *         schema:
+ *           type: string
+ *         description: Filter by customer name (ชื่อ-นามสกุล). Alias 'customer' also supported
+ *       - in: query
+ *         name: chassisNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by chassis number (เลขตัวถัง). Alias 'chassis' also supported
+ *       - in: query
+ *         name: vinNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by VIN number. Alias 'vin' also supported
+ *       - in: query
+ *         name: jobNumber
+ *         schema:
+ *           type: string
+ *         description: Filter by job number (เลขที่งาน)
+ *       - in: query
+ *         name: insuranceCompanyId
+ *         schema:
+ *           type: integer
+ *         description: Filter by insurance company ID (บริษัทประกัน)
+ *       - in: query
+ *         name: startDateFrom
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter jobs starting from this date (วันเริ่มต้น ตั้งแต่)
+ *       - in: query
+ *         name: startDateTo
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter jobs up to this date (วันเริ่มต้น ถึง)
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [jobNumber, startDate, status, createdAt, updatedAt, estimatedEndDate, actualEndDate]
+ *         description: Field to sort by (default is createdAt)
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order - 'asc' for ascending, 'desc' for descending
  *     responses:
  *       200:
- *         description: List of jobs
+ *         description: List of jobs with pagination info
  *         content:
  *           application/json:
  *             schema:
@@ -126,12 +190,16 @@ jobRoutes.get("/", JobController.getJobs);
  *                     $ref: '#/components/schemas/Job'
  *                 total:
  *                   type: integer
+ *                   description: Total number of jobs matching the filters
  *                 page:
  *                   type: integer
+ *                   description: Current page number
  *                 limit:
  *                   type: integer
+ *                   description: Number of items per page
  *                 totalPages:
  *                   type: integer
+ *                   description: Total number of pages
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

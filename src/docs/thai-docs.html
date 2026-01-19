@@ -1004,8 +1004,109 @@
                     <span class="url">/api/v1/private/jobs</span>
                     <span class="auth-badge">ต้อง Login</span>
                 </div>
-                <p class="desc"><strong>ดึงรายการงานซ่อมทั้งหมด</strong> - รองรับ Pagination (?page=1&limit=10)
-                    และการกรองสถานะ (?status=CLAIM)</p>
+                <p class="desc"><strong>ดึงรายการงานซ่อมทั้งหมด</strong> - รองรับ Pagination และการกรองข้อมูลหลายแบบ</p>
+
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--dark);">พารามิเตอร์การค้นหา (Query
+                    Parameters):</h4>
+                <table style="font-size: 0.8rem;">
+                    <tr>
+                        <th>พารามิเตอร์</th>
+                        <th>คำอธิบาย</th>
+                        <th>ตัวอย่าง</th>
+                    </tr>
+                    <tr>
+                        <td><code>page</code></td>
+                        <td>หน้าที่ต้องการดึง (ค่าเริ่มต้น: 1)</td>
+                        <td>?page=1</td>
+                    </tr>
+                    <tr>
+                        <td><code>limit</code></td>
+                        <td>จำนวนรายการต่อหน้า (ค่าเริ่มต้น: 10)</td>
+                        <td>?limit=20</td>
+                    </tr>
+                    <tr>
+                        <td><code>status</code></td>
+                        <td>กรองตามสถานะงาน (CLAIM, REPAIR, BILLING, DONE)</td>
+                        <td>?status=CLAIM</td>
+                    </tr>
+                    <tr>
+                        <td><code>search</code></td>
+                        <td>ค้นหาทั่วไป (ทะเบียนรถ, ชื่อลูกค้า, เลขตัวถัง, VIN, เลขที่งาน)</td>
+                        <td>?search=กข-1234</td>
+                    </tr>
+                    <tr>
+                        <td><code>vehicleRegistration</code><br />หรือ <code>registration</code></td>
+                        <td>กรองตามทะเบียนรถ</td>
+                        <td>?vehicleRegistration=กข-1234</td>
+                    </tr>
+                    <tr>
+                        <td><code>customerName</code><br />หรือ <code>customer</code></td>
+                        <td>กรองตามชื่อลูกค้า</td>
+                        <td>?customerName=สมชาย</td>
+                    </tr>
+                    <tr>
+                        <td><code>chassisNumber</code><br />หรือ <code>chassis</code></td>
+                        <td>กรองตามเลขตัวถัง</td>
+                        <td>?chassisNumber=CHASSIS-001</td>
+                    </tr>
+                    <tr>
+                        <td><code>vinNumber</code><br />หรือ <code>vin</code></td>
+                        <td>กรองตามหมายเลข VIN</td>
+                        <td>?vinNumber=VIN-TEST-001</td>
+                    </tr>
+                    <tr>
+                        <td><code>jobNumber</code></td>
+                        <td>กรองตามเลขที่งาน</td>
+                        <td>?jobNumber=JOB-001</td>
+                    </tr>
+                    <tr>
+                        <td><code>insuranceCompanyId</code></td>
+                        <td>กรองตามบริษัทประกัน (ระบุ ID)</td>
+                        <td>?insuranceCompanyId=1</td>
+                    </tr>
+                    <tr>
+                        <td><code>startDateFrom</code></td>
+                        <td>กรองงานที่เริ่มตั้งแต่วันที่ (รูปแบบ YYYY-MM-DD)</td>
+                        <td>?startDateFrom=2026-01-01</td>
+                    </tr>
+                    <tr>
+                        <td><code>startDateTo</code></td>
+                        <td>กรองงานที่เริ่มก่อนหรือในวันที่ (รูปแบบ YYYY-MM-DD)</td>
+                        <td>?startDateTo=2026-01-31</td>
+                    </tr>
+                    <tr>
+                        <td><code>sortBy</code></td>
+                        <td>เรียงลำดับตามฟิลด์ที่ระบุ (jobNumber, startDate, status, createdAt, updatedAt,
+                            estimatedEndDate, actualEndDate)</td>
+                        <td>?sortBy=startDate</td>
+                    </tr>
+                    <tr>
+                        <td><code>sortOrder</code></td>
+                        <td>ลำดับการเรียง - asc (น้อยไปมาก) หรือ desc (มากไปน้อย) ค่าเริ่มต้น: desc</td>
+                        <td>?sortOrder=asc</td>
+                    </tr>
+                </table>
+
+                <h4 style="margin-top: 1rem; font-size: 0.95rem; color: var(--dark);">ตัวอย่างการใช้งาน:</h4>
+                <div class="code-block" style="margin: 0.5rem 0; font-size: 0.75rem;">
+                    <span class="comment">// ค้นหาทั่วไปด้วยทะเบียนรถ</span><br />
+                    GET /api/v1/private/jobs?search=กข-1234<br /><br />
+
+                    <span class="comment">// กรองตามสถานะและชื่อลูกค้า</span><br />
+                    GET /api/v1/private/jobs?status=REPAIR&customerName=สมชาย<br /><br />
+
+                    <span class="comment">// กรองตามช่วงวันที่</span><br />
+                    GET /api/v1/private/jobs?startDateFrom=2026-01-01&startDateTo=2026-01-31<br /><br />
+
+                    <span class="comment">// ค้นหาจากเลขตัวถัง + Pagination</span><br />
+                    GET /api/v1/private/jobs?chassisNumber=CHASSIS-001&page=1&limit=10<br /><br />
+
+                    <span class="comment">// เรียงลำดับตามวันที่เริ่มงาน (จากเก่าไปใหม่)</span><br />
+                    GET /api/v1/private/jobs?sortBy=startDate&sortOrder=asc<br /><br />
+
+                    <span class="comment">// เรียงลำดับตามเลขที่งานจากมากไปน้อย</span><br />
+                    GET /api/v1/private/jobs?sortBy=jobNumber&sortOrder=desc
+                </div>
             </div>
 
             <div class="endpoint">

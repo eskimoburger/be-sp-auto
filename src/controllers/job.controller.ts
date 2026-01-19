@@ -15,8 +15,29 @@ export const createJob = async (c: Context) => {
 export const getJobs = async (c: Context) => {
     const page = Number(c.req.query("page") || "1");
     const limit = Number(c.req.query("limit") || "10");
-    const status = c.req.query("status");
-    const result = await JobService.getAll(page, limit, status);
+
+    // Extract all filter parameters
+    const filters = {
+        status: c.req.query("status"),
+        search: c.req.query("search"), // General search
+        vehicleRegistration: c.req.query("vehicleRegistration") || c.req.query("registration"),
+        customerName: c.req.query("customerName") || c.req.query("customer"),
+        chassisNumber: c.req.query("chassisNumber") || c.req.query("chassis"),
+        vinNumber: c.req.query("vinNumber") || c.req.query("vin"),
+        jobNumber: c.req.query("jobNumber"),
+        insuranceCompanyId: c.req.query("insuranceCompanyId") ? Number(c.req.query("insuranceCompanyId")) : undefined,
+        startDateFrom: c.req.query("startDateFrom"),
+        startDateTo: c.req.query("startDateTo"),
+        sortBy: c.req.query("sortBy"),
+        sortOrder: (c.req.query("sortOrder") as "asc" | "desc") || "desc"
+    };
+
+    // Remove undefined values
+    const cleanedFilters = Object.fromEntries(
+        Object.entries(filters).filter(([_, v]) => v !== undefined && v !== "")
+    );
+
+    const result = await JobService.getAll(page, limit, Object.keys(cleanedFilters).length > 0 ? cleanedFilters : undefined);
     return c.json(result);
 };
 

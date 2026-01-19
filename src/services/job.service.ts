@@ -81,11 +81,125 @@ export class JobService {
         });
     }
 
-    static async getAll(page: number = 1, limit: number = 10, status?: string) {
+    static async getAll(page: number = 1, limit: number = 10, filters?: {
+        status?: string;
+        search?: string; // Search across vehicle registration, customer name, chassis/VIN
+        vehicleRegistration?: string; // ทะเบียนรถ
+        customerName?: string; // ชื่อ-นามสกุล
+        chassisNumber?: string; // เลขตัวถัง
+        vinNumber?: string; // VIN
+        jobNumber?: string; // เลขที่งาน
+        insuranceCompanyId?: number; // บริษัทประกัน
+        startDateFrom?: string | Date; // วันเริ่มต้น (ตั้งแต่)
+        startDateTo?: string | Date; // วันเริ่มต้น (ถึง)
+        sortBy?: string; // Field to sort by
+        sortOrder?: "asc" | "desc"; // Sort order
+    }) {
         const skip = (page - 1) * limit;
-        // Validate status if provided
-        // Use 'any' cast as temporary workaround for lint error regarding EnumJobStatusFilter
-        const where: Prisma.JobWhereInput = status ? { status: status as any } : {};
+
+        // Build where clause
+        const where: Prisma.JobWhereInput = {};
+
+        // Status filter
+        if (filters?.status) {
+            where.status = filters.status as any;
+        }
+
+        // Insurance company filter
+        if (filters?.insuranceCompanyId) {
+            where.insuranceCompanyId = filters.insuranceCompanyId;
+        }
+
+        // Job number filter (exact match or partial)
+        if (filters?.jobNumber) {
+            where.jobNumber = {
+                contains: filters.jobNumber
+            };
+        }
+
+        // Date range filter
+        if (filters?.startDateFrom || filters?.startDateTo) {
+            where.startDate = {};
+            if (filters.startDateFrom) {
+                where.startDate.gte = new Date(filters.startDateFrom);
+            }
+            if (filters.startDateTo) {
+                where.startDate.lte = new Date(filters.startDateTo);
+            }
+        }
+
+        // General search filter - searches across multiple fields
+        if (filters?.search) {
+            where.OR = [
+                { vehicle: { registration: { contains: filters.search } } },
+                { vehicle: { vinNumber: { contains: filters.search } } },
+                { vehicle: { chassisNumber: { contains: filters.search } } },
+                { customer: { name: { contains: filters.search } } },
+                { jobNumber: { contains: filters.search } }
+            ];
+        }
+
+        // Specific field filters - these override general search
+        if (filters?.vehicleRegistration) {
+            where.vehicle = {
+                ...where.vehicle as any,
+                registration: { contains: filters.vehicleRegistration }
+            };
+        }
+
+        if (filters?.customerName) {
+            where.customer = {
+                ...where.customer as any,
+                name: { contains: filters.customerName }
+            };
+        }
+
+        if (filters?.chassisNumber) {
+            where.vehicle = {
+                ...where.vehicle as any,
+                chassisNumber: { contains: filters.chassisNumber }
+            };
+        }
+
+        if (filters?.vinNumber) {
+            where.vehicle = {
+                ...where.vehicle as any,
+                vinNumber: { contains: filters.vinNumber }
+            };
+        }
+
+        // Build orderBy clause
+        const sortOrder = filters?.sortOrder || "desc";
+        let orderBy: any = { createdAt: sortOrder };
+
+        if (filters?.sortBy) {
+            switch (filters.sortBy) {
+                case "jobNumber":
+                    orderBy = { jobNumber: sortOrder };
+                    break;
+                case "startDate":
+                    orderBy = { startDate: sortOrder };
+                    break;
+                case "status":
+                    orderBy = { status: sortOrder };
+                    break;
+                case "createdAt":
+                    orderBy = { createdAt: sortOrder };
+                    break;
+                case "updatedAt":
+                    orderBy = { updatedAt: sortOrder };
+                    break;
+                case "estimatedEndDate":
+                    orderBy = { estimatedEndDate: sortOrder };
+                    break;
+                case "actualEndDate":
+                    orderBy = { actualEndDate: sortOrder };
+                    break;
+                default:
+                    // Default to createdAt if invalid sortBy is provided
+                    orderBy = { createdAt: sortOrder };
+            }
+        }
 
         const [data, total] = await Promise.all([
             prisma.job.findMany({
@@ -95,6 +209,7 @@ export class JobService {
                 include: {
                     vehicle: true,
                     customer: true,
+                    insuranceCompany: true,
                     jobStages: {
                         where: { isCompleted: false },
                         include: {
@@ -105,7 +220,7 @@ export class JobService {
                         }
                     }
                 },
-                orderBy: { createdAt: "desc" }
+                orderBy
             }),
             prisma.job.count({ where })
         ]);
