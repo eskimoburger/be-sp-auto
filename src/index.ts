@@ -2,6 +2,7 @@ import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
 import { compress } from "hono/compress";
 import { cors } from "hono/cors";
+import { serveStatic } from "hono/bun";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
@@ -109,12 +110,15 @@ app.get("/test", async (c) => {
     return c.html(htmlContent);
 });
 
-// Demo App - User-facing Frontend
-app.get("/demo", async (c) => {
-    const htmlPath = new URL("./docs/demo-app.html", import.meta.url).pathname;
-    const htmlContent = await Bun.file(htmlPath).text();
-    return c.html(htmlContent);
-});
+// Demo App - React frontend build
+app.get("/demo", serveStatic({ path: "./frontend/dist/index.html" }));
+app.get(
+    "/demo/*",
+    serveStatic({
+        root: "./frontend/dist",
+        rewriteRequestPath: (path) => path.replace(/^\/demo/, "")
+    })
+);
 
 app.get("/", (c) => {
     return c.text("Hello Hono + Bun + Turso!");
