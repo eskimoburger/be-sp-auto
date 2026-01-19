@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: be-sp-auto
+    env: bun
+    buildCommand: bun install && bun run build
+    startCommand: bun run start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: JWT_SECRET
+        sync: false
