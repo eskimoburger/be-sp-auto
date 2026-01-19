@@ -39,7 +39,7 @@ describe("Auth Module", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = (await res.json()) as { token: string; user: { username: string } };
         expect(body).toHaveProperty("token");
         expect(body.user).toHaveProperty("username", testUser.username);
         token = body.token;
@@ -68,7 +68,7 @@ describe("Auth Module", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = (await res.json()) as { token: string; user: { username: string } };
         expect(body).toHaveProperty("message", "You are accessing a private route!");
         expect(body.user).toHaveProperty("username", testUser.username);
     });
@@ -79,7 +79,7 @@ describe("Auth Module", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = (await res.json()) as { message: string };
         expect(body).toHaveProperty("message", "Logout successful");
     });
 });

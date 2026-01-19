@@ -35,7 +35,7 @@ export const updateCustomer = async (c: Context) => {
     try {
         const customer = await CustomerService.update(id, body);
         return c.json(customer);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Update failed" }, 400);
     }
 };
@@ -46,7 +46,7 @@ export const deleteCustomer = async (c: Context) => {
     try {
         await CustomerService.delete(id);
         return c.json({ success: true });
-    } catch (e) {
+    } catch {
         return c.json({ error: "Delete failed (May have related records)" }, 400);
     }
 };

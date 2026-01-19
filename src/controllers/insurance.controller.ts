@@ -1,4 +1,5 @@
 import type { Context } from "hono";
+import { Prisma } from "@prisma/client";
 import { InsuranceService } from "../services/insurance.service";
 
 export const getInsurances = async (c: Context) => {
@@ -29,8 +30,8 @@ export const createInsurance = async (c: Context) => {
     try {
         const insurance = await InsuranceService.create(body);
         return c.json(insurance, 201);
-    } catch (e: any) {
-        if (e.code === "P2002") {
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
             return c.json({ error: "Insurance company with this name already exists" }, 409);
         }
         return c.json({ error: "Creation failed" }, 400);
@@ -44,8 +45,8 @@ export const updateInsurance = async (c: Context) => {
     try {
         const insurance = await InsuranceService.update(id, body);
         return c.json(insurance);
-    } catch (e: any) {
-        if (e.code === "P2025") {
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
             return c.json({ error: "Insurance not found" }, 404);
         }
         return c.json({ error: "Update failed" }, 400);
@@ -58,8 +59,8 @@ export const deleteInsurance = async (c: Context) => {
     try {
         await InsuranceService.delete(id);
         return c.json({ success: true });
-    } catch (e: any) {
-        if (e.code === "P2025") {
+    } catch (e) {
+        if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
             return c.json({ error: "Insurance not found" }, 404);
         }
         return c.json({ error: "Delete failed" }, 400);

@@ -4,12 +4,10 @@ import { getAuthToken } from "./test_helper";
 
 describe("Job Filters API", () => {
     let token: string;
-    let testCustomer1: any;
-    let testCustomer2: any;
-    let testVehicle1: any;
-    let testVehicle2: any;
-    let testJob1: any;
-    let testJob2: any;
+    let testCustomer1: { id: number };
+    let testCustomer2: { id: number };
+    let testVehicle1: { id: number };
+    let testVehicle2: { id: number };
 
     beforeAll(async () => {
         token = await getAuthToken();
@@ -20,14 +18,14 @@ describe("Job Filters API", () => {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "สมชาย ใจดี", phone: "0811111111" })
         });
-        testCustomer1 = await cust1Res.json();
+        testCustomer1 = await cust1Res.json() as { id: number };
 
         const cust2Res = await app.request("/api/v1/private/customers", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "สมหญิง รักษ์ดี", phone: "0822222222" })
         });
-        testCustomer2 = await cust2Res.json();
+        testCustomer2 = await cust2Res.json() as { id: number };
 
         // Create test vehicles
         const veh1Res = await app.request("/api/v1/private/vehicles", {
@@ -42,7 +40,7 @@ describe("Job Filters API", () => {
                 chassisNumber: "CHASSIS-001"
             })
         });
-        testVehicle1 = await veh1Res.json();
+        testVehicle1 = await veh1Res.json() as { id: number };
 
         const veh2Res = await app.request("/api/v1/private/vehicles", {
             method: "POST",
@@ -56,10 +54,10 @@ describe("Job Filters API", () => {
                 chassisNumber: "CHASSIS-002"
             })
         });
-        testVehicle2 = await veh2Res.json();
+        testVehicle2 = await veh2Res.json() as { id: number };
 
         // Create test jobs
-        const job1Res = await app.request("/api/v1/private/jobs", {
+        await app.request("/api/v1/private/jobs", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({
@@ -69,9 +67,8 @@ describe("Job Filters API", () => {
                 startDate: "2026-01-15T00:00:00.000Z"
             })
         });
-        testJob1 = await job1Res.json();
 
-        const job2Res = await app.request("/api/v1/private/jobs", {
+        await app.request("/api/v1/private/jobs", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({
@@ -81,7 +78,6 @@ describe("Job Filters API", () => {
                 startDate: "2026-01-18T00:00:00.000Z"
             })
         });
-        testJob2 = await job2Res.json();
     });
 
     it("should filter jobs by vehicle registration", async () => {
@@ -89,9 +85,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { vehicle: { registration: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.vehicle.registration.includes("กข-1234"))).toBe(true);
+        expect(body.data.some((job) => job.vehicle.registration.includes("กข-1234"))).toBe(true);
     });
 
     it("should filter jobs by vehicle registration using 'registration' alias", async () => {
@@ -99,9 +95,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { vehicle: { registration: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.vehicle.registration.includes("ฮน-5678"))).toBe(true);
+        expect(body.data.some((job) => job.vehicle.registration.includes("ฮน-5678"))).toBe(true);
     });
 
     it("should filter jobs by customer name", async () => {
@@ -109,9 +105,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { customer?: { name: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.customer?.name.includes("สมชาย"))).toBe(true);
+        expect(body.data.some((job) => job.customer?.name.includes("สมชาย"))).toBe(true);
     });
 
     it("should filter jobs by customer name using 'customer' alias", async () => {
@@ -119,9 +115,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { customer?: { name: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.customer?.name.includes("สมหญิง"))).toBe(true);
+        expect(body.data.some((job) => job.customer?.name.includes("สมหญิง"))).toBe(true);
     });
 
     it("should filter jobs by chassis number", async () => {
@@ -129,9 +125,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { vehicle: { chassisNumber: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.vehicle.chassisNumber === "CHASSIS-001")).toBe(true);
+        expect(body.data.some((job) => job.vehicle.chassisNumber === "CHASSIS-001")).toBe(true);
     });
 
     it("should filter jobs by VIN number", async () => {
@@ -139,9 +135,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { vehicle: { vinNumber: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.vehicle.vinNumber === "VIN-TEST-002")).toBe(true);
+        expect(body.data.some((job) => job.vehicle.vinNumber === "VIN-TEST-002")).toBe(true);
     });
 
     it("should filter jobs by VIN using 'vin' alias", async () => {
@@ -149,9 +145,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { vehicle: { vinNumber: string } }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.vehicle.vinNumber === "VIN-TEST-001")).toBe(true);
+        expect(body.data.some((job) => job.vehicle.vinNumber === "VIN-TEST-001")).toBe(true);
     });
 
     it("should filter jobs by job number", async () => {
@@ -159,9 +155,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string }[] };
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data.some((job: any) => job.jobNumber.includes("JOB-FILTER-001"))).toBe(true);
+        expect(body.data.some((job) => job.jobNumber.includes("JOB-FILTER-001"))).toBe(true);
     });
 
     it("should filter jobs by status", async () => {
@@ -169,8 +165,8 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
-        expect(body.data.every((job: any) => job.status === "CLAIM")).toBe(true);
+        const body = await res.json() as { data: { status: string }[] };
+        expect(body.data.every((job) => job.status === "CLAIM")).toBe(true);
     });
 
     it("should filter jobs by date range", async () => {
@@ -178,9 +174,9 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { startDate: string }[] };
         // Should only return job2 which was created on 2026-01-18
-        const matchingJobs = body.data.filter((job: any) => {
+        const matchingJobs = body.data.filter((job) => {
             const startDate = new Date(job.startDate);
             return startDate >= new Date("2026-01-17") && startDate <= new Date("2026-01-19");
         });
@@ -192,7 +188,7 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: unknown[] };
         expect(body.data.length).toBeGreaterThan(0);
     });
 
@@ -201,10 +197,10 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { status: string; customer?: { name: string } }[] };
         if (body.data.length > 0) {
-            expect(body.data.every((job: any) => job.status === "CLAIM")).toBe(true);
-            expect(body.data.some((job: any) => job.customer?.name.includes("สมชาย"))).toBe(true);
+            expect(body.data.every((job) => job.status === "CLAIM")).toBe(true);
+            expect(body.data.some((job) => job.customer?.name.includes("สมชาย"))).toBe(true);
         }
     });
 
@@ -213,7 +209,7 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: unknown[]; total: number };
         expect(body.data).toEqual([]);
         expect(body.total).toBe(0);
     });
@@ -223,7 +219,7 @@ describe("Job Filters API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: unknown[] };
         // Should have insuranceCompany field (can be null)
         expect(body.data[0]).toHaveProperty("insuranceCompany");
     });

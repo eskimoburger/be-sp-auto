@@ -18,7 +18,7 @@ export const deleteEmployee = async (c: Context) => {
     try {
         await EmployeeService.delete(id);
         return c.json({ success: true });
-    } catch (e) {
+    } catch {
         return c.json({ error: "Delete failed" }, 400);
     }
 };

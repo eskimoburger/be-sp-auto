@@ -1,5 +1,4 @@
-import { JobStatus } from "@prisma/client";
-import { describe, expect, it, beforeAll, afterAll, afterEach } from "bun:test";
+import { describe, expect, it, beforeAll, afterEach } from "bun:test";
 import { prisma } from "../lib/prisma";
 import { DataFactory } from "./factories";
 

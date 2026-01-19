@@ -25,7 +25,7 @@ describe("Vehicle API", () => {
             })
         });
         expect(res.status).toBe(201);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { id: number };
         vehicleId = body.id;
     });
 
@@ -50,7 +50,7 @@ describe("Vehicle API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { data: unknown[] };
         expect(Array.isArray(body.data)).toBe(true);
         expect(body.data.length).toBeGreaterThan(0);
     });
@@ -59,17 +59,21 @@ describe("Vehicle API", () => {
         const listRes = await app.request("/api/v1/private/vehicles", {
             headers: { Authorization: `Bearer ${token}` }
         });
-        const body = (await listRes.json()) as any;
+        const body = await listRes.json() as { data: { id: number; registration: string }[] };
         const list = body.data;
         const target = list[0];
+
+        if (!target) {
+            throw new Error("No vehicles found");
+        }
 
         const res = await app.request(`/api/v1/private/vehicles?reg=${target.registration}`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const searchBody = (await res.json()) as any[];
+        const searchBody = await res.json() as { id: number }[];
         expect(searchBody.length).toBe(1);
-        expect(searchBody[0].id).toBe(target.id);
+        expect(searchBody[0]?.id).toBe(target.id);
     });
 
     it("should update vehicle", async () => {
@@ -82,7 +86,7 @@ describe("Vehicle API", () => {
             body: JSON.stringify({ color: "Red" })
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { color: string };
         expect(body.color).toBe("Red");
     });
 });

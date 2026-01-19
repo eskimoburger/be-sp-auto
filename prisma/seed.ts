@@ -1,4 +1,3 @@
-import { createClient } from "@libsql/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
 import { DataFactory } from "../src/tests/factories";
@@ -311,8 +310,8 @@ async function main() {
                 else if (stage.orderIndex === currentStageOrder) {
                     // First few steps done, middle in progress, rest pending
                     const rand = Math.random();
-                    if (rand > 0.7) stepStatus = "completed";
-                    else if (rand > 0.4) stepStatus = "in_progress";
+                    if (rand > 0.7) {stepStatus = "completed";}
+                    else if (rand > 0.4) {stepStatus = "in_progress";}
                 }
 
                 await prisma.jobStep.create({
@@ -335,10 +334,8 @@ async function main() {
         for (let j = 0; j < vehicleCount; j++) {
             const vehicle = await DataFactory.createVehicle(customer.id);
             // Create job for *every* vehicle for demo purposes, or high probability
-            if (true) {
-                const status = faker.helpers.arrayElement(["CLAIM", "REPAIR", "BILLING"]); // Avoid DONE for now to show active steps
-                await createJobWithWorkflow(vehicle.id, customer.id, status as JobStatus);
-            }
+            const status = faker.helpers.arrayElement(["CLAIM", "REPAIR", "BILLING"]); // Avoid DONE for now to show active steps
+            await createJobWithWorkflow(vehicle.id, customer.id, status as JobStatus);
         }
     }
 

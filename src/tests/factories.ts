@@ -1,6 +1,5 @@
 import { faker } from "@faker-js/faker";
 import type { Prisma, JobStatus } from "@prisma/client";
-import { PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 export class DataFactory {

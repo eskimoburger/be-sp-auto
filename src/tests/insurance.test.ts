@@ -15,7 +15,7 @@ describe("Insurance API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { data: { logoUrl?: string }[] };
         expect(body.data).toBeDefined();
         expect(body.data.length).toBeGreaterThan(0);
         expect(body.data[0]).toHaveProperty("logoUrl");
@@ -26,8 +26,8 @@ describe("Insurance API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
-        expect(body.data.some((ins: any) => ins.name.includes("วิริยะ"))).toBe(true);
+        const body = await res.json() as { data: { name: string }[] };
+        expect(body.data.some((ins) => ins.name.includes("วิริยะ"))).toBe(true);
     });
 
     it("should create a new insurance company", async () => {
@@ -46,7 +46,7 @@ describe("Insurance API", () => {
         });
 
         expect(res.status).toBe(201);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { id: number; name: string };
         expect(body).toHaveProperty("id");
         expect(body.name).toBe(newInsurance.name);
         createdInsuranceId = body.id;
@@ -61,7 +61,7 @@ describe("Insurance API", () => {
             },
             body: JSON.stringify({ name: "Update Test Insurance" })
         });
-        const created = (await createRes.json()) as any;
+        const created = await createRes.json() as { id: number };
 
         const updateData = { name: "Updated Insurance Name" };
         const res = await app.request(`/api/v1/private/insurances/${created.id}`, {
@@ -74,7 +74,7 @@ describe("Insurance API", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { name: string };
         expect(body.name).toBe(updateData.name);
     });
 
@@ -88,7 +88,7 @@ describe("Insurance API", () => {
             },
             body: JSON.stringify({ name: "To Be Deleted" })
         });
-        const created = (await createRes.json()) as any;
+        const created = await createRes.json() as { id: number };
 
         const res = await app.request(`/api/v1/private/insurances/${created.id}`, {
             method: "DELETE",
@@ -96,7 +96,7 @@ describe("Insurance API", () => {
         });
 
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { success: boolean };
         expect(body.success).toBe(true);
     });
 

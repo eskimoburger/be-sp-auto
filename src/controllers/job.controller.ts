@@ -29,7 +29,7 @@ export const getJobs = async (c: Context) => {
         startDateFrom: c.req.query("startDateFrom"),
         startDateTo: c.req.query("startDateTo"),
         sortBy: c.req.query("sortBy"),
-        sortOrder: (c.req.query("sortOrder") as "asc" | "desc") || "desc"
+        sortOrder: (c.req.query("sortOrder") || "desc") as "asc" | "desc"
     };
 
     // Remove undefined values

@@ -4,7 +4,7 @@ import { getAuthToken } from "./test_helper";
 
 describe("Job Sorting API", () => {
     let token: string;
-    let jobs: any[] = [];
+    const jobs: unknown[] = [];
 
     beforeAll(async () => {
         token = await getAuthToken();
@@ -15,7 +15,7 @@ describe("Job Sorting API", () => {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "Sort Test Customer", phone: "0899999999" })
         });
-        const customer = await custRes.json() as any;
+        const customer = await custRes.json() as { id: number };
 
         // Create multiple jobs with different dates
         const jobsData = [
@@ -34,7 +34,7 @@ describe("Job Sorting API", () => {
                     customerId: customer.id
                 })
             });
-            const vehicle = await vehRes.json() as any;
+            const vehicle = await vehRes.json() as { id: number };
 
             const jobRes = await app.request("/api/v1/private/jobs", {
                 method: "POST",
@@ -46,7 +46,7 @@ describe("Job Sorting API", () => {
                     startDate: jobData.startDate
                 })
             });
-            const job = await jobRes.json() as any;
+            const job = await jobRes.json();
             jobs.push(job);
         }
 
@@ -59,15 +59,19 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
         // Filter our test jobs
-        const testJobs = body.data.filter((job: any) => job.jobNumber.startsWith("SORT-"));
+        const testJobs = body.data.filter((job) => job.jobNumber.startsWith("SORT-"));
 
         // Verify ascending order
         if (testJobs.length >= 2) {
             for (let i = 1; i < testJobs.length; i++) {
-                expect(testJobs[i].jobNumber >= testJobs[i - 1].jobNumber).toBe(true);
+                const current = testJobs[i];
+                const previous = testJobs[i - 1];
+                if (current && previous) {
+                    expect(current.jobNumber >= previous.jobNumber).toBe(true);
+                }
             }
         }
     });
@@ -77,15 +81,19 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
         // Filter our test jobs
-        const testJobs = body.data.filter((job: any) => job.jobNumber.startsWith("SORT-"));
+        const testJobs = body.data.filter((job) => job.jobNumber.startsWith("SORT-"));
 
         // Verify descending order
         if (testJobs.length >= 2) {
             for (let i = 1; i < testJobs.length; i++) {
-                expect(testJobs[i].jobNumber <= testJobs[i - 1].jobNumber).toBe(true);
+                const current = testJobs[i];
+                const previous = testJobs[i - 1];
+                if (current && previous) {
+                    expect(current.jobNumber <= previous.jobNumber).toBe(true);
+                }
             }
         }
     });
@@ -95,16 +103,16 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
         // Filter our test jobs
-        const testJobs = body.data.filter((job: any) => job.jobNumber.startsWith("SORT-"));
+        const testJobs = body.data.filter((job) => job.jobNumber.startsWith("SORT-"));
 
         // Verify ascending order by date
         if (testJobs.length >= 2) {
             for (let i = 1; i < testJobs.length; i++) {
-                const date1 = new Date(testJobs[i - 1].startDate);
-                const date2 = new Date(testJobs[i].startDate);
+                const date1 = new Date(testJobs[i - 1]?.startDate || "");
+                const date2 = new Date(testJobs[i]?.startDate || "");
                 expect(date2 >= date1).toBe(true);
             }
         }
@@ -115,16 +123,16 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
         // Filter our test jobs
-        const testJobs = body.data.filter((job: any) => job.jobNumber.startsWith("SORT-"));
+        const testJobs = body.data.filter((job) => job.jobNumber.startsWith("SORT-"));
 
         // Verify descending order by date
         if (testJobs.length >= 2) {
             for (let i = 1; i < testJobs.length; i++) {
-                const date1 = new Date(testJobs[i - 1].startDate);
-                const date2 = new Date(testJobs[i].startDate);
+                const date1 = new Date(testJobs[i - 1]?.startDate || "");
+                const date2 = new Date(testJobs[i]?.startDate || "");
                 expect(date2 <= date1).toBe(true);
             }
         }
@@ -135,13 +143,13 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { createdAt: string; startDate: string; status: string }[] };
 
         // Should default to createdAt desc
         if (body.data.length >= 2) {
             for (let i = 1; i < Math.min(body.data.length, 5); i++) {
-                const date1 = new Date(body.data[i - 1].createdAt);
-                const date2 = new Date(body.data[i].createdAt);
+                const date1 = new Date(body.data[i - 1]?.createdAt || "");
+                const date2 = new Date(body.data[i]?.createdAt || "");
                 expect(date2 <= date1).toBe(true);
             }
         }
@@ -152,12 +160,12 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { status: string; startDate: string }[] };
 
         // Verify ascending order by status
         if (body.data.length >= 2) {
             for (let i = 1; i < Math.min(body.data.length, 5); i++) {
-                expect(body.data[i].status >= body.data[i - 1].status).toBe(true);
+                expect((body.data[i]?.status || "") >= (body.data[i - 1]?.status || "")).toBe(true);
             }
         }
     });
@@ -167,16 +175,16 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { status: string; startDate: string }[] };
 
         // All should have status CLAIM
-        expect(body.data.every((job: any) => job.status === "CLAIM")).toBe(true);
+        expect(body.data.every((job) => job.status === "CLAIM")).toBe(true);
 
         // Should be sorted by startDate asc
         if (body.data.length >= 2) {
             for (let i = 1; i < body.data.length; i++) {
-                const date1 = new Date(body.data[i - 1].startDate);
-                const date2 = new Date(body.data[i].startDate);
+                const date1 = new Date(body.data[i - 1]?.startDate || "");
+                const date2 = new Date(body.data[i]?.startDate || "");
                 expect(date2 >= date1).toBe(true);
             }
         }
@@ -187,7 +195,7 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: unknown[] };
 
         // Should still return results (falling back to createdAt)
         expect(Array.isArray(body.data)).toBe(true);
@@ -198,16 +206,16 @@ describe("Job Sorting API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = await res.json() as any;
+        const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
         // Filter our test jobs
-        const testJobs = body.data.filter((job: any) => job.jobNumber.startsWith("SORT-"));
+        const testJobs = body.data.filter((job) => job.jobNumber.startsWith("SORT-"));
 
         // Verify descending order (default)
         if (testJobs.length >= 2) {
             for (let i = 1; i < testJobs.length; i++) {
-                const date1 = new Date(testJobs[i - 1].startDate);
-                const date2 = new Date(testJobs[i].startDate);
+                const date1 = new Date(testJobs[i - 1]?.startDate || "");
+                const date2 = new Date(testJobs[i]?.startDate || "");
                 expect(date2 <= date1).toBe(true);
             }
         }

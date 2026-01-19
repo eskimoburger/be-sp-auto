@@ -16,19 +16,6 @@ describe("Verification Tests", () => {
             role: "staff"
         };
 
-        // Use service directly or API? API ensures middleware runs.
-        const req = new Request("http://localhost/api/v1/private/employees", {
-            method: "POST",
-            headers: {
-                // Creating employee requires auth, but we might not have a token easily in test without logging in.
-                // For verification, we can use Service directly to check the Hashing logic specifically,
-                // or we can Mock the auth middleware if we want to test API.
-                // Let's test Service directly for Hashing logic as it's the core security requirement.
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        });
-
         // Testing Service Logic Directly for Hashing
         const { EmployeeService } = await import("../services/employee.service");
         // Pass a copy because create mutates the object
@@ -50,7 +37,7 @@ describe("Verification Tests", () => {
         });
         const res = await app.fetch(req);
         expect(res.status).toBe(400);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { error: string };
         expect(body.error).toBe("Validation Failed");
     });
 });

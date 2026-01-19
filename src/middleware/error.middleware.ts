@@ -5,7 +5,7 @@ import { HTTPException } from "hono/http-exception";
 export const errorMiddleware = async (c: Context, next: Next) => {
     try {
         await next();
-    } catch (err: any) {
+    } catch (err) {
         if (err instanceof HTTPException) {
             return err.getResponse();
         }
@@ -46,7 +46,7 @@ export const errorMiddleware = async (c: Context, next: Next) => {
         return c.json(
             {
                 error: "Internal Server Error",
-                message: process.env.NODE_ENV === "development" ? err.message : undefined
+                message: process.env.NODE_ENV === "development" ? (err instanceof Error ? err.message : String(err)) : undefined
             },
             500
         );

@@ -14,19 +14,19 @@ describe("Job List API", () => {
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "Job Test Cust", phone: "1111" })
         });
-        const cust = (await custRes.json()) as any;
+        const cust = (await custRes.json());
 
         const vehRes = await app.request("/api/v1/private/vehicles", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ registration: "JOB-LIST-1", brand: "Toyota", customerId: cust.id })
+            body: JSON.stringify({ registration: "JOB-LIST-1", brand: "Toyota", customerId: (cust as { id: number }).id })
         });
-        const veh = (await vehRes.json()) as any;
+        const veh = (await vehRes.json());
 
         await app.request("/api/v1/private/jobs", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-            body: JSON.stringify({ vehicleId: veh.id, customerId: cust.id, jobNumber: "LIST-TEST-JOB" })
+            body: JSON.stringify({ vehicleId: (veh as { id: number }).id, customerId: (cust as { id: number }).id, jobNumber: "LIST-TEST-JOB" })
         });
     });
 
@@ -35,10 +35,10 @@ describe("Job List API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { data: unknown[] };
         expect(Array.isArray(body.data)).toBe(true);
         expect(body.data.length).toBeGreaterThan(0);
-        expect(body.data[0].vehicle).toBeDefined();
+        expect(body.data[0]).toHaveProperty("vehicle");
 
         // Test pagination params
         const page2Res = await app.request("/api/v1/private/jobs?page=2&limit=1", {

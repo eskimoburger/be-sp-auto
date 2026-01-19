@@ -14,7 +14,7 @@ describe("Employee API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { data: unknown[] };
         expect(body.data).toBeDefined();
         expect(Array.isArray(body.data)).toBe(true);
     });
@@ -31,7 +31,7 @@ describe("Employee API", () => {
         });
 
         expect(res.status).toBe(201);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { id: number; name: string };
         expect(body).toHaveProperty("id");
         expect(body.name).toBe(newEmployee.name);
     });

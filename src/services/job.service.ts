@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import type { Prisma, JobStatus } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
 export interface CreateJobDTO {
@@ -102,7 +102,7 @@ export class JobService {
 
         // Status filter
         if (filters?.status) {
-            where.status = filters.status as any;
+            where.status = filters.status as JobStatus;
         }
 
         // Insurance company filter
@@ -142,35 +142,35 @@ export class JobService {
         // Specific field filters - these override general search
         if (filters?.vehicleRegistration) {
             where.vehicle = {
-                ...where.vehicle as any,
+                ...(where.vehicle as Prisma.VehicleWhereInput),
                 registration: { contains: filters.vehicleRegistration }
             };
         }
 
         if (filters?.customerName) {
             where.customer = {
-                ...where.customer as any,
+                ...(where.customer as Prisma.CustomerWhereInput),
                 name: { contains: filters.customerName }
             };
         }
 
         if (filters?.chassisNumber) {
             where.vehicle = {
-                ...where.vehicle as any,
+                ...(where.vehicle as Prisma.VehicleWhereInput),
                 chassisNumber: { contains: filters.chassisNumber }
             };
         }
 
         if (filters?.vinNumber) {
             where.vehicle = {
-                ...where.vehicle as any,
+                ...(where.vehicle as Prisma.VehicleWhereInput),
                 vinNumber: { contains: filters.vinNumber }
             };
         }
 
         // Build orderBy clause
         const sortOrder = filters?.sortOrder || "desc";
-        let orderBy: any = { createdAt: sortOrder };
+        let orderBy: Prisma.JobOrderByWithRelationInput = { createdAt: sortOrder };
 
         if (filters?.sortBy) {
             switch (filters.sortBy) {
@@ -342,7 +342,7 @@ export class JobService {
                     // Update job status based on new stage
                     await tx.job.update({
                         where: { id: jobStage.jobId },
-                        data: { status: nextStage.stage.code as any }
+                        data: { status: nextStage.stage.code as JobStatus }
                     });
                 } else {
                     // All stages complete - mark job as done

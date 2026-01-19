@@ -20,7 +20,7 @@ describe("Customer API", () => {
             body: JSON.stringify({ name: "Jane Doe", phone: "0999999999" })
         });
         expect(res.status).toBe(201);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { id: number };
         customerId = body.id;
     });
 
@@ -29,7 +29,7 @@ describe("Customer API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { data: unknown[]; total: number };
         expect(body.data).toBeDefined();
         expect(Array.isArray(body.data)).toBe(true);
         expect(body.total).toBeDefined();
@@ -40,7 +40,7 @@ describe("Customer API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { id: number };
         expect(body.id).toBe(customerId);
     });
 
@@ -56,9 +56,9 @@ describe("Customer API", () => {
             headers: { Authorization: `Bearer ${token}` }
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any[];
+        const body = await res.json() as { name: string }[];
         expect(body.length).toBeGreaterThan(0);
-        expect(body[0].name).toContain("Jane");
+        expect(body[0]?.name).toContain("Jane");
     });
 
     it("should update customer", async () => {
@@ -71,7 +71,7 @@ describe("Customer API", () => {
             body: JSON.stringify({ address: "123 Main St" })
         });
         expect(res.status).toBe(200);
-        const body = (await res.json()) as any;
+        const body = await res.json() as { address: string };
         expect(body.address).toBe("123 Main St");
     });
 });

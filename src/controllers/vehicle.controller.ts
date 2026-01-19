@@ -16,7 +16,7 @@ export const createVehicle = async (c: Context) => {
     try {
         const vehicle = await VehicleService.create(body);
         return c.json(vehicle, 201);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Creation failed (Duplicate registration?)" }, 400);
     }
 };
@@ -28,7 +28,7 @@ export const updateVehicle = async (c: Context) => {
     try {
         const vehicle = await VehicleService.update(id, body);
         return c.json(vehicle);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Update failed" }, 400);
     }
 };
@@ -39,7 +39,7 @@ export const deleteVehicle = async (c: Context) => {
     try {
         await VehicleService.delete(id);
         return c.json({ success: true });
-    } catch (e) {
+    } catch {
         return c.json({ error: "Delete failed" }, 400);
     }
 };
@@ -66,7 +66,7 @@ export const createVehicleBrand = async (c: Context) => {
     try {
         const brand = await VehicleService.createBrand(body);
         return c.json(brand, 201);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Creation failed (Duplicate code?)" }, 400);
     }
 };
@@ -78,7 +78,7 @@ export const updateVehicleBrand = async (c: Context) => {
     try {
         const brand = await VehicleService.updateBrand(id, body);
         return c.json(brand);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Update failed" }, 400);
     }
 };
@@ -89,7 +89,7 @@ export const deleteVehicleBrand = async (c: Context) => {
     try {
         await VehicleService.deleteBrand(id);
         return c.json({ success: true });
-    } catch (e) {
+    } catch {
         return c.json({ error: "Delete failed (May have related models)" }, 400);
     }
 };
@@ -117,7 +117,7 @@ export const createVehicleType = async (c: Context) => {
     try {
         const type = await VehicleService.createType(body);
         return c.json(type, 201);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Creation failed (Duplicate code?)" }, 400);
     }
 };
@@ -129,7 +129,7 @@ export const updateVehicleType = async (c: Context) => {
     try {
         const type = await VehicleService.updateType(id, body);
         return c.json(type);
-    } catch (e) {
+    } catch {
         return c.json({ error: "Update failed" }, 400);
     }
 };
@@ -140,7 +140,7 @@ export const deleteVehicleType = async (c: Context) => {
     try {
         await VehicleService.deleteType(id);
         return c.json({ success: true });
-    } catch (e) {
+    } catch {
         return c.json({ error: "Delete failed (May have related models)" }, 400);
     }
 };

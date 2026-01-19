@@ -34,7 +34,7 @@ export const getAuthToken = async () => {
         throw new Error(`Failed to login in test helper: ${res.status}`);
     }
 
-    const body = (await res.json()) as any;
+    const body = await res.json() as { token: string };
     return body.token;
 };
 

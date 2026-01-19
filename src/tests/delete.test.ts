@@ -23,7 +23,7 @@ describe("Delete Operations", () => {
             },
             body: JSON.stringify({ name: "Delete Me", role: "staff" })
         });
-        const body = (await createRes.json()) as any;
+        const body = await createRes.json() as { id: number };
         empId = body.id;
         expect(createRes.status).toBe(201);
 
@@ -48,7 +48,7 @@ describe("Delete Operations", () => {
             },
             body: JSON.stringify({ name: "Temp Customer", phone: "0000" })
         });
-        const body = (await createRes.json()) as any;
+        const body = await createRes.json() as { id: number };
         custId = body.id;
 
         const delRes = await app.request(`/api/v1/private/customers/${custId}`, {
@@ -74,7 +74,7 @@ describe("Delete Operations", () => {
             },
             body: JSON.stringify({ registration: `DEL-${Date.now()}`, brand: "Test" })
         });
-        const body = (await createRes.json()) as any;
+        const body = await createRes.json() as { id: number };
         vehId = body.id;
 
         const delRes = await app.request(`/api/v1/private/vehicles/${vehId}`, {

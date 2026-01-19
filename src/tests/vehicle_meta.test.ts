@@ -27,7 +27,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
                 })
             });
             expect(res.status).toBe(201);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { id: number };
             brandId = body.id;
             expect(brandId).toBeDefined();
         });
@@ -35,7 +35,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         it("should get all vehicle brands", async () => {
             const res = await app.request("/api/v1/private/vehicles/brands");
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as unknown[];
             expect(Array.isArray(body)).toBe(true);
             expect(body.length).toBeGreaterThan(0);
         });
@@ -43,7 +43,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         it("should get vehicle brand by ID", async () => {
             const res = await app.request(`/api/v1/private/vehicles/brands/${brandId}`);
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { id: number };
             expect(body.id).toBe(brandId);
         });
 
@@ -57,7 +57,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
                 body: JSON.stringify({ name: "Updated Brand Name" })
             });
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { name: string };
             expect(body.name).toBe("Updated Brand Name");
         });
 
@@ -88,7 +88,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
                 })
             });
             expect(res.status).toBe(201);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { id: number };
             typeId = body.id;
             expect(typeId).toBeDefined();
         });
@@ -96,7 +96,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         it("should get all vehicle types", async () => {
             const res = await app.request("/api/v1/private/vehicles/types");
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as unknown[];
             expect(Array.isArray(body)).toBe(true);
             expect(body.length).toBeGreaterThan(0);
         });
@@ -104,7 +104,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
         it("should get vehicle type by ID", async () => {
             const res = await app.request(`/api/v1/private/vehicles/types/${typeId}`);
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { id: number };
             expect(body.id).toBe(typeId);
         });
 
@@ -118,7 +118,7 @@ describe("Vehicle Metadata API (Brands & Types)", () => {
                 body: JSON.stringify({ name: "Updated Type Name" })
             });
             expect(res.status).toBe(200);
-            const body = (await res.json()) as any;
+            const body = await res.json() as { name: string };
             expect(body.name).toBe("Updated Type Name");
         });
 
