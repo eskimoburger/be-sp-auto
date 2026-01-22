@@ -33,8 +33,7 @@ export class CustomerService {
                 where,
                 skip,
                 take: limit,
-                orderBy: { updatedAt: "desc" },
-                include: { vehicles: true }
+                orderBy: { updatedAt: "desc" }
             }),
             prisma.customer.count({ where })
         ]);

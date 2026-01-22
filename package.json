@@ -8,11 +8,15 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "start": "bun run src/index.ts",
+    "gen:swagger": "bun run scripts/generate-swagger.ts",
+    "gen:demo": "bun run scripts/convert-demo-html.ts",
+    "deploy": "npm run gen:demo && npm run gen:swagger && wrangler deploy --minify",
     "build": "prisma generate"
   },
   "devDependencies": {
     "@faker-js/faker": "^10.2.0",
     "@hono/eslint-config": "^2.0.5",
+    "@types/bcryptjs": "^3.0.0",
     "@types/bun": "^1.3.6",
     "@types/swagger-jsdoc": "^6.0.4",
     "eslint": "^9.39.2",
@@ -20,7 +24,8 @@
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.0.0",
     "prettier": "^3.8.0",
-    "prisma": "^7.2.0"
+    "prisma": "^7.2.0",
+    "wrangler": "^4.59.2"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -32,6 +37,7 @@
     "@libsql/client": "^0.17.0",
     "@prisma/adapter-libsql": "^7.2.0",
     "@prisma/client": "^7.2.0",
+    "bcryptjs": "^3.0.3",
     "hono": "^4.11.4",
     "swagger-jsdoc": "^6.2.8",
     "zod": "^4.3.5"

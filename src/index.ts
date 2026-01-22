@@ -1,22 +1,46 @@
 import { swaggerUI } from "@hono/swagger-ui";
 import { Hono } from "hono";
-import { compress } from "hono/compress";
+// import { compress } from "hono/compress";
 import { cors } from "hono/cors";
-import { serveStatic } from "hono/bun";
+// import { serveStatic } from "hono/bun";
 import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import { secureHeaders } from "hono/secure-headers";
+import { THAI_DOCS_HTML } from "./docs/thai-docs";
+import { MINI_TEST_HTML } from "./docs/mini-test";
+import { DEMO_APP_HTML } from "./docs/demo-app";
+import { initPrisma, setRequestPrisma, clearRequestPrisma, setContextPrisma } from "./lib/prisma";
+
 import { login, logout } from "./controllers/auth.controller";
 import { LoginSchema } from "./lib/validators";
 import { authMiddleware } from "./middleware/auth.middleware";
 import { errorMiddleware } from "./middleware/error.middleware";
-import { swaggerSpec } from "./swagger";
+import swaggerSpec from "./swagger.json";
 
 export const app = new Hono();
 
 // Middlewares
+app.use("*", async (c, next) => {
+    // Initialize Prisma environment
+    initPrisma(c.env);
+
+    // For Cloudflare Workers: Create a request-scoped Prisma client
+    // This ensures the same instance is used throughout the request
+    const isLocalDev = typeof process !== "undefined" && process.env?.NODE_ENV !== "production";
+    if (!isLocalDev) {
+        const prismaClient = setContextPrisma(c, c.env);
+        setRequestPrisma(prismaClient);
+    }
+
+    await next();
+
+    // Clean up request-scoped client after response
+    if (!isLocalDev) {
+        clearRequestPrisma();
+    }
+});
 app.use("*", logger());
-app.use("*", compress());
+// app.use("*", compress()); // Cloudflare handles compression automatically
 app.use("*", secureHeaders());
 app.use(
     "*",
@@ -97,28 +121,19 @@ app.get("/doc", (c) => {
 });
 
 // Thai Documentation Endpoint - serves separate HTML file with Mermaid flow diagrams
-app.get("/docs/th", async (c) => {
-    const htmlPath = new URL("./docs/thai-docs.html", import.meta.url).pathname;
-    const htmlContent = await Bun.file(htmlPath).text();
-    return c.html(htmlContent);
+app.get("/docs/th", (c) => {
+    return c.html(THAI_DOCS_HTML);
 });
 
 // Mini Test Frontend - Manual API Testing
-app.get("/test", async (c) => {
-    const htmlPath = new URL("./docs/mini-test.html", import.meta.url).pathname;
-    const htmlContent = await Bun.file(htmlPath).text();
-    return c.html(htmlContent);
+app.get("/test", (c) => {
+    return c.html(MINI_TEST_HTML);
 });
 
-// Demo App - React frontend build
-app.get("/demo", serveStatic({ path: "./frontend/dist/index.html" }));
-app.get(
-    "/demo/*",
-    serveStatic({
-        root: "./frontend/dist",
-        rewriteRequestPath: (path) => path.replace(/^\/demo/, "")
-    })
-);
+// Demo App - Standalone HTML file
+app.get("/demo", (c) => {
+    return c.html(DEMO_APP_HTML);
+});
 
 app.get("/", (c) => {
     return c.text("Hello Hono + Bun + Turso!");
