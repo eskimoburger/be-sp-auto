@@ -9,18 +9,47 @@ const employeeRoutes = new Hono();
  *   get:
  *     summary: Get all employees
  *     tags: [Employees]
- *     description: Retrieve a list of all employees
+ *     description: Retrieve a list of all employees with pagination and search
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Itmes per page
+ *       - in: query
+ *         name: q
+ *         schema:
+ *           type: string
+ *         description: Search query (name or username)
  *     responses:
  *       200:
  *         description: A list of employees
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Employee'
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Employee'
+ *                 total:
+ *                   type: integer
+ *                 page:
+ *                   type: integer
+ *                 limit:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

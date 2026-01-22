@@ -2,7 +2,11 @@ import type { Context } from "hono";
 import { EmployeeService } from "../services/employee.service";
 
 export const getEmployees = async (c: Context) => {
-    const employees = await EmployeeService.getAll();
+    const page = Number(c.req.query("page") || "1");
+    const limit = Number(c.req.query("limit") || "10");
+    const search = c.req.query("q");
+
+    const employees = await EmployeeService.getAll(page, limit, search);
     return c.json(employees);
 };
 
@@ -14,7 +18,7 @@ export const createEmployee = async (c: Context) => {
 
 export const deleteEmployee = async (c: Context) => {
     const id = Number(c.req.param("id"));
-    if (isNaN(id)) {return c.json({ error: "Invalid ID" }, 400);}
+    if (isNaN(id)) { return c.json({ error: "Invalid ID" }, 400); }
     try {
         await EmployeeService.delete(id);
         return c.json({ success: true });
