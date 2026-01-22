@@ -8,6 +8,10 @@ const jobRoutes = new Hono();
  * /api/v1/private/jobs:
  *   post:
  *     summary: Create a new job
+ *     description: |
+ *       Create a new job. Either provide vehicleId to reference an existing vehicle,
+ *       or provide a vehicle object to auto-create/find by registration.
+ *       Similarly, you can provide customerId or a customer object.
  *     tags: [Jobs]
  *     security:
  *       - bearerAuth: []
@@ -18,12 +22,48 @@ const jobRoutes = new Hono();
  *           schema:
  *             type: object
  *             required:
- *               - vehicleId
+ *               - jobNumber
+ *               - startDate
  *             properties:
+ *               jobNumber:
+ *                 type: string
+ *                 description: Unique job number
+ *               startDate:
+ *                 type: string
+ *                 format: date-time
  *               vehicleId:
  *                 type: integer
+ *                 description: ID of existing vehicle (use this OR vehicle object)
+ *               vehicle:
+ *                 type: object
+ *                 description: Inline vehicle data (finds by registration or creates new)
+ *                 properties:
+ *                   registration:
+ *                     type: string
+ *                     description: Vehicle registration (used for lookup)
+ *                   brand:
+ *                     type: string
+ *                   model:
+ *                     type: string
+ *                   color:
+ *                     type: string
+ *                   vinNumber:
+ *                     type: string
+ *                   chassisNumber:
+ *                     type: string
  *               customerId:
  *                 type: integer
+ *                 description: ID of existing customer (use this OR customer object)
+ *               customer:
+ *                 type: object
+ *                 description: Inline customer data (finds by name+phone or creates new)
+ *                 properties:
+ *                   name:
+ *                     type: string
+ *                   phone:
+ *                     type: string
+ *                   address:
+ *                     type: string
  *               insuranceCompanyId:
  *                 type: integer
  *               paymentType:
@@ -200,6 +240,11 @@ jobRoutes.get("/", JobController.getJobs);
  *                 totalPages:
  *                   type: integer
  *                   description: Total number of pages
+ *                 statusCounts:
+ *                   type: object
+ *                   description: Counts of jobs per status
+ *                   additionalProperties:
+ *                     type: integer
  *       401:
  *         description: Unauthorized - Valid JWT required
  */

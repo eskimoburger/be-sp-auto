@@ -1,10 +1,12 @@
 import type { Context } from "hono";
 import { JobService } from "../services/job.service";
+import { getPrisma } from "../lib/prisma";
 
 export const createJob = async (c: Context) => {
     const body = await c.req.json();
     try {
-        const job = await JobService.createJob(body);
+        const prisma = getPrisma(c.env, c);
+        const job = await JobService.createJob(body, prisma);
         return c.json(job, 201);
     } catch (e) {
         console.error(e);
@@ -37,14 +39,21 @@ export const getJobs = async (c: Context) => {
         Object.entries(filters).filter(([_, v]) => v !== undefined && v !== "")
     );
 
-    const result = await JobService.getAll(page, limit, Object.keys(cleanedFilters).length > 0 ? cleanedFilters : undefined);
+    const prisma = getPrisma(c.env, c);
+    const result = await JobService.getAll(
+        page,
+        limit,
+        Object.keys(cleanedFilters).length > 0 ? cleanedFilters : undefined,
+        prisma
+    );
     return c.json(result);
 };
 
 export const getJobDetails = async (c: Context) => {
     const id = Number(c.req.param("id"));
     if (isNaN(id)) { return c.json({ error: "Invalid ID" }, 400); }
-    const job = await JobService.getJobDetails(id);
+    const prisma = getPrisma(c.env, c);
+    const job = await JobService.getJobDetails(id, prisma);
     if (!job) { return c.json({ error: "Job not found" }, 404); }
     return c.json(job);
 };
@@ -66,7 +75,8 @@ export const updateStepStatus = async (c: Context) => {
     }
 
     try {
-        const step = await JobService.updateStepStatus(stepId, body.status, employeeId);
+        const prisma = getPrisma(c.env, c);
+        const step = await JobService.updateStepStatus(stepId, body.status, employeeId, prisma);
         return c.json(step);
     } catch (e) {
         console.error(e);

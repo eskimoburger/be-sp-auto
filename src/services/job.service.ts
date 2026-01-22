@@ -1,10 +1,30 @@
-import type { Prisma, JobStatus } from "@prisma/client";
+import type { Prisma, JobStatus, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 
+export interface VehicleInlineDTO {
+    registration: string;   // Required - used for lookup (unique)
+    brand: string;          // Required
+    model?: string;
+    color?: string;
+    vinNumber?: string;
+    chassisNumber?: string;
+}
+
+export interface CustomerInlineDTO {
+    name: string;           // Required
+    phone?: string;         // Used for lookup (with name)
+    address?: string;
+}
+
 export interface CreateJobDTO {
-    jobNumber: string;
-    vehicleId: number;
+    jobNumber?: string; // Auto-generated if not provided
+    // Either vehicleId OR vehicle object is required
+    vehicleId?: number;
+    vehicle?: VehicleInlineDTO;
+    // Either customerId OR customer object (optional)
     customerId?: number;
+    customer?: CustomerInlineDTO;
+    // Other fields
     insuranceCompanyId?: number;
     paymentType?: string;
     excessFee?: number;
@@ -15,122 +35,236 @@ export interface CreateJobDTO {
 }
 
 export class JobService {
-    static async createJob(data: CreateJobDTO) {
+    static async createJob(data: CreateJobDTO, prismaClient?: PrismaClient) {
+        const db = prismaClient ?? prisma;
         // Transaction to ensure all side-effects (stages, steps, photos) are created
-        return await prisma.$transaction(async (tx) => {
-            // 1. Create Job.
-            const { vehicleId, customerId, insuranceCompanyId, ...rest } = data;
+        return await db.$transaction(async (tx) => {
+            // 0. Auto-generate jobNumber if not provided
+            const jobNumber = data.jobNumber || `JOB-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-            if (!vehicleId) { throw new Error("Vehicle ID is required"); }
+            // 1. Resolve Vehicle: either by ID or by inline data (find-or-create)
+            const { vehicleId, vehicle, customerId, customer, insuranceCompanyId, jobNumber: _unusedJobNumber, ...rest } = data;
 
-            // Validate Vehicle Exists
-            const vehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
-            if (!vehicle) { throw new Error("Vehicle not found"); }
+            let resolvedVehicleId: number;
+            let vehicleCustomerId: number | undefined; // Customer ID from existing vehicle
+            let isNewVehicle = false;
 
+            if (vehicleId) {
+                // Use provided ID
+                const existingVehicle = await tx.vehicle.findUnique({ where: { id: vehicleId } });
+                if (!existingVehicle) { throw new Error("Vehicle not found"); }
+                resolvedVehicleId = vehicleId;
+                vehicleCustomerId = existingVehicle.customerId ?? undefined;
+            } else if (vehicle) {
+                // Find by registration or create
+                if (!vehicle.registration) { throw new Error("Vehicle registration is required"); }
+                // Note: brand is only required if we need to CREATE a NEW vehicle
+
+                const existingVehicle = await tx.vehicle.findUnique({
+                    where: { registration: vehicle.registration }
+                });
+
+                if (existingVehicle) {
+                    resolvedVehicleId = existingVehicle.id;
+                    vehicleCustomerId = existingVehicle.customerId ?? undefined;
+                } else {
+                    isNewVehicle = true;
+                    if (!vehicle.brand) { throw new Error("Vehicle brand is required for new vehicles"); }
+                    const newVehicle = await tx.vehicle.create({
+                        data: {
+                            registration: vehicle.registration,
+                            brand: vehicle.brand,
+                            model: vehicle.model,
+                            color: vehicle.color,
+                            vinNumber: vehicle.vinNumber,
+                            chassisNumber: vehicle.chassisNumber
+                        }
+                    });
+                    resolvedVehicleId = newVehicle.id;
+                }
+            } else {
+                throw new Error("Either vehicleId or vehicle object is required");
+            }
+
+            // 2. Resolve Customer
+            // - If vehicle exists → use vehicle's customer automatically
+            // - If new vehicle → can specify customer inline (find-or-create)
+            let resolvedCustomerId: number | undefined;
+
+            if (!isNewVehicle && vehicleCustomerId) {
+                // Existing vehicle with customer → use that customer
+                resolvedCustomerId = vehicleCustomerId;
+            } else if (customerId) {
+                // Explicit customer ID provided
+                const existingCustomer = await tx.customer.findUnique({ where: { id: customerId } });
+                if (!existingCustomer) { throw new Error("Customer not found"); }
+                resolvedCustomerId = customerId;
+
+                // Link customer to new vehicle if creating new vehicle
+                if (isNewVehicle) {
+                    await tx.vehicle.update({
+                        where: { id: resolvedVehicleId },
+                        data: { customerId: resolvedCustomerId }
+                    });
+                }
+            } else if (customer) {
+                // Find by name + phone or create
+                if (!customer.name) { throw new Error("Customer name is required"); }
+
+                const existingCustomer = await tx.customer.findFirst({
+                    where: {
+                        name: customer.name,
+                        phone: customer.phone || null
+                    }
+                });
+
+                if (existingCustomer) {
+                    resolvedCustomerId = existingCustomer.id;
+                } else {
+                    const newCustomer = await tx.customer.create({
+                        data: {
+                            name: customer.name,
+                            phone: customer.phone,
+                            address: customer.address
+                        }
+                    });
+                    resolvedCustomerId = newCustomer.id;
+                }
+
+                // Link customer to new vehicle if creating new vehicle
+                if (isNewVehicle) {
+                    await tx.vehicle.update({
+                        where: { id: resolvedVehicleId },
+                        data: { customerId: resolvedCustomerId }
+                    });
+                }
+            } else if (isNewVehicle) {
+                // New vehicle must have customer
+                throw new Error("Customer is required when creating a new vehicle");
+            }
+
+            // 3. Create the Job
             const job = await tx.job.create({
                 data: {
-                    ...rest,
-                    vehicle: { connect: { id: vehicleId } },
-                    customer: customerId ? { connect: { id: customerId } } : undefined,
+                    paymentType: rest.paymentType,
+                    excessFee: rest.excessFee,
+                    startDate: rest.startDate,
+                    estimatedEndDate: rest.estimatedEndDate,
+                    repairDescription: rest.repairDescription,
+                    notes: rest.notes,
+                    jobNumber,
+                    vehicle: { connect: { id: resolvedVehicleId } },
+                    customer: resolvedCustomerId ? { connect: { id: resolvedCustomerId } } : undefined,
                     insuranceCompany: insuranceCompanyId ? { connect: { id: insuranceCompanyId } } : undefined
                 }
             });
 
-            // 2. Initialize Stages
-            const stages = await tx.stage.findMany({ orderBy: { orderIndex: "asc" } });
-            for (const stage of stages) {
-                const jobStage = await tx.jobStage.create({
-                    data: {
-                        jobId: job.id,
-                        stageId: stage.id,
-                        isLocked: stage.orderIndex !== 1, // Only the first stage is unlocked
-                        isCompleted: false,
-                        startedAt: stage.orderIndex === 1 ? new Date() : null
-                    }
-                });
+            // 2. Initialize Stages + Steps in bulk to reduce subrequests
+            const stages = await tx.stage.findMany({
+                orderBy: { orderIndex: "asc" },
+                include: { stepTemplates: { orderBy: { orderIndex: "asc" } } }
+            });
 
-                // 3. Initialize Steps for this stage
-                const stepTemplates = await tx.stepTemplate.findMany({
-                    where: { stageId: stage.id },
-                    orderBy: { orderIndex: "asc" }
-                });
-                for (const tpl of stepTemplates) {
-                    await tx.jobStep.create({
-                        data: {
-                            jobStageId: jobStage.id,
-                            stepTemplateId: tpl.id,
-                            status: "pending"
-                        }
+            await tx.jobStage.createMany({
+                data: stages.map((stage) => ({
+                    jobId: job.id,
+                    stageId: stage.id,
+                    isLocked: stage.orderIndex !== 1, // Only the first stage is unlocked
+                    isCompleted: false,
+                    startedAt: stage.orderIndex === 1 ? new Date() : null
+                }))
+            });
+
+            const createdJobStages = await tx.jobStage.findMany({
+                where: { jobId: job.id },
+                select: { id: true, stageId: true }
+            });
+            const jobStageByStageId = new Map<number, number>(
+                createdJobStages.map((js) => [js.stageId, js.id])
+            );
+
+            const jobStepsData: Prisma.JobStepCreateManyInput[] = [];
+            for (const stage of stages) {
+                const jobStageId = jobStageByStageId.get(stage.id);
+                if (!jobStageId) { continue; }
+                for (const tpl of stage.stepTemplates) {
+                    jobStepsData.push({
+                        jobStageId,
+                        stepTemplateId: tpl.id,
+                        status: "pending"
                     });
                 }
             }
 
-            // 4. Initialize Photo Requirements (Optional: Based on business rules, here we add all types as optional/required)
-            const photoTypes = await tx.photoType.findMany();
-            for (const pt of photoTypes) {
-                await tx.jobPhoto.create({
-                    data: {
-                        jobId: job.id,
-                        photoTypeId: pt.id,
-                        isRequired: pt.code === "before_repair" || pt.code === "completed" // access logic example
-                    }
-                });
+            if (jobStepsData.length > 0) {
+                await tx.jobStep.createMany({ data: jobStepsData });
             }
 
+            // 4. Initialize Photo Requirements (Optional: Based on business rules, here we add all types as optional/required)
+            const photoTypes = await tx.photoType.findMany();
+            await tx.jobPhoto.createMany({
+                data: photoTypes.map((pt) => ({
+                    jobId: job.id,
+                    photoTypeId: pt.id,
+                    isRequired: pt.code === "before_repair" || pt.code === "completed"
+                }))
+            });
+
             return job;
-        });
+        }, { timeout: 15000 });
     }
 
-    static async getAll(page: number = 1, limit: number = 10, filters?: {
-        status?: string;
-        search?: string; // Search across vehicle registration, customer name, chassis/VIN
-        vehicleRegistration?: string; // ทะเบียนรถ
-        customerName?: string; // ชื่อ-นามสกุล
-        chassisNumber?: string; // เลขตัวถัง
-        vinNumber?: string; // VIN
-        jobNumber?: string; // เลขที่งาน
-        insuranceCompanyId?: number; // บริษัทประกัน
-        startDateFrom?: string | Date; // วันเริ่มต้น (ตั้งแต่)
-        startDateTo?: string | Date; // วันเริ่มต้น (ถึง)
-        sortBy?: string; // Field to sort by
-        sortOrder?: "asc" | "desc"; // Sort order
-    }) {
+    static async getAll(
+        page: number = 1,
+        limit: number = 10,
+        filters?: {
+            status?: string;
+            search?: string; // Search across vehicle registration, customer name, chassis/VIN
+            vehicleRegistration?: string; // ทะเบียนรถ
+            customerName?: string; // ชื่อ-นามสกุล
+            chassisNumber?: string; // เลขตัวถัง
+            vinNumber?: string; // VIN
+            jobNumber?: string; // เลขที่งาน
+            insuranceCompanyId?: number; // บริษัทประกัน
+            startDateFrom?: string | Date; // วันเริ่มต้น (ตั้งแต่)
+            startDateTo?: string | Date; // วันเริ่มต้น (ถึง)
+            sortBy?: string; // Field to sort by
+            sortOrder?: "asc" | "desc"; // Sort order
+        },
+        prismaClient?: PrismaClient
+    ) {
+        const db = prismaClient ?? prisma;
         const skip = (page - 1) * limit;
 
-        // Build where clause
-        const where: Prisma.JobWhereInput = {};
-
-        // Status filter
-        if (filters?.status) {
-            where.status = filters.status as JobStatus;
-        }
+        // Build base where clause (excluding status)
+        const whereWithoutStatus: Prisma.JobWhereInput = {};
 
         // Insurance company filter
         if (filters?.insuranceCompanyId) {
-            where.insuranceCompanyId = filters.insuranceCompanyId;
+            whereWithoutStatus.insuranceCompanyId = filters.insuranceCompanyId;
         }
 
         // Job number filter (exact match or partial)
         if (filters?.jobNumber) {
-            where.jobNumber = {
+            whereWithoutStatus.jobNumber = {
                 contains: filters.jobNumber
             };
         }
 
         // Date range filter
         if (filters?.startDateFrom || filters?.startDateTo) {
-            where.startDate = {};
+            whereWithoutStatus.startDate = {};
             if (filters.startDateFrom) {
-                where.startDate.gte = new Date(filters.startDateFrom);
+                whereWithoutStatus.startDate.gte = new Date(filters.startDateFrom);
             }
             if (filters.startDateTo) {
-                where.startDate.lte = new Date(filters.startDateTo);
+                whereWithoutStatus.startDate.lte = new Date(filters.startDateTo);
             }
         }
 
         // General search filter - searches across multiple fields
         if (filters?.search) {
-            where.OR = [
+            whereWithoutStatus.OR = [
                 { vehicle: { registration: { contains: filters.search } } },
                 { vehicle: { vinNumber: { contains: filters.search } } },
                 { vehicle: { chassisNumber: { contains: filters.search } } },
@@ -141,31 +275,37 @@ export class JobService {
 
         // Specific field filters - these override general search
         if (filters?.vehicleRegistration) {
-            where.vehicle = {
-                ...(where.vehicle as Prisma.VehicleWhereInput),
+            whereWithoutStatus.vehicle = {
+                ...(whereWithoutStatus.vehicle as Prisma.VehicleWhereInput),
                 registration: { contains: filters.vehicleRegistration }
             };
         }
 
         if (filters?.customerName) {
-            where.customer = {
-                ...(where.customer as Prisma.CustomerWhereInput),
+            whereWithoutStatus.customer = {
+                ...(whereWithoutStatus.customer as Prisma.CustomerWhereInput),
                 name: { contains: filters.customerName }
             };
         }
 
         if (filters?.chassisNumber) {
-            where.vehicle = {
-                ...(where.vehicle as Prisma.VehicleWhereInput),
+            whereWithoutStatus.vehicle = {
+                ...(whereWithoutStatus.vehicle as Prisma.VehicleWhereInput),
                 chassisNumber: { contains: filters.chassisNumber }
             };
         }
 
         if (filters?.vinNumber) {
-            where.vehicle = {
-                ...(where.vehicle as Prisma.VehicleWhereInput),
+            whereWithoutStatus.vehicle = {
+                ...(whereWithoutStatus.vehicle as Prisma.VehicleWhereInput),
                 vinNumber: { contains: filters.vinNumber }
             };
+        }
+
+        // Create where clause including status for the main query
+        const where: Prisma.JobWhereInput = { ...whereWithoutStatus };
+        if (filters?.status) {
+            where.status = filters.status as JobStatus;
         }
 
         // Build orderBy clause
@@ -201,38 +341,58 @@ export class JobService {
             }
         }
 
-        const [data, total] = await Promise.all([
-            prisma.job.findMany({
+        const [data, total, statusGroups] = await Promise.all([
+            db.job.findMany({
                 where,
                 skip,
                 take: limit,
                 include: {
-                    vehicle: true,
-                    customer: true,
-                    insuranceCompany: true,
-                    jobStages: {
-                        where: { isCompleted: false },
-                        include: {
-                            jobSteps: {
-                                include: { stepTemplate: true },
-                                orderBy: { stepTemplate: { orderIndex: "asc" } }
-                            }
-                        }
+                    vehicle: {
+                        select: { id: true, registration: true, brand: true, model: true, color: true, vinNumber: true, chassisNumber: true }
+                    },
+                    customer: {
+                        select: { id: true, name: true, phone: true }
+                    },
+                    insuranceCompany: {
+                        select: { id: true, name: true }
                     }
                 },
                 orderBy
             }),
-            prisma.job.count({ where })
+            db.job.count({ where }),
+            db.job.groupBy({
+                by: ["status"],
+                where: whereWithoutStatus,
+                _count: { status: true }
+            })
         ]);
-        return { data, total, page, limit, totalPages: Math.ceil(total / limit) };
+
+        // Aggregate status counts - always include all possible statuses
+        const statusCounts: { all: number;[key: string]: number } = {
+            all: 0,
+            CLAIM: 0,
+            REPAIR: 0,
+            BILLING: 0,
+            DONE: 0
+        };
+
+        statusGroups.forEach(group => {
+            const count = group._count.status;
+            statusCounts[group.status] = count;
+            statusCounts.all += count;
+        });
+
+        return { data, total, page, limit, totalPages: Math.ceil(total / limit), statusCounts };
     }
 
-    static async getJobDetails(id: number) {
-        return await prisma.job.findUnique({
+    static async getJobDetails(id: number, prismaClient?: PrismaClient) {
+        const db = prismaClient ?? prisma;
+        return await db.job.findUnique({
             where: { id },
             include: {
                 vehicle: true,
                 customer: true,
+                insuranceCompany: true,
                 jobStages: {
                     include: {
                         stage: true,
@@ -261,14 +421,16 @@ export class JobService {
     static async updateStepStatus(
         stepId: number,
         status: "pending" | "in_progress" | "completed" | "skipped",
-        employeeId?: number
+        employeeId?: number,
+        prismaClient?: PrismaClient
     ) {
+        const db = prismaClient ?? prisma;
         // Require employeeId for completed or in_progress
         if ((status === "completed" || status === "in_progress") && !employeeId) {
             throw new Error("Employee ID is required when marking step as completed or in_progress");
         }
 
-        return await prisma.$transaction(async (tx) => {
+        return await db.$transaction(async (tx) => {
             // Validate employee if provided
             if (employeeId) {
                 const employee = await tx.employee.findUnique({ where: { id: employeeId } });
@@ -342,7 +504,7 @@ export class JobService {
                     // Update job status based on new stage
                     await tx.job.update({
                         where: { id: jobStage.jobId },
-                        data: { status: nextStage.stage.code as JobStatus }
+                        data: { status: nextStage.stage.code.toUpperCase() as JobStatus }
                     });
                 } else {
                     // All stages complete - mark job as done
