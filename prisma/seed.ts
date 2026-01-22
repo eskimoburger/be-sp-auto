@@ -1,8 +1,51 @@
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
 import { DataFactory } from "../src/tests/factories";
-import { faker } from "@faker-js/faker";
+import { fakerTH as faker } from "@faker-js/faker";
 import type { JobStatus } from "@prisma/client";
+import { initPrisma } from "../src/lib/prisma";
+
+const SEED_CUSTOMERS = Number.parseInt(process.env.SEED_CUSTOMERS ?? "15", 10);
+const SEED_VEHICLES_MIN = Number.parseInt(process.env.SEED_VEHICLES_MIN ?? "1", 10);
+const SEED_VEHICLES_MAX = Number.parseInt(process.env.SEED_VEHICLES_MAX ?? "2", 10);
+const SEED_JOBS_MIN = Number.parseInt(process.env.SEED_JOBS_MIN ?? "1", 10);
+const SEED_JOBS_MAX = Number.parseInt(process.env.SEED_JOBS_MAX ?? "2", 10);
+const SEED_INCLUDE_DONE = (process.env.SEED_INCLUDE_DONE ?? "true") === "true";
+
+const TH_COLORS = [
+    "ดำ",
+    "ขาว",
+    "เงิน",
+    "เทา",
+    "แดง",
+    "น้ำเงิน",
+    "บรอนซ์เงิน",
+    "บรอนซ์ทอง",
+    "เขียว",
+    "เหลือง"
+];
+const TH_REPAIR_DESCRIPTIONS = [
+    "ซ่อมฝากระโปรงหน้าและกันชนหน้า",
+    "ทำสีรอบคันและขัดเคลือบสี",
+    "ซ่อมชนท้าย เปลี่ยนไฟท้าย",
+    "ซ่อมรอยขีดข่วนด้านข้างและพ่นสี",
+    "เปลี่ยนกระจกหน้าและซ่อมสีประตู",
+    "ซ่อมบังโคลนหน้าและจัดแนวกันชน"
+];
+const TH_JOB_NOTES = [
+    "ลูกค้าขอรับรถด่วนภายในสัปดาห์นี้",
+    "ตรวจสอบอะไหล่แท้ก่อนเริ่มงาน",
+    "ขออัปเดตสถานะผ่านไลน์ทุก 2 วัน",
+    "ลูกค้าเน้นคุณภาพสีและความเรียบร้อย",
+    "กรุณาโทรแจ้งก่อนส่งมอบรถ"
+];
+const TH_STEP_NOTES = [
+    "รออะไหล่จากศูนย์",
+    "นัดคิวพ่นสีแล้ว",
+    "ตรวจสอบคุณภาพก่อนส่งต่อ",
+    "งานเร่งด่วนตามที่ลูกค้าขอ",
+    "ติดคิวช่างช่วงบ่าย"
+];
 
 const connectionString = process.env.TURSO_DATABASE_URL;
 const authToken = process.env.TURSO_AUTH_TOKEN;
@@ -15,6 +58,12 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
     console.log("Start seeding...");
+    // Initialize Prisma proxy used by DataFactory
+    initPrisma({ TURSO_DATABASE_URL: connectionString, TURSO_AUTH_TOKEN: authToken });
+    // Set the same prisma instance for DataFactory to avoid transaction issues
+    const { setFactoryPrisma } = await import("../src/tests/factories");
+    setFactoryPrisma(prisma);
+    let jobSequence = 1;
 
     // 1. Stages
     console.log("Seeding Stages...");
@@ -150,7 +199,9 @@ async function main() {
 
     // 5. Employees
     console.log("Seeding Employees...");
-    const passwordHash = await Bun.password.hash("123456");
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const bcrypt = require("bcryptjs");
+    const passwordHash = await bcrypt.hash("123456", 10);
     const employees = [
         { name: "สมชาย มีสุข", role: "receiver" },
         { name: "วิชัย เก่ง", role: "receiver" },
@@ -159,7 +210,8 @@ async function main() {
         { name: "กฤษณ์ เดชา", role: "technician" },
         { name: "อนุชิต รักษ์", role: "technician" },
         { name: "ธนา วิริยะ", role: "admin", username: "admin1", password: passwordHash },
-        { name: "พิชัย หาญ", role: "admin", username: "admin2", password: passwordHash }
+        { name: "พิชัย หาญ", role: "admin", username: "admin2", password: passwordHash },
+        { name: "สมศักดิ์ มั่นคง", role: "admin", username: "admin3", password: passwordHash }
     ];
     for (const emp of employees) {
         const exists = await prisma.employee.findFirst({ where: { name: emp.name } });
@@ -244,17 +296,55 @@ async function main() {
     // 8. Customers, Vehicles, Jobs
     console.log("Seeding Customers, Vehicles, and Jobs...");
 
+    // Fetch insurance companies for random assignment
+    const insuranceCompanies = await prisma.insuranceCompany.findMany();
+    const receivers = await prisma.employee.findMany({ where: { role: "receiver" } });
+    const technicians = await prisma.employee.findMany({ where: { role: "technician" } });
+    const photoTypesForJobs = await prisma.photoType.findMany();
+    const vehicleModels = await prisma.vehicleModel.findMany({
+        include: { brand: true, type: true }
+    });
+
+    function randomBetween(min: number, max: number) {
+        const safeMin = Math.min(min, max);
+        const safeMax = Math.max(min, max);
+        return faker.number.int({ min: safeMin, max: safeMax });
+    }
+
+    function addDays(date: Date, days: number) {
+        return new Date(date.getTime() + days * 24 * 60 * 60 * 1000);
+    }
+
     // Helper to create job with workflow
     async function createJobWithWorkflow(vehicleId: number, customerId: number, status: JobStatus) {
+        const paymentType = faker.helpers.arrayElement(["Insurance", "Cash"]);
+        const randomInsurance = paymentType === "Insurance" && insuranceCompanies.length
+            ? faker.helpers.arrayElement(insuranceCompanies)
+            : null;
+        const receiver = receivers.length ? faker.helpers.arrayElement(receivers) : null;
+        const startDate = faker.date.recent({ days: 30 });
+        const estimatedEndDate = addDays(startDate, randomBetween(3, 14));
+        const stageOrderMap: Record<string, number> = { "CLAIM": 1, "REPAIR": 2, "BILLING": 3, "DONE": 4 };
+        const currentStageOrder = stageOrderMap[status] || 1;
+        const currentStageIndex = Math.max(0, Math.min(currentStageOrder - 1, 2));
+
         const job = await prisma.job.create({
             data: {
-                jobNumber: `JOB-${faker.string.numeric(6)}`,
+                jobNumber: `JOB-${Date.now()}-${jobSequence++}-${faker.string.numeric(3)}`,
                 vehicleId,
                 customerId,
-                status, // This sets the 'active' status on the Job record
-                startDate: faker.date.recent({ days: 30 }),
-                paymentType: faker.helpers.arrayElement(["Cash", "Insurance"]),
-                repairDescription: faker.lorem.sentence()
+                receiverId: receiver?.id ?? null,
+                insuranceCompanyId: randomInsurance?.id ?? null,
+                status,
+                startDate,
+                estimatedEndDate,
+                actualEndDate: status === "DONE" ? addDays(estimatedEndDate, randomBetween(1, 3)) : null,
+                paymentType,
+                excessFee: paymentType === "Insurance" ? randomBetween(1000, 5000) : 0,
+                repairDescription: faker.helpers.arrayElement(TH_REPAIR_DESCRIPTIONS),
+                notes: faker.helpers.arrayElement(TH_JOB_NOTES),
+                currentStageIndex,
+                isFinished: status === "DONE"
             }
         });
 
@@ -266,16 +356,14 @@ async function main() {
             // - If Job Status is REPAIR, then CLAIM is completed, REPAIR is active (in-progress), BILLING is future (locked)
             let isCompleted = false;
             let isLocked = true;
-            let startedAt = null;
-
-            // Map status string to order roughly (1=CLAIM, 2=REPAIR, 3=BILLING)
-            const statusOrderMap: Record<string, number> = { "CLAIM": 1, "REPAIR": 2, "BILLING": 3, "DONE": 4 };
-            const currentStageOrder = statusOrderMap[status] || 1;
+            let startedAt: Date | null = null;
+            let completedAt: Date | null = null;
 
             if (stage.orderIndex < currentStageOrder) {
                 isCompleted = true;
                 isLocked = false;
-                startedAt = faker.date.past();
+                startedAt = faker.date.recent({ days: 30 });
+                completedAt = addDays(startedAt, randomBetween(1, 5));
             } else if (stage.orderIndex === currentStageOrder) {
                 isCompleted = false;
                 isLocked = false; // Active stage is unlocked
@@ -290,7 +378,8 @@ async function main() {
                     stageId: stage.id,
                     isLocked,
                     isCompleted,
-                    startedAt
+                    startedAt,
+                    completedAt
                 }
             });
 
@@ -302,16 +391,33 @@ async function main() {
 
             for (const tpl of stepTemplates) {
                 let stepStatus = "pending";
+                let stepEmployeeId: number | null = null;
+                let stepCompletedAt: Date | null = null;
+                let stepNotes: string | null = null;
                 // If stage is completed, all steps are completed
                 if (isCompleted) {
                     stepStatus = "completed";
+                    stepEmployeeId = technicians.length
+                        ? faker.helpers.arrayElement(technicians).id
+                        : null;
+                    stepCompletedAt = completedAt ?? new Date();
+                    stepNotes = faker.helpers.arrayElement(TH_STEP_NOTES);
                 }
                 // If it's the active stage, randomize some steps
                 else if (stage.orderIndex === currentStageOrder) {
                     // First few steps done, middle in progress, rest pending
                     const rand = Math.random();
-                    if (rand > 0.7) {stepStatus = "completed";}
-                    else if (rand > 0.4) {stepStatus = "in_progress";}
+                    if (rand > 0.7) {
+                        stepStatus = "completed";
+                        stepCompletedAt = new Date();
+                        stepNotes = faker.helpers.arrayElement(TH_STEP_NOTES);
+                    } else if (rand > 0.4) {
+                        stepStatus = "in_progress";
+                        stepNotes = faker.helpers.arrayElement(TH_STEP_NOTES);
+                    }
+                    if (stepStatus !== "pending" && technicians.length) {
+                        stepEmployeeId = faker.helpers.arrayElement(technicians).id;
+                    }
                 }
 
                 await prisma.jobStep.create({
@@ -319,23 +425,54 @@ async function main() {
                         jobStageId: jobStage.id,
                         stepTemplateId: tpl.id,
                         status: stepStatus,
-                        completedAt: stepStatus === "completed" ? new Date() : null
+                        employeeId: stepEmployeeId,
+                        completedAt: stepCompletedAt,
+                        notes: stepNotes
                     }
                 });
             }
         }
+
+        for (const photoType of photoTypesForJobs) {
+            const isRequired = ["before_repair", "completed"].includes(photoType.code);
+            const isCompleted = Math.random() < 0.6;
+            await prisma.jobPhoto.create({
+                data: {
+                    jobId: job.id,
+                    photoTypeId: photoType.id,
+                    isRequired,
+                    isCompleted,
+                    completedAt: isCompleted ? new Date() : null
+                }
+            });
+        }
         return job;
     }
 
-    for (let i = 0; i < 5; i++) { // Reduce count slightly to keep seed fast but rich
+    const statusPool = SEED_INCLUDE_DONE
+        ? (["CLAIM", "REPAIR", "BILLING", "DONE"] as JobStatus[])
+        : (["CLAIM", "REPAIR", "BILLING"] as JobStatus[]);
+
+    for (let i = 0; i < SEED_CUSTOMERS; i++) {
         const customer = await DataFactory.createCustomer();
         // Create 1-2 vehicles
-        const vehicleCount = Math.floor(Math.random() * 2) + 1;
+        const vehicleCount = randomBetween(SEED_VEHICLES_MIN, SEED_VEHICLES_MAX);
         for (let j = 0; j < vehicleCount; j++) {
-            const vehicle = await DataFactory.createVehicle(customer.id);
-            // Create job for *every* vehicle for demo purposes, or high probability
-            const status = faker.helpers.arrayElement(["CLAIM", "REPAIR", "BILLING"]); // Avoid DONE for now to show active steps
-            await createJobWithWorkflow(vehicle.id, customer.id, status as JobStatus);
+            const randomModel = vehicleModels.length
+                ? faker.helpers.arrayElement(vehicleModels)
+                : null;
+            const vehicle = await DataFactory.createVehicle(customer.id, {
+                brand: randomModel?.brand?.name ?? undefined,
+                model: randomModel?.name ?? undefined,
+                type: randomModel?.type?.name ?? undefined,
+                color: faker.helpers.arrayElement(TH_COLORS)
+            });
+
+            const jobCount = randomBetween(SEED_JOBS_MIN, SEED_JOBS_MAX);
+            for (let k = 0; k < jobCount; k++) {
+                const status = faker.helpers.arrayElement(statusPool);
+                await createJobWithWorkflow(vehicle.id, customer.id, status as JobStatus);
+            }
         }
     }
 
