@@ -1,5 +1,6 @@
 import { app } from "../index";
 import { prisma } from "../lib/prisma";
+import bcrypt from "bcryptjs";
 
 export * from "./factories";
 
@@ -12,7 +13,7 @@ export const getAuthToken = async () => {
     };
 
     // Ensure test user exists
-    const passwordHash = await Bun.password.hash(testUser.password);
+    const passwordHash = await bcrypt.hash(testUser.password, 10);
     await prisma.employee.upsert({
         where: { username: testUser.username },
         update: { password: passwordHash },
@@ -28,7 +29,7 @@ export const getAuthToken = async () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: testUser.username, password: testUser.password })
-    });
+    }, process.env);
 
     if (res.status !== 200) {
         throw new Error(`Failed to login in test helper: ${res.status}`);

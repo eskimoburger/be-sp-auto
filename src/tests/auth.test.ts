@@ -1,4 +1,5 @@
 import { describe, expect, it, beforeAll, afterAll } from "bun:test";
+import bcrypt from "bcryptjs";
 import { app } from "../index";
 import { prisma } from "../lib/prisma";
 
@@ -13,7 +14,7 @@ describe("Auth Module", () => {
 
     beforeAll(async () => {
         // Create test user
-        const passwordHash = await Bun.password.hash(testUser.password);
+        const passwordHash = await bcrypt.hash(testUser.password, 10);
         await prisma.employee.upsert({
             where: { username: testUser.username },
             update: { password: passwordHash },
@@ -36,7 +37,7 @@ describe("Auth Module", () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: testUser.username, password: testUser.password })
-        });
+        }, process.env);
 
         expect(res.status).toBe(200);
         const body = (await res.json()) as { token: string; user: { username: string } };
@@ -50,22 +51,22 @@ describe("Auth Module", () => {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ username: testUser.username, password: "wrongpassword" })
-        });
+        }, process.env);
 
         expect(res.status).toBe(401);
     });
 
     it("should protect private routes", async () => {
-        const res = await app.request("/api/v1/private/profile");
+        const res = await app.request("/api/v1/private/profile", {}, process.env);
         expect(res.status).toBe(401);
     });
 
     it("should access private route with valid token", async () => {
-        if (!token) {throw new Error("Token not obtained from login test");}
+        if (!token) { throw new Error("Token not obtained from login test"); }
 
         const res = await app.request("/api/v1/private/profile", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
 
         expect(res.status).toBe(200);
         const body = (await res.json()) as { token: string; user: { username: string } };
@@ -77,7 +78,7 @@ describe("Auth Module", () => {
         const res = await app.request("/api/v1/public/auth/logout", {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = (await res.json()) as { message: string };
         expect(body).toHaveProperty("message", "Logout successful");

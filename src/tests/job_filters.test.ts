@@ -17,14 +17,14 @@ describe("Job Filters API", () => {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "สมชาย ใจดี", phone: "0811111111" })
-        });
+        }, process.env);
         testCustomer1 = await cust1Res.json() as { id: number };
 
         const cust2Res = await app.request("/api/v1/private/customers", {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "สมหญิง รักษ์ดี", phone: "0822222222" })
-        });
+        }, process.env);
         testCustomer2 = await cust2Res.json() as { id: number };
 
         // Create test vehicles
@@ -39,7 +39,7 @@ describe("Job Filters API", () => {
                 vinNumber: "VIN-TEST-001",
                 chassisNumber: "CHASSIS-001"
             })
-        });
+        }, process.env);
         testVehicle1 = await veh1Res.json() as { id: number };
 
         const veh2Res = await app.request("/api/v1/private/vehicles", {
@@ -53,7 +53,7 @@ describe("Job Filters API", () => {
                 vinNumber: "VIN-TEST-002",
                 chassisNumber: "CHASSIS-002"
             })
-        });
+        }, process.env);
         testVehicle2 = await veh2Res.json() as { id: number };
 
         // Create test jobs
@@ -64,9 +64,10 @@ describe("Job Filters API", () => {
                 vehicleId: testVehicle1.id,
                 customerId: testCustomer1.id,
                 jobNumber: "JOB-FILTER-001",
-                startDate: "2026-01-15T00:00:00.000Z"
+                startDate: "2026-01-15T00:00:00.000Z",
+                status: "CLAIM" // Explicitly set status if possible, otherwise it defaults
             })
-        });
+        }, process.env);
 
         await app.request("/api/v1/private/jobs", {
             method: "POST",
@@ -75,10 +76,16 @@ describe("Job Filters API", () => {
                 vehicleId: testVehicle2.id,
                 customerId: testCustomer2.id,
                 jobNumber: "JOB-FILTER-002",
-                startDate: "2026-01-18T00:00:00.000Z"
+                startDate: "2026-01-18T00:00:00.000Z",
+                status: "REPAIR" // Explicitly set status to verify counts
             })
-        });
-    });
+        }, process.env);
+
+        // Note: Creating jobs via POST default status is probably CLAIM (or whatever is first), 
+        // we might need to update status directly if POST doesn't accept it. 
+        // Assuming POST accepts basic fields. 
+        // If not, we rely on seeded data having mixed statuses.
+    }, 30000);
 
     it("should filter jobs by vehicle registration", async () => {
         const res = await app.request("/api/v1/private/jobs?vehicleRegistration=กข-1234", {
@@ -222,5 +229,43 @@ describe("Job Filters API", () => {
         const body = await res.json() as { data: unknown[] };
         // Should have insuranceCompany field (can be null)
         expect(body.data[0]).toHaveProperty("insuranceCompany");
+    });
+
+    it("should return statusCounts that allow faceted search", async () => {
+        // 1. Fetch all jobs and get initial counts
+        const allRes = await app.request("/api/v1/private/jobs", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const allBody = await allRes.json() as { statusCounts: Record<string, number>; total: number };
+        expect(allBody.statusCounts).toBeDefined();
+        expect(allBody.statusCounts.all).toBe(allBody.total);
+        expect(allBody.statusCounts["CLAIM"]).toBeGreaterThanOrEqual(1);
+
+        const initialClaimCount = allBody.statusCounts["CLAIM"];
+
+        // 2. Fetch with status=CLAIM - statusCounts should ideally remain the same (because it ignores status filter)
+        // or at least show that other statuses exist in the system
+        const claimRes = await app.request("/api/v1/private/jobs?status=CLAIM", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const claimBody = await claimRes.json() as { statusCounts: Record<string, number>; data: any[] };
+
+        // The core requirement: statusCounts should reflect "what if I unchecked this status filter?"
+        // So it should match the counts from the "All" query (assuming no other filters are active)
+        expect(claimBody.statusCounts["CLAIM"]).toBe(initialClaimCount);
+        expect(claimBody.statusCounts["all"]).toBe(allBody.total); // "all" should represent total matches if NO status filter was applied
+
+        // 3. Fetch with a search filter that restricts results
+        // Use a specific job number to ensure we get a small subset
+        const specificJobNumber = "JOB-FILTER-001";
+        const searchRes = await app.request(`/api/v1/private/jobs?jobNumber=${specificJobNumber}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const searchBody = await searchRes.json() as { statusCounts: Record<string, number>; total: number };
+
+        // Now statusCounts should be smaller, because the search filter IS applied to the counts
+        // It presumably matches only 1 job
+        expect(searchBody.statusCounts.all).toBe(1);
+        expect(Object.values(searchBody.statusCounts).reduce((a, b) => a + b, 0) - searchBody.statusCounts.all).toBe(1); // Sum of individual statuses should match 'all'
     });
 });

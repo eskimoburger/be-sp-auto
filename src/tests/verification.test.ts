@@ -23,7 +23,8 @@ describe("Verification Tests", () => {
 
         expect(employee.password).not.toBe(payload.password);
         expect(employee.password).not.toBe("plain_password_123");
-        expect(employee.password?.startsWith("$argon2")).toBe(true); // Bun.password.hash uses argon2 by default often
+        // Bcrypt hashes start with $2a$ or $2b$ or $2y$
+        expect(employee.password?.startsWith("$2")).toBe(true);
 
         // Clean up immediately
         await prisma.employee.delete({ where: { id: employee.id } });

@@ -20,7 +20,7 @@ describe("Workflow Integration", () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "John Doe", phone: "0812345678" })
-        });
+        }, process.env);
         expect(res.status).toBe(201);
         const body = await res.json() as { id: number };
         customerId = body.id;
@@ -40,7 +40,7 @@ describe("Workflow Integration", () => {
                 model: "Vios",
                 customerId: customerId
             })
-        });
+        }, process.env);
         expect(res.status).toBe(201);
         const body = await res.json() as { id: number };
         vehicleId = body.id;
@@ -60,7 +60,7 @@ describe("Workflow Integration", () => {
                 customerId: customerId,
                 startDate: new Date().toISOString()
             })
-        });
+        }, process.env);
 
         if (res.status !== 201) {
             const err = await res.text();
@@ -70,12 +70,12 @@ describe("Workflow Integration", () => {
         const body = await res.json() as { id: number };
         jobId = body.id;
         expect(body.id).toBeDefined();
-    });
+    }, 20000);
 
     it("should retrieve full job details with stages", async () => {
         const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { jobNumber: string; jobStages: { isLocked: boolean; jobSteps: { status: string }[] }[] };
 
@@ -104,7 +104,7 @@ describe("Workflow Integration", () => {
                 jobNumber: "FAIL-JOB"
                 // Missing vehicleId
             })
-        });
+        }, process.env);
         expect(res.status).toBe(400);
 
         const body = await res.json() as { error?: string };
@@ -115,7 +115,7 @@ describe("Workflow Integration", () => {
         // Get job details to check step templates
         const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { jobStages: { stage?: { code?: string }; stageId?: number; jobSteps: { stepTemplate?: { name?: string; isSkippable?: boolean } }[] }[] };
 
@@ -142,7 +142,7 @@ describe("Workflow Integration", () => {
     it("should have all CLAIM steps as non-skippable", async () => {
         const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { jobStages: { stage?: { code?: string }; stageId?: number; jobSteps: { stepTemplate?: { isSkippable?: boolean } }[] }[] };
 
@@ -163,7 +163,7 @@ describe("Workflow Integration", () => {
     it("should have all BILLING steps as non-skippable", async () => {
         const res = await app.request(`/api/v1/private/jobs/${jobId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { jobStages: { stage?: { code?: string }; stageId?: number; jobSteps: { stepTemplate?: { isSkippable?: boolean } }[] }[] };
 

@@ -18,7 +18,7 @@ describe("Customer API", () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "Jane Doe", phone: "0999999999" })
-        });
+        }, process.env);
         expect(res.status).toBe(201);
         const body = await res.json() as { id: number };
         customerId = body.id;
@@ -27,7 +27,7 @@ describe("Customer API", () => {
     it("should get all customers", async () => {
         const res = await app.request("/api/v1/private/customers", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: unknown[]; total: number };
         expect(body.data).toBeDefined();
@@ -38,7 +38,7 @@ describe("Customer API", () => {
     it("should get customer by id", async () => {
         const res = await app.request(`/api/v1/private/customers/${customerId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { id: number };
         expect(body.id).toBe(customerId);
@@ -47,18 +47,18 @@ describe("Customer API", () => {
     it("should return 404 for non-existent customer", async () => {
         const res = await app.request("/api/v1/private/customers/999999", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(404);
     });
 
     it("should search customers", async () => {
         const res = await app.request("/api/v1/private/customers?q=Jane", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
-        const body = await res.json() as { name: string }[];
-        expect(body.length).toBeGreaterThan(0);
-        expect(body[0]?.name).toContain("Jane");
+        const body = await res.json() as { data: { name: string }[] };
+        expect(body.data.length).toBeGreaterThan(0);
+        expect(body.data[0]?.name).toContain("Jane");
     });
 
     it("should update customer", async () => {
@@ -69,7 +69,7 @@ describe("Customer API", () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ address: "123 Main St" })
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { address: string };
         expect(body.address).toBe("123 Main St");

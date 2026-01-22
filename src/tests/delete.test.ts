@@ -21,8 +21,13 @@ describe("Delete Operations", () => {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify({ name: "Delete Me", role: "staff" })
-        });
+            body: JSON.stringify({
+                name: "Delete Me",
+                username: `del_me_${Date.now()}`,
+                password: "password123",
+                role: "staff"
+            })
+        }, process.env);
         const body = await createRes.json() as { id: number };
         empId = body.id;
         expect(createRes.status).toBe(201);
@@ -31,7 +36,7 @@ describe("Delete Operations", () => {
         const delRes = await app.request(`/api/v1/private/employees/${empId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(delRes.status).toBe(200);
 
         // Verify gone (impl detail: findMany might verify it's gone from list?)
@@ -47,20 +52,20 @@ describe("Delete Operations", () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ name: "Temp Customer", phone: "0000" })
-        });
+        }, process.env);
         const body = await createRes.json() as { id: number };
         custId = body.id;
 
         const delRes = await app.request(`/api/v1/private/customers/${custId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(delRes.status).toBe(200);
 
         // Check 404
         const check = await app.request(`/api/v1/private/customers/${custId}`, {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(check.status).toBe(404);
     });
 
@@ -73,14 +78,14 @@ describe("Delete Operations", () => {
                 Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ registration: `DEL-${Date.now()}`, brand: "Test" })
-        });
+        }, process.env);
         const body = await createRes.json() as { id: number };
         vehId = body.id;
 
         const delRes = await app.request(`/api/v1/private/vehicles/${vehId}`, {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(delRes.status).toBe(200);
 
         // Use registration search to confirm gone? Or implement getById for vehicle if exists
@@ -92,7 +97,7 @@ describe("Delete Operations", () => {
         const res = await app.request("/api/v1/private/customers/999999", {
             method: "DELETE",
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(400); // Because Prisma throws if record not found in delete, and catch block returns 400
     });
 });

@@ -1,10 +1,21 @@
-import { faker } from "@faker-js/faker";
-import type { Prisma, JobStatus } from "@prisma/client";
+import { fakerTH as faker } from "@faker-js/faker";
+import type { Prisma, JobStatus, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+
+let _factoryPrisma: PrismaClient | null = null;
+
+export function setFactoryPrisma(client: PrismaClient) {
+    _factoryPrisma = client;
+}
+
+function getFactoryPrisma(): PrismaClient {
+    return _factoryPrisma || prisma;
+}
 
 export class DataFactory {
     static async cleanDb() {
-        const tablenames = await prisma.$queryRaw<
+        const p = getFactoryPrisma();
+        const tablenames = await p.$queryRaw<
             { name: string }[]
         >`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_prisma_migrations';`;
 
@@ -26,8 +37,9 @@ export class DataFactory {
             );
 
         try {
+            const p = getFactoryPrisma();
             // Disable foreign key constraints to allow truncating tables in any order
-            await prisma.$executeRawUnsafe(`PRAGMA foreign_keys = OFF;`);
+            await p.$executeRawUnsafe(`PRAGMA foreign_keys = OFF;`);
 
             for (const table of tables) {
                 // Skip static data tables we don't want to truncate
@@ -46,21 +58,22 @@ export class DataFactory {
                 ) {
                     continue;
                 }
-                await prisma.$executeRawUnsafe(`DELETE FROM "${table}";`);
+                await p.$executeRawUnsafe(`DELETE FROM "${table}";`);
             }
 
             // Re-enable foreign key constraints
-            await prisma.$executeRawUnsafe(`PRAGMA foreign_keys = ON;`);
+            await p.$executeRawUnsafe(`PRAGMA foreign_keys = ON;`);
         } catch (error) {
             console.log({ error });
         }
     }
 
     static async createCustomer(overrides?: Partial<Prisma.CustomerCreateInput>) {
-        return prisma.customer.create({
+        const p = getFactoryPrisma();
+        return p.customer.create({
             data: {
                 name: faker.person.fullName(),
-                phone: faker.string.numeric(10), // Thai phone usually 10 digits
+                phone: faker.helpers.fromRegExp(/0[689][0-9]{8}/), // Thai mobile format (06, 08, 09)
                 address: faker.location.streetAddress(),
                 ...overrides
             }
@@ -68,8 +81,9 @@ export class DataFactory {
     }
 
     static async createVehicle(customerId: number | null, overrides?: Partial<Prisma.VehicleUncheckedCreateInput>) {
+        const p = getFactoryPrisma();
         // Find existing model to get valid brand/model/type names
-        const model = await prisma.vehicleModel.findFirst({
+        const model = await p.vehicleModel.findFirst({
             include: { brand: true, type: true }
         });
 
@@ -78,10 +92,11 @@ export class DataFactory {
         const modelName = model?.name || "Civic";
         const typeName = model?.type.name || "Sedan";
 
-        return prisma.vehicle.create({
+        return p.vehicle.create({
             data: {
                 customerId,
-                registration: `${faker.string.alpha(2).toUpperCase()}-${faker.string.numeric(4)}`, // e.g. AB-1234
+                // Thai License Plate: 1กข 1234 or 9กข 9999
+                registration: `${faker.number.int({ min: 1, max: 9 })}${faker.string.fromCharacters("กขคงจฉชซฌญฎฏฐฑฒณดตถทธนบปผฝพฟภมยรลวศษสหฬอฮ", 2)} ${faker.string.numeric(4)}`,
                 brand: brandName,
                 model: modelName,
                 type: typeName,
@@ -98,7 +113,8 @@ export class DataFactory {
         status: JobStatus = "CLAIM",
         overrides?: Partial<Prisma.JobUncheckedCreateInput>
     ) {
-        return prisma.job.create({
+        const p = getFactoryPrisma();
+        return p.job.create({
             data: {
                 jobNumber: `JOB-${faker.string.numeric(6)}`,
                 vehicleId,
@@ -112,7 +128,8 @@ export class DataFactory {
     }
 
     static async createEmployee(overrides?: Partial<Prisma.EmployeeCreateInput>) {
-        return prisma.employee.create({
+        const p = getFactoryPrisma();
+        return p.employee.create({
             data: {
                 name: faker.person.fullName(),
                 username: faker.internet.username(),

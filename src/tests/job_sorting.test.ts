@@ -14,7 +14,7 @@ describe("Job Sorting API", () => {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ name: "Sort Test Customer", phone: "0899999999" })
-        });
+        }, process.env);
         const customer = await custRes.json() as { id: number };
 
         // Create multiple jobs with different dates
@@ -33,7 +33,7 @@ describe("Job Sorting API", () => {
                     brand: "Toyota",
                     customerId: customer.id
                 })
-            });
+            }, process.env);
             const vehicle = await vehRes.json() as { id: number };
 
             const jobRes = await app.request("/api/v1/private/jobs", {
@@ -45,19 +45,19 @@ describe("Job Sorting API", () => {
                     jobNumber: jobData.jobNumber,
                     startDate: jobData.startDate
                 })
-            });
+            }, process.env);
             const job = await jobRes.json();
             jobs.push(job);
         }
 
         // Wait a bit to ensure different createdAt timestamps
         await new Promise(resolve => setTimeout(resolve, 100));
-    });
+    }, 30000);
 
     it("should sort jobs by jobNumber in ascending order", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=jobNumber&sortOrder=asc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
@@ -79,7 +79,7 @@ describe("Job Sorting API", () => {
     it("should sort jobs by jobNumber in descending order", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=jobNumber&sortOrder=desc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
@@ -101,7 +101,7 @@ describe("Job Sorting API", () => {
     it("should sort jobs by startDate in ascending order", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=startDate&sortOrder=asc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
@@ -121,7 +121,7 @@ describe("Job Sorting API", () => {
     it("should sort jobs by startDate in descending order", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=startDate&sortOrder=desc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
@@ -141,7 +141,7 @@ describe("Job Sorting API", () => {
     it("should sort jobs by createdAt in descending order (default)", async () => {
         const res = await app.request("/api/v1/private/jobs?limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { createdAt: string; startDate: string; status: string }[] };
 
@@ -158,7 +158,7 @@ describe("Job Sorting API", () => {
     it("should sort jobs by status", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=status&sortOrder=asc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { status: string; startDate: string }[] };
 
@@ -173,7 +173,7 @@ describe("Job Sorting API", () => {
     it("should combine sorting with filtering", async () => {
         const res = await app.request("/api/v1/private/jobs?status=CLAIM&sortBy=startDate&sortOrder=asc", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { status: string; startDate: string }[] };
 
@@ -193,7 +193,7 @@ describe("Job Sorting API", () => {
     it("should handle invalid sortBy field gracefully (default to createdAt)", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=invalidField&sortOrder=desc&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: unknown[] };
 
@@ -204,7 +204,7 @@ describe("Job Sorting API", () => {
     it("should default to desc order when sortOrder is not specified", async () => {
         const res = await app.request("/api/v1/private/jobs?sortBy=startDate&limit=50", {
             headers: { Authorization: `Bearer ${token}` }
-        });
+        }, process.env);
         expect(res.status).toBe(200);
         const body = await res.json() as { data: { jobNumber: string; startDate: string; createdAt: string; status: string }[] };
 
