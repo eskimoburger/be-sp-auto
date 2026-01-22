@@ -1,8 +1,9 @@
 import { sign } from "hono/jwt";
 import { prisma } from "../lib/prisma"; // Use shared client
+import bcrypt from "bcryptjs";
 
 export class AuthService {
-    static async login(username: string, passwordPlain: string) {
+    static async login(username: string, passwordPlain: string, jwtSecret: string) {
         const user = await prisma.employee.findUnique({
             where: { username }
         });
@@ -11,7 +12,7 @@ export class AuthService {
             return null;
         }
 
-        const isMatch = await Bun.password.verify(passwordPlain, user.password);
+        const isMatch = await bcrypt.compare(passwordPlain, user.password);
         if (!isMatch) {
             return null;
         }
@@ -23,11 +24,10 @@ export class AuthService {
             exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 1 day expiration
         };
 
-        if (!process.env.JWT_SECRET) {
-            throw new Error("JWT_SECRET is not defined in environment variables");
+        if (!jwtSecret) {
+            throw new Error("JWT_SECRET is not defined");
         }
-        const secret = process.env.JWT_SECRET;
-        const token = await sign(payload, secret);
+        const token = await sign(payload, jwtSecret);
 
         return {
             token,

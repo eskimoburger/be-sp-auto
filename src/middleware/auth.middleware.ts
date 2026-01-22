@@ -8,7 +8,8 @@ export const authMiddleware = (c: Context, next: Next) => {
         return next();
     }
 
-    const secret = process.env.JWT_SECRET || "fallback_secret";
+    // Use c.env for Cloudflare Workers, fallback to process.env for local dev
+    const secret = (c.env as any)?.JWT_SECRET || process.env.JWT_SECRET || "fallback_secret";
     const jwtMiddleware = jwt({
         secret: secret,
         alg: "HS256"

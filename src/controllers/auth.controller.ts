@@ -48,7 +48,8 @@ export const login = async (c: Context) => {
             return c.json({ error: "Username and password are required" }, 400);
         }
 
-        const result = await AuthService.login(username, password);
+        const secret = (c.env as any)?.JWT_SECRET || process.env.JWT_SECRET;
+        const result = await AuthService.login(username, password, secret);
 
         if (!result) {
             return c.json({ error: "Invalid credentials" }, 401);
