@@ -1,0 +1,2143 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SP Auto Service API",
+    "version": "1.0.0",
+    "description": "Enterprise-grade API documentation for SP Auto Service backend",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Relative path (Same host)"
+    },
+    {
+      "url": "http://localhost:8080",
+      "description": "Local development server"
+    },
+    {
+      "url": "http://127.0.0.1:8080",
+      "description": "Local development (IP)"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter your JWT token in the format: Bearer <token>"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Invalid request parameters"
+          }
+        }
+      },
+      "Employee": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "role": {
+            "type": "string",
+            "example": "mechanic"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0812345678"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "username": {
+            "type": "string",
+            "example": "johndoe"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 101
+          },
+          "name": {
+            "type": "string",
+            "example": "Alice Smith"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0898765432"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St, Bangkok"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Vehicle": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 501
+          },
+          "customerId": {
+            "type": "integer",
+            "example": 101
+          },
+          "registration": {
+            "type": "string",
+            "example": "กข 1234 กรุงเทพ"
+          },
+          "vinNumber": {
+            "type": "string",
+            "example": "1HGBH41JXMN109186"
+          },
+          "brand": {
+            "type": "string",
+            "example": "Toyota"
+          },
+          "model": {
+            "type": "string",
+            "example": "Camry"
+          },
+          "type": {
+            "type": "string",
+            "example": "Sedan"
+          },
+          "year": {
+            "type": "string",
+            "example": "2022"
+          },
+          "color": {
+            "type": "string",
+            "example": "White"
+          },
+          "registrationProvince": {
+            "type": "string",
+            "example": "กรุงเทพมหานคร"
+          },
+          "registrationProvinceCode": {
+            "type": "string",
+            "example": "10"
+          },
+          "registrationDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2022-03-15T00:00:00Z"
+          },
+          "ownerProvince": {
+            "type": "string",
+            "example": "กรุงเทพมหานคร"
+          },
+          "ownerProvinceCode": {
+            "type": "string",
+            "example": "10"
+          },
+          "ownerDistrict": {
+            "type": "string",
+            "example": "คลองเตย"
+          },
+          "ownerSubDistrict": {
+            "type": "string",
+            "example": "พระโขนง"
+          },
+          "ownerAddress": {
+            "type": "string",
+            "example": "123 ถนนสุขุมวิท"
+          },
+          "ownerPostalCode": {
+            "type": "string",
+            "example": "10110"
+          },
+          "engineNumber": {
+            "type": "string",
+            "example": "2TR-FE-1234567"
+          },
+          "chassisNumber": {
+            "type": "string",
+            "example": "JT12345678"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VehicleBrand": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "code": {
+            "type": "string",
+            "example": "toyota"
+          },
+          "name": {
+            "type": "string",
+            "example": "โตโยต้า"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Toyota"
+          },
+          "country": {
+            "type": "string",
+            "example": "ญี่ปุ่น"
+          },
+          "logoUrl": {
+            "type": "string",
+            "example": "https://vl.imgix.net/img/toyota-logo.png"
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Camry"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "รถเก๋ง (Sedan)"
+                }
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "VehicleType": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "code": {
+            "type": "string",
+            "example": "sedan"
+          },
+          "name": {
+            "type": "string",
+            "example": "รถเก๋ง (Sedan)"
+          },
+          "nameEn": {
+            "type": "string",
+            "example": "Sedan"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InsuranceCompany": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "วิริยะประกันภัย"
+          },
+          "contactPhone": {
+            "type": "string",
+            "example": "1557"
+          },
+          "logoUrl": {
+            "type": "string",
+            "example": "https://www.viriyah.co.th/logo.png"
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Job": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1001
+          },
+          "jobNumber": {
+            "type": "string",
+            "example": "JOB-20240101-001"
+          },
+          "vehicleId": {
+            "type": "integer",
+            "example": 501
+          },
+          "customerId": {
+            "type": "integer",
+            "example": 101
+          },
+          "receiverId": {
+            "type": "integer",
+            "example": 1
+          },
+          "insuranceCompanyId": {
+            "type": "integer",
+            "nullable": true,
+            "example": null
+          },
+          "paymentType": {
+            "type": "string",
+            "enum": [
+              "Insurance",
+              "Cash"
+            ],
+            "example": "Cash"
+          },
+          "excessFee": {
+            "type": "number",
+            "format": "float",
+            "example": 0
+          },
+          "startDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estimatedEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "actualEndDate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "repairDescription": {
+            "type": "string",
+            "example": "Change oil and filter"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentStageIndex": {
+            "type": "integer",
+            "example": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "CLAIM",
+              "REPAIR",
+              "BILLING",
+              "DONE"
+            ],
+            "example": "CLAIM"
+          },
+          "isFinished": {
+            "type": "boolean",
+            "example": false
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StepStatus": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "in_progress",
+          "completed",
+          "skipped"
+        ],
+        "description": "Status of a job step. 'skipped' is only valid for skippable steps (isSkippable: true)"
+      },
+      "JobStep": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "jobStageId": {
+            "type": "integer",
+            "example": 1
+          },
+          "stepTemplateId": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "$ref": "#/components/schemas/StepStatus"
+          },
+          "employeeId": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "stepTemplate": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string",
+                "example": "ถอดชิ้นส่วน"
+              },
+              "orderIndex": {
+                "type": "integer"
+              },
+              "isSkippable": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "employee": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "id": {
+                "type": "integer"
+              },
+              "name": {
+                "type": "string",
+                "example": "John Doe"
+              }
+            }
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "admin"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          }
+        }
+      },
+      "CreateEmployeeRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Jane Doe"
+          },
+          "role": {
+            "type": "string",
+            "example": "staff"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0811112222"
+          },
+          "username": {
+            "type": "string",
+            "example": "janedoe"
+          },
+          "password": {
+            "type": "string",
+            "example": "secret"
+          }
+        }
+      },
+      "CreateCustomerRequest": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Bob Builder"
+          },
+          "phone": {
+            "type": "string",
+            "example": "0822223333"
+          },
+          "address": {
+            "type": "string",
+            "example": "456 Side St"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/v1/private/customers": {
+      "get": {
+        "summary": "Get all customers",
+        "tags": [
+          "Customers"
+        ],
+        "description": "Retrieve a list of all customers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of customers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Customer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/employees": {
+      "get": {
+        "summary": "Get all employees",
+        "tags": [
+          "Employees"
+        ],
+        "description": "Retrieve a list of all employees with pagination and search",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Itmes per page"
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search query (name or username)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of employees",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Employee"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "totalPages": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new employee",
+        "tags": [
+          "Employees"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateEmployeeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Employee created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Employee"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/employees/{id}": {
+      "delete": {
+        "summary": "Delete an employee",
+        "tags": [
+          "Employees"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The employee ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Employee deleted successfully"
+          },
+          "400": {
+            "description": "Invalid ID or delete failed"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/insurances": {
+      "get": {
+        "summary": "Get all insurance companies",
+        "tags": [
+          "Insurance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          },
+          {
+            "in": "query",
+            "name": "q",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search by name or phone"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of insurance companies"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new insurance company",
+        "tags": [
+          "Insurance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "contactPhone": {
+                    "type": "string"
+                  },
+                  "logoUrl": {
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/private/insurances/{id}": {
+      "get": {
+        "summary": "Get insurance company by ID",
+        "tags": [
+          "Insurance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Insurance company details"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an insurance company",
+        "tags": [
+          "Insurance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "contactPhone": {
+                    "type": "string"
+                  },
+                  "logoUrl": {
+                    "type": "string"
+                  },
+                  "isActive": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an insurance company",
+        "tags": [
+          "Insurance"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/private/jobs": {
+      "post": {
+        "summary": "Create a new job",
+        "description": "Create a new job. Either provide vehicleId to reference an existing vehicle,\nor provide a vehicle object to auto-create/find by registration.\nSimilarly, you can provide customerId or a customer object.\n",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "jobNumber",
+                  "startDate"
+                ],
+                "properties": {
+                  "jobNumber": {
+                    "type": "string",
+                    "description": "Unique job number"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "vehicleId": {
+                    "type": "integer",
+                    "description": "ID of existing vehicle (use this OR vehicle object)"
+                  },
+                  "vehicle": {
+                    "type": "object",
+                    "description": "Inline vehicle data (finds by registration or creates new)",
+                    "properties": {
+                      "registration": {
+                        "type": "string",
+                        "description": "Vehicle registration (used for lookup)"
+                      },
+                      "brand": {
+                        "type": "string"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "color": {
+                        "type": "string"
+                      },
+                      "vinNumber": {
+                        "type": "string"
+                      },
+                      "chassisNumber": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "customerId": {
+                    "type": "integer",
+                    "description": "ID of existing customer (use this OR customer object)"
+                  },
+                  "customer": {
+                    "type": "object",
+                    "description": "Inline customer data (finds by name+phone or creates new)",
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "address": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "insuranceCompanyId": {
+                    "type": "integer"
+                  },
+                  "paymentType": {
+                    "type": "string"
+                  },
+                  "repairDescription": {
+                    "type": "string"
+                  },
+                  "excessFee": {
+                    "type": "number"
+                  },
+                  "notes": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Job created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all jobs with filtering",
+        "description": "Retrieve a paginated list of jobs with support for multiple filter criteria including vehicle info, customer details, and date ranges",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number for pagination"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            },
+            "description": "Number of items per page"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CLAIM",
+                "REPAIR",
+                "BILLING",
+                "DONE"
+              ]
+            },
+            "description": "Filter by job status"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search across vehicle registration, VIN, chassis number, customer name, and job number"
+          },
+          {
+            "in": "query",
+            "name": "vehicleRegistration",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by vehicle registration number (ทะเบียนรถ). Alias 'registration' also supported"
+          },
+          {
+            "in": "query",
+            "name": "customerName",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by customer name (ชื่อ-นามสกุล). Alias 'customer' also supported"
+          },
+          {
+            "in": "query",
+            "name": "chassisNumber",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by chassis number (เลขตัวถัง). Alias 'chassis' also supported"
+          },
+          {
+            "in": "query",
+            "name": "vinNumber",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by VIN number. Alias 'vin' also supported"
+          },
+          {
+            "in": "query",
+            "name": "jobNumber",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by job number (เลขที่งาน)"
+          },
+          {
+            "in": "query",
+            "name": "insuranceCompanyId",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter by insurance company ID (บริษัทประกัน)"
+          },
+          {
+            "in": "query",
+            "name": "startDateFrom",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter jobs starting from this date (วันเริ่มต้น ตั้งแต่)"
+          },
+          {
+            "in": "query",
+            "name": "startDateTo",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Filter jobs up to this date (วันเริ่มต้น ถึง)"
+          },
+          {
+            "in": "query",
+            "name": "sortBy",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "jobNumber",
+                "startDate",
+                "status",
+                "createdAt",
+                "updatedAt",
+                "estimatedEndDate",
+                "actualEndDate"
+              ]
+            },
+            "description": "Field to sort by (default is createdAt)"
+          },
+          {
+            "in": "query",
+            "name": "sortOrder",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            },
+            "description": "Sort order - 'asc' for ascending, 'desc' for descending"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of jobs with pagination info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Job"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of jobs matching the filters"
+                    },
+                    "page": {
+                      "type": "integer",
+                      "description": "Current page number"
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "description": "Number of items per page"
+                    },
+                    "totalPages": {
+                      "type": "integer",
+                      "description": "Total number of pages"
+                    },
+                    "statusCounts": {
+                      "type": "object",
+                      "description": "Counts of jobs per status",
+                      "additionalProperties": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/jobs/{id}": {
+      "get": {
+        "summary": "Get job details",
+        "tags": [
+          "Jobs"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Job details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "jobNumber": {
+                      "type": "string"
+                    },
+                    "vehicleId": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "CLAIM",
+                        "REPAIR",
+                        "BILLING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/jobs/steps/{stepId}": {
+      "patch": {
+        "summary": "Update a job step's status",
+        "description": "Update a step's status. employeeId is required when status is 'completed' or 'in_progress'",
+        "tags": [
+          "Jobs"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "stepId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "status"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "in_progress",
+                      "completed",
+                      "skipped"
+                    ]
+                  },
+                  "employeeId": {
+                    "type": "integer",
+                    "description": "Required when status is 'completed' or 'in_progress'"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Step updated successfully"
+          },
+          "400": {
+            "description": "Invalid request or missing employeeId"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles": {
+      "get": {
+        "summary": "Get all vehicles or find by registration",
+        "description": "Returns paginated list of all vehicles. If `reg` parameter is provided, returns exact match by registration number (for job prefill).",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "reg",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Exact registration number to lookup (e.g., \"กข1234\"). Returns empty array if not found.",
+            "example": "กข1234"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vehicles (or single vehicle if reg parameter provided)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Vehicle"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new vehicle",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "registration",
+                  "brand",
+                  "customerId"
+                ],
+                "properties": {
+                  "registration": {
+                    "type": "string",
+                    "example": "กข 1234 กรุงเทพ"
+                  },
+                  "brand": {
+                    "type": "string",
+                    "example": "Toyota"
+                  },
+                  "model": {
+                    "type": "string",
+                    "example": "Camry"
+                  },
+                  "year": {
+                    "type": "string",
+                    "example": "2023"
+                  },
+                  "color": {
+                    "type": "string",
+                    "example": "White"
+                  },
+                  "vinNumber": {
+                    "type": "string",
+                    "example": "1HGBH41JXMN109186"
+                  },
+                  "customerId": {
+                    "type": "integer"
+                  },
+                  "registrationProvince": {
+                    "type": "string",
+                    "example": "กรุงเทพมหานคร"
+                  },
+                  "registrationProvinceCode": {
+                    "type": "string",
+                    "example": "10"
+                  },
+                  "registrationDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "ownerProvince": {
+                    "type": "string",
+                    "example": "กรุงเทพมหานคร"
+                  },
+                  "ownerProvinceCode": {
+                    "type": "string",
+                    "example": "10"
+                  },
+                  "ownerDistrict": {
+                    "type": "string",
+                    "example": "คลองเตย"
+                  },
+                  "ownerSubDistrict": {
+                    "type": "string",
+                    "example": "พระโขนง"
+                  },
+                  "ownerAddress": {
+                    "type": "string",
+                    "example": "123 ถนนสุขุมวิท"
+                  },
+                  "ownerPostalCode": {
+                    "type": "string",
+                    "example": "10110"
+                  },
+                  "engineNumber": {
+                    "type": "string",
+                    "example": "2TR-FE-1234567"
+                  },
+                  "chassisNumber": {
+                    "type": "string",
+                    "example": "JT12345678"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Vehicle"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles/brands": {
+      "get": {
+        "summary": "Get all vehicle brands with logos",
+        "tags": [
+          "Vehicles"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vehicle brands",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleBrand"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new vehicle brand",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "name",
+                  "nameEn",
+                  "country"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "toyota"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "โตโยต้า"
+                  },
+                  "nameEn": {
+                    "type": "string",
+                    "example": "Toyota"
+                  },
+                  "country": {
+                    "type": "string",
+                    "example": "ญี่ปุ่น"
+                  },
+                  "logoUrl": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle brand created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles/brands/{id}": {
+      "get": {
+        "summary": "Get a vehicle brand by ID",
+        "tags": [
+          "Vehicles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle brand details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleBrand"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a vehicle brand",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "nameEn": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  },
+                  "logoUrl": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle brand updated"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vehicle brand",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle brand deleted"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles/{id}": {
+      "patch": {
+        "summary": "Update a vehicle",
+        "tags": [
+          "Vehicles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "registration": {
+                    "type": "string"
+                  },
+                  "brand": {
+                    "type": "string"
+                  },
+                  "model": {
+                    "type": "string"
+                  },
+                  "year": {
+                    "type": "string"
+                  },
+                  "color": {
+                    "type": "string"
+                  },
+                  "vinNumber": {
+                    "type": "string"
+                  },
+                  "registrationProvince": {
+                    "type": "string"
+                  },
+                  "registrationProvinceCode": {
+                    "type": "string"
+                  },
+                  "registrationDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "ownerProvince": {
+                    "type": "string"
+                  },
+                  "ownerProvinceCode": {
+                    "type": "string"
+                  },
+                  "ownerDistrict": {
+                    "type": "string"
+                  },
+                  "ownerSubDistrict": {
+                    "type": "string"
+                  },
+                  "ownerAddress": {
+                    "type": "string"
+                  },
+                  "ownerPostalCode": {
+                    "type": "string"
+                  },
+                  "engineNumber": {
+                    "type": "string"
+                  },
+                  "chassisNumber": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle updated"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vehicle",
+        "tags": [
+          "Vehicles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle deleted"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles/types": {
+      "get": {
+        "summary": "Get all vehicle types",
+        "tags": [
+          "Vehicles"
+        ],
+        "responses": {
+          "200": {
+            "description": "List of vehicle types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VehicleType"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new vehicle type",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "code",
+                  "name",
+                  "nameEn"
+                ],
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "example": "suv"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "SUV"
+                  },
+                  "nameEn": {
+                    "type": "string",
+                    "example": "SUV"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Vehicle type created"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/private/vehicles/types/{id}": {
+      "get": {
+        "summary": "Get a vehicle type by ID",
+        "tags": [
+          "Vehicles"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle type details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleType"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Type not found"
+          }
+        }
+      },
+      "patch": {
+        "summary": "Update a vehicle type",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "nameEn": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle type updated"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a vehicle type",
+        "tags": [
+          "Vehicles"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Vehicle type deleted"
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT required"
+          }
+        }
+      }
+    },
+    "/api/v1/public/auth/login": {
+      "post": {
+        "summary": "User login",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string",
+                      "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/Employee"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing fields",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/auth/logout": {
+      "post": {
+        "summary": "User logout",
+        "tags": [
+          "Auth"
+        ],
+        "description": "Invalidate the user session (client-side token removal).",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Logout successful"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
