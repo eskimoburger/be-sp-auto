@@ -7,13 +7,22 @@ const vehicleRoutes = new Hono();
  * @swagger
  * /api/v1/private/vehicles:
  *   get:
- *     summary: Get all vehicles
+ *     summary: Get all vehicles or find by registration
+ *     description: Returns paginated list of all vehicles. If `reg` parameter is provided, returns exact match by registration number (for job prefill).
  *     tags: [Vehicles]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: reg
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Exact registration number to lookup (e.g., "กข1234"). Returns empty array if not found.
+ *         example: "กข1234"
  *     responses:
  *       200:
- *         description: List of vehicles
+ *         description: List of vehicles (or single vehicle if reg parameter provided)
  *         content:
  *           application/json:
  *             schema:

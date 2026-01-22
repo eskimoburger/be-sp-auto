@@ -17,7 +17,8 @@ export class VehicleService {
 
     static async findByRegistration(registration: string) {
         return await prisma.vehicle.findUnique({
-            where: { registration }
+            where: { registration },
+            include: { customer: true }
         });
     }
 
@@ -35,12 +36,7 @@ export class VehicleService {
 
     static async getBrands() {
         return await prisma.vehicleBrand.findMany({
-            orderBy: { nameEn: "asc" },
-            include: {
-                models: {
-                    include: { type: true }
-                }
-            }
+            orderBy: { nameEn: "asc" }
         });
     }
 
