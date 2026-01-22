@@ -1,0 +1,1371 @@
+export const DEMO_APP_HTML = `<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SP Auto Service - ระบบจัดการงานซ่อม</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --primary-light: #60a5fa;
+            --success: #22c55e;
+            --success-light: #86efac;
+            --warning: #f59e0b;
+            --warning-light: #fcd34d;
+            --danger: #ef4444;
+            --info: #06b6d4;
+
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-sidebar: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-sidebar);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo h1 {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-top: auto;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--info) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.claim {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #b45309;
+        }
+
+        .stat-icon.repair {
+            background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+            color: #1d4ed8;
+        }
+
+        .stat-icon.billing {
+            background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+            color: #047857;
+        }
+
+        .stat-icon.done {
+            background: linear-gradient(135deg, #f3e8ff 0%, #c4b5fd 100%);
+            color: #7c3aed;
+        }
+
+        .stat-info h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Job Cards */
+        .jobs-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .filter-tab.active,
+        .filter-tab:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .jobs-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .job-card {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 1.5rem;
+            padding: 1.25rem;
+            background: var(--bg);
+            border-radius: 12px;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .job-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow);
+        }
+
+        .job-card.selected {
+            border-color: var(--primary);
+            background: linear-gradient(to right, rgba(59, 130, 246, 0.05), transparent);
+        }
+
+        .job-info h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .job-info p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .job-vehicle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vehicle-brand {
+            padding: 0.25rem 0.5rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* Workflow Progress */
+        .workflow-progress {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--border);
+            color: var(--text-muted);
+        }
+
+        .step-dot.completed {
+            background: var(--success);
+            color: white;
+        }
+
+        .step-dot.current {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(59, 130, 246, 0);
+            }
+        }
+
+        .step-connector {
+            width: 40px;
+            height: 3px;
+            background: var(--border);
+        }
+
+        .step-connector.completed {
+            background: var(--success);
+        }
+
+        .step-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .step-label.current {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .job-actions {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        /* Job Detail Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(20px);
+            transition: transform 0.3s;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-card);
+            z-index: 10;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        /* Workflow Stages */
+        .stage-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .stage-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .stage-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .stage-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .stage-dot {
+            position: absolute;
+            left: -2rem;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+
+        .stage-dot.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .stage-dot.current {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .stage-dot.locked {
+            background: var(--bg);
+            color: var(--text-muted);
+        }
+
+        .stage-content {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-left: 0.5rem;
+        }
+
+        .stage-content.current {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border: 1px solid var(--primary-light);
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stage-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stage-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .stage-badge.claim {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .stage-badge.repair {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .stage-badge.billing {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        /* Steps List */
+        .steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .step-checkbox {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .step-checkbox.completed {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step-checkbox.in_progress {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .step-checkbox:hover {
+            border-color: var(--primary);
+        }
+
+        .step-name {
+            flex: 1;
+        }
+
+        .step-name.completed {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        .step-skip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            padding: 0.2rem 0.5rem;
+            background: var(--bg);
+            border-radius: 4px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .login-logo h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-logo p {
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        /* Employee Selection Modal */
+        .employee-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            z-index: 2000;
+            min-width: 320px;
+            max-width: 400px;
+        }
+
+        .employee-modal h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .employee-modal select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-family: inherit;
+        }
+
+        .employee-modal .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .employee-modal .btn-cancel {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .employee-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .job-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <div class="login-logo-icon">
+                    <span class="material-symbols-outlined" style="font-size: 2rem;">build</span>
+                </div>
+                <h2>SP Auto Service</h2>
+                <p>ระบบจัดการงานซ่อมรถยนต์</p>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>ชื่อผู้ใช้</label>
+                    <input type="text" id="loginUsername" value="admin1" placeholder="กรอกชื่อผู้ใช้" />
+                </div>
+                <div class="form-group">
+                    <label>รหัสผ่าน</label>
+                    <input type="password" id="loginPassword" value="123456" placeholder="กรอกรหัสผ่าน" />
+                </div>
+                <button type="submit" class="btn btn-login">
+                    <span class="material-symbols-outlined">login</span>
+                    เข้าสู่ระบบ
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-layout hidden" id="mainApp">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">
+                    <span class="material-symbols-outlined">build</span>
+                </div>
+                <h1>SP Auto Service</h1>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        แดชบอร์ด
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-symbols-outlined">work</span>
+                        งานซ่อม
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-symbols-outlined">people</span>
+                        ลูกค้า
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-symbols-outlined">directions_car</span>
+                        รถยนต์
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <span class="material-symbols-outlined">groups</span>
+                        พนักงาน
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" onclick="handleLogout()">
+                        <span class="material-symbols-outlined">logout</span>
+                        ออกจากระบบ
+                    </a>
+                </li>
+            </ul>
+
+            <div class="user-profile">
+                <div class="avatar" id="userAvatar">A</div>
+                <div class="user-info">
+                    <div class="user-name" id="userName">Admin</div>
+                    <div class="user-role" id="userRole">ผู้ดูแลระบบ</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">แดชบอร์ดงานซ่อม</h1>
+                <button class="btn" onclick="createNewJob()">
+                    <span class="material-symbols-outlined">add</span>
+                    สร้างงานใหม่
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon claim">
+                        <span class="material-symbols-outlined">description</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statClaim">0</h3>
+                        <p>เคลม</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon repair">
+                        <span class="material-symbols-outlined">build</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statRepair">0</h3>
+                        <p>ซ่อม</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon billing">
+                        <span class="material-symbols-outlined">receipt_long</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statBilling">0</h3>
+                        <p>วางบิล</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon done">
+                        <span class="material-symbols-outlined">check_circle</span>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="statDone">0</h3>
+                        <p>เสร็จสิ้น</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jobs List -->
+            <div class="jobs-section">
+                <div class="section-header">
+                    <h2 class="section-title">รายการงานซ่อม</h2>
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" onclick="filterJobs('all')">ทั้งหมด</button>
+                        <button class="filter-tab" onclick="filterJobs('claim')">เคลม</button>
+                        <button class="filter-tab" onclick="filterJobs('repair')">ซ่อม</button>
+                        <button class="filter-tab" onclick="filterJobs('billing')">วางบิล</button>
+                    </div>
+                </div>
+                <div class="jobs-list" id="jobsList">
+                    <!-- Jobs will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Job Detail Modal -->
+    <div class="modal-overlay" id="jobModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalJobNumber">รายละเอียดงาน</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="stage-timeline" id="stageTimeline">
+                    <!-- Stages will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Selection Modal -->
+    <div id="employeeModalBackdrop" class="employee-backdrop hidden" onclick="closeEmployeeModal()"></div>
+    <div id="employeeModal" class="employee-modal hidden">
+        <h3>เลือกพนักงานที่รับผิดชอบ</h3>
+        <select id="employeeSelect">
+            <option value="">-- เลือกพนักงาน --</option>
+        </select>
+        <div class="btn-group">
+            <button class="btn btn-cancel" onclick="closeEmployeeModal()">ยกเลิก</button>
+            <button class="btn" onclick="confirmStepUpdate()">ยืนยัน</button>
+        </div>
+    </div>
+
+    <script>
+        let token = localStorage.getItem('sp_token') || '';
+        let currentUser = null;
+        let jobs = [];
+        let employees = [];
+        let pendingStepUpdate = null; // { jobId, stepId, newStatus }
+
+        const API = {
+            async call(method, url, body = null) {
+                const headers = { 'Content-Type': 'application/json' };
+                if (token) headers['Authorization'] = \`Bearer \${token}\`;
+                const options = { method, headers };
+                if (body) options.body = JSON.stringify(body);
+                const res = await fetch(url, options);
+                return res.json();
+            }
+        };
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const data = await API.call('POST', '/api/v1/public/auth/login', { username, password });
+                if (data.token) {
+                    token = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('sp_token', token);
+                    showMainApp();
+                    loadJobs();
+                    loadEmployees();
+                } else {
+                    alert('เข้าสู่ระบบไม่สำเร็จ: ' + (data.error || 'Unknown error'));
+                }
+            } catch (err) {
+                alert('เกิดข้อผิดพลาด: ' + err.message);
+            }
+        }
+
+        function handleLogout() {
+            token = '';
+            currentUser = null;
+            localStorage.removeItem('sp_token');
+            showLoginScreen();
+        }
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.name || currentUser.username;
+                document.getElementById('userAvatar').textContent = (currentUser.name || currentUser.username).charAt(0).toUpperCase();
+                document.getElementById('userRole').textContent = currentUser.role === 'admin' ? 'ผู้ดูแลระบบ' : 'พนักงาน';
+            }
+        }
+
+        async function loadJobs() {
+            try {
+                const data = await API.call('GET', '/api/v1/private/jobs');
+                jobs = data.data || [];
+                renderStats();
+                renderJobs(jobs);
+            } catch (err) {
+                console.error('Failed to load jobs:', err);
+            }
+        }
+
+        function renderStats() {
+            const claim = jobs.filter(j => j.status === 'claim').length;
+            const repair = jobs.filter(j => j.status === 'repair').length;
+            const billing = jobs.filter(j => j.status === 'billing').length;
+            const done = jobs.filter(j => j.status === 'done').length;
+
+            document.getElementById('statClaim').textContent = claim;
+            document.getElementById('statRepair').textContent = repair;
+            document.getElementById('statBilling').textContent = billing;
+            document.getElementById('statDone').textContent = done;
+        }
+
+        function getStageProgress(job) {
+            const status = job.status || 'claim';
+            const stages = ['claim', 'repair', 'billing', 'done'];
+            const currentIdx = stages.indexOf(status);
+            return { stages, currentIdx };
+        }
+
+        function renderJobs(jobsToRender) {
+            const container = document.getElementById('jobsList');
+            if (jobsToRender.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;">ไม่พบรายการงาน</p>';
+                return;
+            }
+
+            container.innerHTML = jobsToRender.map(job => {
+                const { stages, currentIdx } = getStageProgress(job);
+                const vehicle = job.vehicle || {};
+                const customer = job.customer || vehicle.customer || {};
+
+                return \`
+                    <div class="job-card" onclick="openJobDetail(\${job.id})">
+                        <div class="job-info">
+                            <h4>\${job.jobNumber}</h4>
+                            <p>\${customer.name || 'ไม่ระบุลูกค้า'}</p>
+                        </div>
+                        <div>
+                            <div class="job-vehicle">
+                                <span class="vehicle-brand">\${vehicle.brand || 'N/A'}</span>
+                                <span>\${vehicle.model || ''} - \${vehicle.registration || ''}</span>
+                            </div>
+                            <div class="workflow-progress" style="margin-top: 0.75rem;">
+                                \${stages.slice(0, 3).map((stage, idx) => \`
+                                    <div class="progress-step">
+                                        <div class="step-dot \${idx < currentIdx ? 'completed' : idx === currentIdx ? 'current' : ''}">
+                                            \${idx < currentIdx ? '✓' : idx + 1}
+                                        </div>
+                                        <span class="step-label \${idx === currentIdx ? 'current' : ''}">\${getStageLabel(stage)}</span>
+                                    </div>
+                                    \${idx < 2 ? \`<div class="step-connector \${idx < currentIdx ? 'completed' : ''}"></div>\` : ''}
+                                \`).join('')}
+                            </div>
+                        </div>
+                        <div class="job-actions">
+                            <button class="btn btn-outline" onclick="event.stopPropagation(); openJobDetail(\${job.id})">
+                                <span class="material-symbols-outlined">visibility</span>
+                                ดูรายละเอียด
+                            </button>
+                        </div>
+                    </div>
+                \`;
+            }).join('');
+        }
+
+        function getStageLabel(stage) {
+            const labels = { claim: 'เคลม', repair: 'ซ่อม', billing: 'วางบิล', done: 'เสร็จ' };
+            return labels[stage] || stage;
+        }
+
+        function filterJobs(status) {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (status === 'all') {
+                renderJobs(jobs);
+            } else {
+                renderJobs(jobs.filter(j => j.status === status));
+            }
+        }
+
+        async function openJobDetail(jobId) {
+            try {
+                const job = await API.call('GET', \`/api/v1/private/jobs/\${jobId}\`);
+                renderJobModal(job);
+                document.getElementById('jobModal').classList.add('active');
+            } catch (err) {
+                alert('ไม่สามารถโหลดรายละเอียดงานได้');
+            }
+        }
+
+        function renderJobModal(job) {
+            document.getElementById('modalJobNumber').textContent = \`งาน: \${job.jobNumber}\`;
+
+            const stages = job.jobStages || [];
+            const timeline = document.getElementById('stageTimeline');
+
+            timeline.innerHTML = stages.map((stage, idx) => {
+                const isLocked = stage.isLocked;
+                const stageInfo = stage.stage || {};
+                const steps = stage.jobSteps || [];
+                const allDone = steps.length > 0 && steps.every(s => s.status === 'completed');
+                const someDone = steps.some(s => s.status === 'completed' || s.status === 'in_progress');
+
+                let dotClass = isLocked ? 'locked' : (allDone ? 'completed' : 'current');
+                let contentClass = !isLocked && !allDone ? 'current' : '';
+
+                return \`
+                    <div class="stage-item">
+                        <div class="stage-dot \${dotClass}">
+                            \${allDone ? '<span class="material-symbols-outlined" style="font-size:1rem">check</span>' :
+                        isLocked ? '<span class="material-symbols-outlined" style="font-size:1rem">lock</span>' :
+                            '<span class="material-symbols-outlined" style="font-size:1rem">pending</span>'}
+                        </div>
+                        <div class="stage-content \${contentClass}">
+                            <div class="stage-header">
+                                <span class="stage-name">
+                                    \${stageInfo.name || stage.stageName || \`Stage \${idx + 1}\`}
+                                    <span class="stage-badge \${stageInfo.code}">\${stageInfo.name || ''}</span>
+                                </span>
+                                \${isLocked ? '<span style="font-size:0.8rem;color:var(--text-muted)">🔒 ล็อค</span>' : ''}
+                            </div>
+                            <div class="steps-list">
+                                \${steps.map(step => {
+                                const template = step.stepTemplate || {};
+                                const status = step.status || 'pending';
+                                const employee = step.employee;
+                                return \`
+                                        <div class="step-item">
+                                            <div class="step-checkbox \${status}" onclick="toggleStep(\${job.id}, \${step.id}, '\${status}')">
+                                                \${status === 'completed' ? '<span class="material-symbols-outlined" style="font-size:1rem">check</span>' :
+                                        status === 'in_progress' ? '<span class="material-symbols-outlined" style="font-size:1rem">more_horiz</span>' : ''}
+                                            </div>
+                                            <span class="step-name \${status === 'completed' ? 'completed' : ''}">\${template.name || step.stepName || 'Step'}</span>
+                                            \${employee ? \`<span class="step-skip" style="background:#dbeafe;color:#1d4ed8">👤 \${employee.name}</span>\` : ''}
+                                            \${template.isSkippable ? '<span class="step-skip">ข้ามได้</span>' : ''}
+                                        </div>
+                                    \`;
+                            }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                \`;
+            }).join('');
+        }
+
+        function closeModal() {
+            document.getElementById('jobModal').classList.remove('active');
+        }
+
+        async function toggleStep(jobId, stepId, currentStatus) {
+            // Cycle through statuses: pending -> in_progress -> completed -> pending
+            const nextStatus = {
+                'pending': 'in_progress',
+                'in_progress': 'completed',
+                'completed': 'pending',
+                'skipped': 'pending'
+            };
+            const newStatus = nextStatus[currentStatus] || 'in_progress';
+
+            // If going to in_progress or completed, show employee selection
+            if (newStatus === 'in_progress' || newStatus === 'completed') {
+                pendingStepUpdate = { jobId, stepId, newStatus };
+                openEmployeeModal();
+            } else {
+                // For pending/skipped, no employee needed
+                try {
+                    await API.call('PATCH', \`/api/v1/private/jobs/steps/\${stepId}\`, { status: newStatus });
+                    await loadJobs();
+                    openJobDetail(jobId);
+                } catch (err) {
+                    alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
+                }
+            }
+        }
+
+        async function loadEmployees() {
+            try {
+                const data = await API.call('GET', '/api/v1/private/employees');
+                employees = data.data || [];
+            } catch (err) {
+                console.error('Failed to load employees:', err);
+            }
+        }
+
+        function openEmployeeModal() {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">-- เลือกพนักงาน --</option>';
+
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = \`\${emp.name} (\${emp.role})\`;
+                // Pre-select current user
+                if (currentUser && emp.id === currentUser.id) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+            });
+
+            document.getElementById('employeeModalBackdrop').classList.remove('hidden');
+            document.getElementById('employeeModal').classList.remove('hidden');
+        }
+
+        function closeEmployeeModal() {
+            document.getElementById('employeeModalBackdrop').classList.add('hidden');
+            document.getElementById('employeeModal').classList.add('hidden');
+            pendingStepUpdate = null;
+        }
+
+        async function confirmStepUpdate() {
+            if (!pendingStepUpdate) return;
+
+            const employeeId = document.getElementById('employeeSelect').value;
+            if (!employeeId) {
+                alert('กรุณาเลือกพนักงาน');
+                return;
+            }
+
+            const { jobId, stepId, newStatus } = pendingStepUpdate;
+
+            try {
+                await API.call('PATCH', \`/api/v1/private/jobs/steps/\${stepId}\`, {
+                    status: newStatus,
+                    employeeId: Number(employeeId)
+                });
+                closeEmployeeModal();
+                // Reload jobs first to get updated status/workflow
+                await loadJobs();
+                // Then re-render the modal with fresh data
+                openJobDetail(jobId);
+            } catch (err) {
+                alert('ไม่สามารถอัพเดทสถานะได้: ' + err.message);
+            }
+        }
+
+        async function createNewJob() {
+            const ts = Date.now();
+            try {
+                // Create customer
+                const cust = await API.call('POST', '/api/v1/private/customers', {
+                    name: \`ลูกค้าทดสอบ \${ts}\`,
+                    phone: '0812345678'
+                });
+
+                // Create vehicle
+                const veh = await API.call('POST', '/api/v1/private/vehicles', {
+                    registration: \`TEST-\${ts}\`,
+                    brand: 'Toyota',
+                    model: 'Camry',
+                    customerId: cust.id
+                });
+
+                // Create job
+                await API.call('POST', '/api/v1/private/jobs', {
+                    jobNumber: \`JOB-\${ts}\`,
+                    vehicleId: veh.id,
+                    customerId: cust.id,
+                    startDate: new Date().toISOString()
+                });
+
+                loadJobs();
+            } catch (err) {
+                alert('เกิดข้อผิดพลาดในการสร้างงาน: ' + err.message);
+            }
+        }
+
+        // Initialize
+        if (token) {
+            showMainApp();
+            loadJobs();
+            loadEmployees();
+        } else {
+            showLoginScreen();
+        }
+
+        // Close modal on overlay click
+        document.getElementById('jobModal').addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal-overlay')) closeModal();
+        });
+    </script>
+</body>
+
+</html>`;
